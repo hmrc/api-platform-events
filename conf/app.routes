@@ -1,0 +1,5 @@
+# microservice specific routes
+
+GET         /entities                       @uk.gov.hmrc.apiplatformevents.controllers.ApiPlatformEventsController.entities
+GET         /entities/:utr                  @uk.gov.hmrc.apiplatformevents.controllers.ApiPlatformEventsController.entitiesByUtr(utr:uk.gov.hmrc.agentmtdidentifiers.model.Utr)
+
