@@ -19,12 +19,13 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.core.errors.DatabaseException
+import uk.gov.hmrc.apiplatformevents.models.ApiPlatformEventsModel
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApiPlatformEventsWithMongodbRepositoryISpec extends UnitSpec with MongoApp {
+class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -34,34 +35,25 @@ class ApiPlatformEventsWithMongodbRepositoryISpec extends UnitSpec with MongoApp
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  def repo: ApiPlatformEventsWithMongodbRepository =
-    app.injector.instanceOf[ApiPlatformEventsWithMongodbRepository]
+  def repo: ApiPlatformEventsRepository =
+    app.injector.instanceOf[ApiPlatformEventsRepository]
 
   override def beforeEach() {
     super.beforeEach()
     await(repo.ensureIndexes)
   }
 
+  val model = ApiPlatformEventsDBModel(parameter1 = "John Smith",
+    parameter2 = None,
+    telephoneNumber = Some("12313"),
+    emailAddress =
+      Some("john.smith@email.com"))
+
   "createEntity" should {
     "create an entity" in {
-      await(repo.createEntity("foo", "bar"))
-
-      val result = await(repo.find())
-
-      result.size shouldBe 1
-      result.head.id shouldBe "foo"
-      result.head.dummy shouldBe "bar"
-
+      await(repo.createEntity(model))
+      await(repo.find())
     }
 
-    "not allow duplicate entities to be created for the same id" in {
-      await(repo.createEntity("foo", "bar"))
-
-      val e = intercept[DatabaseException] {
-        await(repo.createEntity("foo", "bar"))
-      }
-
-      e.getMessage() should include("E11000")
-    }
   }
 }

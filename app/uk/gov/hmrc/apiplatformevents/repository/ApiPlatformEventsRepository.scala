@@ -31,40 +31,27 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import scala.collection.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
-case class ApiPlatformEventsWithMongodbEntity(id: String, dummy: String)
+case class ApiPlatformEventsDBModel(parameter1: String,
+                                    parameter2: Option[String],
+                                    telephoneNumber: Option[String],
+                                    emailAddress: Option[String])
 
-object ApiPlatformEventsWithMongodbEntity extends ReactiveMongoFormats {
-  implicit val formats: Format[ApiPlatformEventsWithMongodbEntity] =
-    format[ApiPlatformEventsWithMongodbEntity]
+object ApiPlatformEventsDBModel extends ReactiveMongoFormats {
+  implicit val formats: Format[ApiPlatformEventsDBModel] =
+    format[ApiPlatformEventsDBModel]
 }
 
 @Singleton
-class ApiPlatformEventsWithMongodbRepository @Inject()(
+class ApiPlatformEventsRepository @Inject()(
     mongoComponent: ReactiveMongoComponent)
-    extends ReactiveRepository[ApiPlatformEventsWithMongodbEntity,
-                               BSONObjectID](
-      "api-platform-events-with-mongodb",
+    extends ReactiveRepository[ApiPlatformEventsDBModel, BSONObjectID](
+      "api-platform-events",
       mongoComponent.mongoConnector.db,
-      ApiPlatformEventsWithMongodbEntity.formats,
-      ReactiveMongoFormats.objectIdFormats)
-    with StrictlyEnsureIndexes[ApiPlatformEventsWithMongodbEntity, BSONObjectID] {
+      ApiPlatformEventsDBModel.formats,
+      ReactiveMongoFormats.objectIdFormats) {
 
-  def findBy(id: String)(implicit ec: ExecutionContext)
-    : Future[List[ApiPlatformEventsWithMongodbEntity]] =
-    find(Seq("id" -> Some(id)).map(option =>
-      option._1 -> toJsFieldJsValueWrapper(option._2.get)): _*)
-
-  override def indexes = Seq(
-    Index(Seq("id" -> Ascending),
-          Some("ApiPlatformEventsWithMongodb"),
-          unique = true)
-  )
-
-  def createEntity(id: String, dummy: String)(
+  def createEntity(event: ApiPlatformEventsDBModel)(
       implicit ec: ExecutionContext): Future[Unit] =
-    insert(ApiPlatformEventsWithMongodbEntity(id, dummy)).map(_ => ())
-
-  def delete(id: String)(implicit ec: ExecutionContext): Future[WriteResult] =
-    remove("id" -> id)
+    insert(event).map(_ => ())
 
 }

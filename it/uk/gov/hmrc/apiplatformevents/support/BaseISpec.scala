@@ -9,19 +9,17 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatformevents.stubs.DataStreamStubs
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.test.UnitSpec
 
 abstract class BaseISpec
-  extends UnitSpec with WireMockSupport with DataStreamStubs with MetricsTestSupport {
+  extends UnitSpec with WireMockSupport  with MetricsTestSupport {
 
   def app: Application
   protected def appBuilder: GuiceApplicationBuilder
 
   override def commonStubs(): Unit = {
     givenCleanMetricRegistry()
-    givenAuditConnector()
   }
 
   protected implicit def materializer: Materializer = app.materializer

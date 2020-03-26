@@ -15,10 +15,8 @@
  */
 
 import com.google.inject.AbstractModule
-import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.auth.core.AuthConnector
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.apiplatformevents.connectors.MicroserviceAuthConnector
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 class MicroserviceModule(val environment: Environment,
@@ -26,12 +24,7 @@ class MicroserviceModule(val environment: Environment,
     extends AbstractModule {
 
   def configure(): Unit = {
-    val appName = "api-platform-events"
-    Logger(getClass).info(
-      s"Starting microservice : $appName : in mode : ${environment.mode}")
-
     bind(classOf[HttpGet]).to(classOf[DefaultHttpClient])
     bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
-    bind(classOf[AuthConnector]).to(classOf[MicroserviceAuthConnector])
   }
 }

@@ -17,34 +17,24 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.Json.toJson
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.agentmtdidentifiers.model.Utr
-import uk.gov.hmrc.apiplatformevents.connectors.MicroserviceAuthConnector
-import uk.gov.hmrc.apiplatformevents.models.ApiPlatformEventsModel
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApiPlatformEventsController @Inject()(
-    val authConnector: MicroserviceAuthConnector,
-    val env: Environment,
-    cc: ControllerComponents)(implicit val configuration: Configuration,
-                              ec: ExecutionContext)
-    extends BackendController(cc)
-    with AuthActions {
+class ApiPlatformEventsController @Inject()(val env: Environment,
+                                            cc: ControllerComponents)(
+    implicit val configuration: Configuration,
+    ec: ExecutionContext)
+    extends BackendController(cc) {
 
-  def entities: Action[AnyContent] = Action.async { implicit request =>
+  def helloworld: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(
-      Ok(toJson(ApiPlatformEventsModel("hello world", None, None, None))))
-  }
+      Ok
+    )
 
-  def entitiesByUtr(utr: Utr): Action[AnyContent] = Action.async {
-    implicit request =>
-      Future.successful(
-        Ok(toJson(ApiPlatformEventsModel(s"hello $utr", None, None, None))))
   }
 
 }

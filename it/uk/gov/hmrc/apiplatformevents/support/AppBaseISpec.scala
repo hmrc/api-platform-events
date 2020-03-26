@@ -1,10 +1,9 @@
 package uk.gov.hmrc.apiplatformevents.support
 
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import uk.gov.hmrc.apiplatformevents.stubs.AuthStubs
 
-abstract class AppBaseISpec extends BaseISpec with OneAppPerSuite with TestApplication with AuthStubs {
+abstract class AppBaseISpec extends BaseISpec with GuiceOneAppPerSuite with TestApplication {
 
   override implicit lazy val app: Application = appBuilder.build()
 

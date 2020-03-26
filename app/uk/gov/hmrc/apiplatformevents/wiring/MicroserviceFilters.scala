@@ -27,14 +27,7 @@ import uk.gov.hmrc.play.bootstrap.filters.{
 }
 
 @Singleton
-class MicroserviceFilters @Inject()(
-    metricsFilter: MetricsFilter,
-    auditFilter: AuditFilter,
-    loggingFilter: LoggingFilter,
-    cacheFilter: CacheControlFilter,
-    monitoringFilter: MicroserviceMonitoringFilter)
-    extends DefaultHttpFilters(metricsFilter,
-                               monitoringFilter,
-                               auditFilter,
-                               loggingFilter,
-                               cacheFilter)
+class MicroserviceFilters @Inject()(metricsFilter: MetricsFilter,
+                                    loggingFilter: LoggingFilter,
+                                    cacheFilter: CacheControlFilter)
+    extends DefaultHttpFilters(metricsFilter, loggingFilter, cacheFilter)

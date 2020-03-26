@@ -10,23 +10,22 @@ class ApiPlatformEventsControllerISpec extends ServerBaseISpec {
 
   this: Suite with ServerProvider =>
 
-  val url = s"http://localhost:$port/api-platform-events-with-mongodb"
+  val url = s"http://localhost:$port/api-platform-events"
 
   val wsClient = app.injector.instanceOf[WSClient]
 
   def entity(): WSResponse =
     wsClient
-      .url(s"$url/entities")
+      .url(s"$url/helloworld")
       .get()
       .futureValue
 
   "ApiPlatformEventsController" when {
 
-    "GET /entities" should {
-      "respond with some data" in {
+    "GET /helloworld" should {
+      "respond with 200" in {
         val result = entity()
         result.status shouldBe 200
-        result.json shouldBe Json.obj("parameter1" -> "hello world")
       }
     }
   }
