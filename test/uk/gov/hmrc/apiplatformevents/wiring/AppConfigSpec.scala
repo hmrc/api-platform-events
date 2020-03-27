@@ -16,28 +16,26 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
-import com.google.inject.ImplementedBy
-import javax.inject.Inject
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.test.UnitSpec
+import org.mockito.Mockito.when
 
-@ImplementedBy(classOf[AppConfigImpl])
-trait AppConfig {
+class AppConfigSpec extends UnitSpec with MockitoSugar {
 
-  val appName: String
+  private val mockServiceConfig = mock[ServicesConfig]
+  private val appName = "TestAppName"
 
-  val someInt: Int
-  val someBoolean: Boolean
+  trait Setup {
+    when(mockServiceConfig.getString("appName")).thenReturn(appName)
+    val objInTest = new AppConfigImpl(mockServiceConfig)
+  }
 
-  val authBaseUrl: String
-  val fooBaseUrl: String
-}
+  "appconfig" should {
 
-class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
-  val appName: String = config.getString("appName")
+    "returns value from service config when called" in new Setup {
+      objInTest.appName shouldBe appName
+    }
+  }
 
-  val someInt: Int = config.getInt("someInt")
-  val someBoolean: Boolean = config.getBoolean("someBoolean")
-
-  val authBaseUrl: String = config.baseUrl("auth")
-  val fooBaseUrl: String = config.baseUrl("foo")
 }

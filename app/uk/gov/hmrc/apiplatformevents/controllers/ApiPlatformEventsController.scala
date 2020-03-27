@@ -32,7 +32,7 @@ class ApiPlatformEventsController @Inject()(val env: Environment,
 
   def helloworld: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(
-      Ok
+      Ok("hello world")
     )
 
   }
