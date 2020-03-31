@@ -71,9 +71,7 @@ lazy val root = (project in file("."))
     dependencyOverrides ++= jettyOverrides,
     publishingSettings,
     scoverageSettings,
-    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
-    scalafmtOnCompile in Compile := true,
-    scalafmtOnCompile in Test := true
+    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
   )
   .configs(IntegrationTest)
   .settings(
@@ -82,13 +80,9 @@ lazy val root = (project in file("."))
     unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
     parallelExecution in IntegrationTest := false,
     testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
-    scalafmtOnCompile in IntegrationTest := true,
     majorVersion := 0
   )
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
-
-
-inConfig(IntegrationTest)(scalafmtCoreSettings)
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>
