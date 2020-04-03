@@ -18,12 +18,13 @@ package uk.gov.hmrc.apiplatformevents.support
 
 import org.scalatest.{BeforeAndAfterEach, Suite, TestSuite}
 import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.mongo.{MongoSpecSupport, Awaiting => MongoAwaiting}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.global
 
-trait MongoApp extends MongoSpecSupport with BeforeAndAfterEach with OneAppPerSuite {
+trait MongoApp extends MongoSpecSupport with BeforeAndAfterEach with GuiceOneAppPerSuite {
   me: Suite with TestSuite =>
 
   override def beforeEach(): Unit = {

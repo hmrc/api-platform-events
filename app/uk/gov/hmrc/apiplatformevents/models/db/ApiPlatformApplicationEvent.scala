@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.models.db
 
+import org.joda.time.DateTime
 import play.api.libs.json.Format
 import play.api.libs.json.Json.format
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
@@ -30,7 +31,7 @@ object ApplicationEventTypeEnumeration extends Enumeration{
 case class ApiPlatformApplicationEvent(eventId: String,
                                        applicationId: String,
                                        eventType: ApplicationEventTypeEnumeration,
-                                       eventDateTime: Option[String],
+                                       eventDateTime: DateTime,
                                        eventData: Map[String, String])
 
 object ApiPlatformApplicationEvent extends ReactiveMongoFormats {

@@ -16,12 +16,20 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import org.joda.time.DateTime
+import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json.JsValueWrapper
 
-abstract class ApplicationEvent(applicationId: String, eventDateTime: DateTime)
+object ErrorCode extends Enumeration {
+  type ErrorCode = Value
 
+  val INVALID_REQUEST_PAYLOAD = Value("INVALID_REQUEST_PAYLOAD")
+  val UNKNOWN_ERROR = Value("UNKNOWN_ERROR")
+}
 
-case class TeamMemberAddedEvent(applicationId: String,
-                                eventDateTime: DateTime,
-                                teamMemberEmail: String,
-                                teamMemberRole: String) extends ApplicationEvent(applicationId, eventDateTime)
+object JsErrorResponse {
+  def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
+    Json.obj(
+      "code" -> errorCode.toString,
+      "message" -> message
+    )
+}

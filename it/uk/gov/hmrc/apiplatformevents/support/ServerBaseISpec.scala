@@ -2,11 +2,11 @@ package uk.gov.hmrc.apiplatformevents.support
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 
 abstract class ServerBaseISpec
-  extends BaseISpec with OneServerPerSuite with TestApplication with ScalaFutures {
+  extends BaseISpec with GuiceOneServerPerSuite with TestApplication with ScalaFutures {
 
   override implicit lazy val app: Application = appBuilder.build()
 

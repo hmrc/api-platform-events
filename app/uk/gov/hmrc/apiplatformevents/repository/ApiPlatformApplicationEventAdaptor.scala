@@ -29,7 +29,7 @@ object ApiPlatformApplicationEventAdaptor {
       applicationId = event.applicationId,
       eventId = UUID.randomUUID().toString,
       eventType = TEAM_MEMBER_ADDED,
-      eventDateTime = Some(event.eventTimeStamp + ""),
+      eventDateTime = event.eventDateTime,
       eventData = Map("teamMemberEmail" -> event.teamMemberEmail, "teamMemberRole" -> event.teamMemberRole)
     )
 }

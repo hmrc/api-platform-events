@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import java.util.UUID
 
+import org.joda.time.DateTime
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
@@ -27,6 +28,7 @@ import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
+import reactivemongo.core.errors.ReactiveMongoException
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -36,27 +38,46 @@ class ApplicationEventsServiceSpec
     with MockitoSugar
     with Eventually {
 
+
+  val mockRepository = mock[ApplicationEventsRepository]
+
+  val validModel = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
+    DateTime.now,
+    "bob@bob.com",
+    "ADMIN")
+
+  implicit val hc =
+    HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
+      sessionId = Some(SessionId("dummy session id")),
+      requestId = Some(RequestId("dummy request id")))
+
   "ApplicationEventsService" should {
 
-    "send an TeamMemberAdded event with the correct fields" in {
-      val mockRepository = mock[ApplicationEventsRepository]
-      when(mockRepository.createEntity(any[TeamMemberAddedEvent])(any()))
-        .thenReturn(Future.successful(true))
+    "send an TeamMemberAdded event to the repository and return true when saved" in {
+        testService(true, false) shouldBe true
+    }
+
+
+    "fail and return false when repository capture event fails" in {
+      testService(false, false) shouldBe false
+    }
+
+
+    "handle error" in {
+        testService(false, true) shouldBe false
+    }
+
+    def testService(repoResult: Boolean, repoThrowsException: Boolean): Boolean = {
+      if(repoThrowsException){
+        when(mockRepository.createEntity(any[TeamMemberAddedEvent])(any()))
+          .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
+      }else {
+        when(mockRepository.createEntity(any[TeamMemberAddedEvent])(any()))
+          .thenReturn(Future.successful(repoResult))
+      }
 
       val service = new ApplicationEventsService(mockRepository)
-
-      implicit val hc =
-        HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
-                      sessionId = Some(SessionId("dummy session id")),
-                      requestId = Some(RequestId("dummy request id")))
-
-      val model = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
-        1234547657L,
-        "bob@bob.com",
-        "ADMIN")
-
-      await(service.captureEvent(model)) shouldBe true
-
+      await(service.captureEvent(validModel))
     }
   }
 }

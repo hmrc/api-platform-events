@@ -7,8 +7,8 @@ lazy val scoverageSettings = {
   Seq(
     // Semicolon-separated list of regexs matching classes to exclude
     ScoverageKeys.coverageExcludedPackages := """uk\.gov\.hmrc\.BuildInfo;.*\.Routes;.*\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\.Reverse[^.]*""",
-    ScoverageKeys.coverageMinimum := 80.00,
-    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageMinimum := 85.00,
+    ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     parallelExecution in Test := false
   )
@@ -24,6 +24,7 @@ lazy val compileDeps = Seq(
   "com.github.blemale" %% "scaffeine" % "3.1.0",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "4.0.0",
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.22.0-play-26",
+  "com.typesafe.play" %% "play-json-joda" % "2.6.10",
   ws
 )
 

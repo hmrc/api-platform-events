@@ -37,6 +37,8 @@ class ApplicationEventsRepository @Inject()(
       ApiPlatformApplicationEvent.formats,
       ReactiveMongoFormats.objectIdFormats) {
 
+  implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
+
   private[repository] def convertEvent(event: ApplicationEvent): Option[ApiPlatformApplicationEvent] = {
     event match {
       case tmae: TeamMemberAddedEvent => Some(ApiPlatformApplicationEventAdaptor.fromTeamMemberAddedEvent(tmae))

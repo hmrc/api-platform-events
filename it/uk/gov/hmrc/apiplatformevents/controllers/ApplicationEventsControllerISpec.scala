@@ -13,6 +13,11 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
 
   val wsClient = app.injector.instanceOf[WSClient]
 
+  val validJsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
+                               |"eventDateTime": "2014-01-01T13:13:34.441Z",
+                               |"teamMemberEmail": "bob@bob.com",
+                               |"teamMemberRole": "ADMIN"}""".stripMargin
+
   def doGet(path: String): WSResponse = {
     wsClient
       .url(s"$url$path")
@@ -40,7 +45,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
 
     "POST /teamMemberAdded" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/teamMemberAdded", "{\n\t\"applicationId\": \"akjhjkhjshjkhksaih\",\n\t\"eventTimeStamp\": 1585830790,\n\t\"teamMemberEmail\": \"bob@bob.com\",\n\t\"teamMemberRole\": \"ADMIN\"\n}", "Content-Type"-> "application/json")
+        val result = doPost("/teamMemberAdded", validJsonBody, "Content-Type"-> "application/json")
         result.status shouldBe 201
         result.body shouldBe ""
       }
@@ -51,16 +56,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
         result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
       }
 
-      "respond with 400 when contentType header is missing" in {
+      "respond with 415 when contentType header is missing" in {
         val result = doPost("/teamMemberAdded", "{\"SomeJson\": \"hello\"}", "somHeader"-> "someValue" )
-        result.status shouldBe 400
-        result.body shouldBe ""
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
 
-      "respond with 400 when contentType header isn't JSON" in {
+      "respond with 415 when contentType header isn't JSON" in {
         val result = doPost("/teamMemberAdded", "{\"SomeJson\": \"hello\"}", "Content-Type"-> "application/xml")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
     }
   }

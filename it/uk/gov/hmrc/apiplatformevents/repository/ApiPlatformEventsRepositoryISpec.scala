@@ -15,6 +15,7 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
+import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
@@ -43,7 +44,7 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
   }
 
   val model = TeamMemberAddedEvent(applicationId = "John Smith",
-    eventTimeStamp = 1234558L,
+    eventDateTime = DateTime.now,
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 

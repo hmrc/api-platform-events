@@ -17,11 +17,19 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import org.joda.time.DateTime
+import play.api.libs.json._
 
-abstract class ApplicationEvent(applicationId: String, eventDateTime: DateTime)
+import scala.language.implicitConversions
 
+object JodaDateFormats {
+  val dateFormat                                              = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+  implicit val JodaDateReads: Reads[org.joda.time.DateTime]   = JodaReads.jodaDateReads(dateFormat)
+  implicit val JodaDateWrites: Writes[org.joda.time.DateTime] = JodaWrites.jodaDateWrites(dateFormat)
+  implicit val JodaDateTimeFormat: Format[DateTime]           = Format(JodaDateReads, JodaDateWrites)
+}
 
-case class TeamMemberAddedEvent(applicationId: String,
-                                eventDateTime: DateTime,
-                                teamMemberEmail: String,
-                                teamMemberRole: String) extends ApplicationEvent(applicationId, eventDateTime)
+object JsonFormatters {
+  implicit val dateReads = JodaDateFormats.JodaDateTimeFormat
+
+  implicit val teamMemberAddedEventFormats = Json.format[TeamMemberAddedEvent]
+}

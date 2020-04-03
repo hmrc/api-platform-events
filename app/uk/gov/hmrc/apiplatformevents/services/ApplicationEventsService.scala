@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
 class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
@@ -31,8 +32,12 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
   def captureEvent(event: TeamMemberAddedEvent)(
       implicit hc: HeaderCarrier,
       ec: ExecutionContext): Future[Boolean] = {
-    Logger.debug(s"applicationId: ${event.applicationId}")
-    repo.createEntity(event)
+    repo.createEntity(event).recover {
+      case NonFatal(e) => {
+        Logger.info("Exception happened when trying to createEntity:",e)
+        false
+      }
+    }
   }
 
 }

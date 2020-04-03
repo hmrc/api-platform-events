@@ -17,21 +17,26 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment}
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import play.api.libs.json.{JsError, JsResult, JsSuccess, JsValue, Reads}
+import play.api.mvc.{Action, AnyContent, BodyParsers, ControllerComponents, PlayBodyParsers, Request, Result}
+import play.api.{Configuration, Environment, Logger}
+import uk.gov.hmrc.apiplatformevents.models.JsonFormatters._
+import uk.gov.hmrc.apiplatformevents.models.JodaDateFormats._
+import uk.gov.hmrc.apiplatformevents.models.{ErrorCode, JsErrorResponse, JsonFormatters, TeamMemberAddedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class ApplicationEventsController @Inject()(val env: Environment,
                                             service: ApplicationEventsService,
+                                            playBodyParsers: PlayBodyParsers,
                                             cc: ControllerComponents)(
-                                           implicit val configuration: Configuration,
-                                           ec: ExecutionContext) extends BackendController(cc) {
+                                             implicit val configuration: Configuration,
+                                             ec: ExecutionContext) extends BackendController(cc) {
 
   def helloworld: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(
@@ -40,23 +45,33 @@ class ApplicationEventsController @Inject()(val env: Environment,
 
   }
 
-  def teamMemberAdded: Action[AnyContent] = Action.async { implicit request =>
-    implicit val formatter = TeamMemberAddedEvent.format
-      request.body.asJson match {
-        case Some(value) =>  handleEvent(value.as[TeamMemberAddedEvent])
-        case None => Future.successful(BadRequest)
+  def teamMemberAdded() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[TeamMemberAddedEvent]{ event=>
+      service.captureEvent(event) map {
+        case true => {
+          Created
+        }
+        case false => InternalServerError
       }
-  }
-
-  def handleEvent(event: TeamMemberAddedEvent)
-                 (implicit hc: HeaderCarrier): Future[Result] = {
-    service.captureEvent(event) map {
-      case true => Created
-      case false =>  InternalServerError
     }
   }
 
 
+  override protected def withJsonBody[T]
+  (f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
+    withJson(request.body)(f)
+  }
 
+  private def withJson[T](json: JsValue)(f: T => Future[Result])(implicit m: Manifest[T], reads: Reads[T]): Future[Result] = {
+    Try(json.validate[T]) match {
+      case Success(JsSuccess(payload, _)) => f(payload)
+      case Success(JsError(errs)) => {
+        Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, JsError.toJson(errs))))
+      }
+      case Failure(e) => {
+        Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, e.getMessage)))
+      }
+    }
+  }
 
 }
