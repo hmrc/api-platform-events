@@ -18,13 +18,11 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import play.api.Logger
 import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 @Singleton
 class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
@@ -32,12 +30,7 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
   def captureEvent(event: TeamMemberAddedEvent)(
       implicit hc: HeaderCarrier,
       ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event).recover {
-      case NonFatal(e) => {
-        Logger.info("Exception happened when trying to createEntity:",e)
-        false
-      }
-    }
+    repo.createEntity(event)
   }
 
 }

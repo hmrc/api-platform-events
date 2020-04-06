@@ -19,13 +19,11 @@ package uk.gov.hmrc.apiplatformevents.repository
 import javax.inject.{Inject, Singleton}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, JsonFormatters, TeamMemberAddedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, JsonFormatters}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 import scala.concurrent.{ExecutionContext, Future}
-
-
 
 @Singleton
 class ApplicationEventsRepository @Inject()(
@@ -38,18 +36,7 @@ class ApplicationEventsRepository @Inject()(
 
   implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
 
-  private[repository] def convertEventAndInsert(event: ApplicationEvent)(implicit executionContext: ExecutionContext)  = {
-    event match {
-      case tmae: TeamMemberAddedEvent => {
-        insert(tmae).map(wr => wr.ok)
-      }
-      case _ => Future.successful(false)
-    }
-  }
-
-
   def createEntity(event: ApplicationEvent)(
       implicit ec: ExecutionContext): Future[Boolean] =
-    convertEventAndInsert(event)
-
+    insert(event).map(wr => wr.ok)
 }

@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
-import reactivemongo.core.errors.ReactiveMongoException
+import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,16 +39,15 @@ class ApplicationEventsServiceSpec
     with MockitoSugar
     with Eventually {
 
+  val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val mockRepository = mock[ApplicationEventsRepository]
-
-  val validModel = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
+  val validModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
-  implicit val hc =
+  implicit val hc: HeaderCarrier =
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
       sessionId = Some(SessionId("dummy session id")),
       requestId = Some(RequestId("dummy request id")))
@@ -56,17 +55,21 @@ class ApplicationEventsServiceSpec
   "ApplicationEventsService" should {
 
     "send an TeamMemberAdded event to the repository and return true when saved" in {
-        testService(true, false) shouldBe true
+        testService(repoResult = true, repoThrowsException = false) shouldBe true
     }
 
 
     "fail and return false when repository capture event fails" in {
-      testService(false, false) shouldBe false
+      testService(repoResult = false, repoThrowsException = false) shouldBe false
     }
 
 
     "handle error" in {
-        testService(false, true) shouldBe false
+     val exception =  intercept[GenericDriverException] {
+        testService(repoResult = false, repoThrowsException = true)
+      }
+
+      exception.message shouldBe "some mongo error"
     }
 
     def testService(repoResult: Boolean, repoThrowsException: Boolean): Boolean = {

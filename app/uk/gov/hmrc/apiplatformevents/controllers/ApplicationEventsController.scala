@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 @Singleton
@@ -52,6 +53,11 @@ class ApplicationEventsController @Inject()(val env: Environment,
           Created
         }
         case false => InternalServerError
+      } recover {
+        case NonFatal(e) => {
+          Logger.info("Exception happened when teamMemberAdded:",e)
+          InternalServerError
+        }
       }
     }
   }
