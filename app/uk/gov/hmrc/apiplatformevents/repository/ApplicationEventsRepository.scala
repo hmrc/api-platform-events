@@ -17,41 +17,26 @@
 package uk.gov.hmrc.apiplatformevents.repository
 
 import javax.inject.{Inject, Singleton}
-
-import play.api.libs.json.Format
-import play.api.libs.json.Json.{format, toJsFieldJsValueWrapper}
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.indexes.Index
-import reactivemongo.api.indexes.IndexType.Ascending
 import reactivemongo.bson.BSONObjectID
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, JsonFormatters}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
-import scala.collection.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
-case class ApiPlatformEventsDBModel(parameter1: String,
-                                    parameter2: Option[String],
-                                    telephoneNumber: Option[String],
-                                    emailAddress: Option[String])
-
-object ApiPlatformEventsDBModel extends ReactiveMongoFormats {
-  implicit val formats: Format[ApiPlatformEventsDBModel] =
-    format[ApiPlatformEventsDBModel]
-}
-
 @Singleton
-class ApiPlatformEventsRepository @Inject()(
+class ApplicationEventsRepository @Inject()(
     mongoComponent: ReactiveMongoComponent)
-    extends ReactiveRepository[ApiPlatformEventsDBModel, BSONObjectID](
-      "api-platform-events",
+    extends ReactiveRepository[ApplicationEvent, BSONObjectID](
+      "api-platform-application-events",
       mongoComponent.mongoConnector.db,
-      ApiPlatformEventsDBModel.formats,
+      JsonFormatters.formatApplicationEvent,
       ReactiveMongoFormats.objectIdFormats) {
 
-  def createEntity(event: ApiPlatformEventsDBModel)(
-      implicit ec: ExecutionContext): Future[Unit] =
-    insert(event).map(_ => ())
+  implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
 
+  def createEntity(event: ApplicationEvent)(
+      implicit ec: ExecutionContext): Future[Boolean] =
+    insert(event).map(wr => wr.ok)
 }

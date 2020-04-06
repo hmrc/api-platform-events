@@ -15,11 +15,11 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
+import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.core.errors.DatabaseException
-import uk.gov.hmrc.apiplatformevents.models.ApiPlatformEventsModel
+import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -35,19 +35,19 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  def repo: ApiPlatformEventsRepository =
-    app.injector.instanceOf[ApiPlatformEventsRepository]
+  def repo: ApplicationEventsRepository =
+    app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach() {
     super.beforeEach()
     await(repo.ensureIndexes)
   }
 
-  val model = ApiPlatformEventsDBModel(parameter1 = "John Smith",
-    parameter2 = None,
-    telephoneNumber = Some("12313"),
-    emailAddress =
-      Some("john.smith@email.com"))
+  val model = TeamMemberAddedEvent(applicationId = "John Smith",
+    eventDateTime = DateTime.now,
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
+    teamMemberEmail = "jkhkhk",
+    teamMemberRole = "ADMIN")
 
   "createEntity" should {
     "create an entity" in {

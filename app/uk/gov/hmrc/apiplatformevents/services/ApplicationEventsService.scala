@@ -18,26 +18,19 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.ApiPlatformEventsModel
-import uk.gov.hmrc.apiplatformevents.repository.{
-  ApiPlatformEventsDBModel,
-  ApiPlatformEventsRepository
-}
+import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-@Singleton
-class ApiPlatformEventService @Inject()(repo: ApiPlatformEventsRepository) {
 
-  private[services] def captureEvent(event: ApiPlatformEventsModel)(
+@Singleton
+class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
+
+  def captureEvent(event: TeamMemberAddedEvent)(
       implicit hc: HeaderCarrier,
-      ec: ExecutionContext): Future[Unit] = {
-    repo.createEntity(
-      ApiPlatformEventsDBModel(event.parameter1,
-                               event.parameter2,
-                               event.telephoneNumber,
-                               event.emailAddress)
-    )
+      ec: ExecutionContext): Future[Boolean] = {
+    repo.createEntity(event)
   }
 
 }

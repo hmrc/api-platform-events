@@ -1,0 +1,5 @@
+# microservice specific routes
+
+GET         /helloworld                       @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.helloworld
+
+POST        /teamMemberAdded                  @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.teamMemberAdded
