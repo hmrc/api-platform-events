@@ -19,11 +19,25 @@ package uk.gov.hmrc.apiplatformevents.models
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformevents.models.common.Actor
 
-abstract class ApplicationEvent(applicationId: String, eventDateTime: DateTime, actor: Actor)
 
+object EventType extends Enumeration{
+  type AccessType = Value
+  val TEAM_MEMBER_ADDED = Value
 
-case class TeamMemberAddedEvent(applicationId: String,
-                                eventDateTime: DateTime,
-                                actor: Actor,
+  implicit val applicationEventTypeFormat = EnumJson.enumFormat(EventType)
+}
+
+trait ApplicationEvent{
+  val applicationId: String
+  val eventDateTime: DateTime
+  val eventType: EventType.Value
+  val actor: Actor
+}
+
+case class TeamMemberAddedEvent(override val applicationId: String,
+                                override val eventDateTime: DateTime,
+                                override val actor: Actor,
                                 teamMemberEmail: String,
-                                teamMemberRole: String) extends ApplicationEvent(applicationId, eventDateTime, actor)
+                                teamMemberRole: String) extends ApplicationEvent {
+  override val eventType: EventType.Value = EventType.TEAM_MEMBER_ADDED
+}

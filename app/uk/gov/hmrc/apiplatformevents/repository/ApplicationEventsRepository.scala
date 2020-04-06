@@ -19,8 +19,7 @@ package uk.gov.hmrc.apiplatformevents.repository
 import javax.inject.{Inject, Singleton}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.apiplatformevents.models.db.ApiPlatformApplicationEvent
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, TeamMemberAddedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, JsonFormatters, TeamMemberAddedEvent}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
@@ -31,25 +30,26 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ApplicationEventsRepository @Inject()(
     mongoComponent: ReactiveMongoComponent)
-    extends ReactiveRepository[ApiPlatformApplicationEvent, BSONObjectID](
+    extends ReactiveRepository[ApplicationEvent, BSONObjectID](
       "api-platform-application-events",
       mongoComponent.mongoConnector.db,
-      ApiPlatformApplicationEvent.formats,
+      JsonFormatters.formatApplicationEvent,
       ReactiveMongoFormats.objectIdFormats) {
 
   implicit val dateFormat = ReactiveMongoFormats.dateTimeFormats
 
-  private[repository] def convertEvent(event: ApplicationEvent): Option[ApiPlatformApplicationEvent] = {
+  private[repository] def convertEventAndInsert(event: ApplicationEvent)(implicit executionContext: ExecutionContext)  = {
     event match {
-      case tmae: TeamMemberAddedEvent => Some(ApiPlatformApplicationEventAdaptor.fromTeamMemberAddedEvent(tmae))
-      case _ => None
+      case tmae: TeamMemberAddedEvent => {
+        insert(tmae).map(wr => wr.ok)
+      }
+      case _ => Future.successful(false)
     }
   }
 
 
   def createEntity(event: ApplicationEvent)(
       implicit ec: ExecutionContext): Future[Boolean] =
-    convertEvent(event)
-      .fold(Future.successful(false))(insert(_).map(wr => wr.ok))
+    convertEventAndInsert(event)
 
 }

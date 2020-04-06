@@ -20,7 +20,6 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
-import uk.gov.hmrc.apiplatformevents.models.db.{ApiPlatformApplicationEvent, ApplicationEventType}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 

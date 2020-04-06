@@ -19,7 +19,8 @@ package uk.gov.hmrc.apiplatformevents.models
 import org.joda.time.DateTime
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
-import uk.gov.hmrc.apiplatformevents.models.db.ApplicationEventType
+import uk.gov.hmrc.play.json.Union
+
 
 import scala.language.implicitConversions
 
@@ -34,6 +35,11 @@ object JsonFormatters {
   implicit val dateReads = JodaDateFormats.JodaDateTimeFormat
   implicit val actorFormat = Json.format[Actor]
   implicit val teamMemberAddedEventFormats = Json.format[TeamMemberAddedEvent]
+  implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
+    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
+    .format
+
+
 }
 
 class InvalidEnumException(className: String, input:String)
@@ -61,8 +67,6 @@ object EnumJson {
     Format(enumReads(enum), enumWrites)
   }
 
- object  ReactiveMongoFormats {
-   implicit val format = EnumJson.enumFormat(ApplicationEventType)
- }
+
 
 }

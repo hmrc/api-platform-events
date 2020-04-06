@@ -44,9 +44,9 @@ class ApplicationEventsServiceSpec
 
   val validModel = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    "bob@bob.com",
-    "ADMIN")
+    actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
+    teamMemberEmail = "bob@bob.com",
+    teamMemberRole = "ADMIN")
 
   implicit val hc =
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
