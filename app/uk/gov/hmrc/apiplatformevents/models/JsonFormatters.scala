@@ -18,18 +18,51 @@ package uk.gov.hmrc.apiplatformevents.models
 
 import org.joda.time.DateTime
 import play.api.libs.json._
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
+import uk.gov.hmrc.apiplatformevents.models.db.ApplicationEventType
 
 import scala.language.implicitConversions
 
 object JodaDateFormats {
-  val dateFormat                                              = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-  implicit val JodaDateReads: Reads[org.joda.time.DateTime]   = JodaReads.jodaDateReads(dateFormat)
+  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+  implicit val JodaDateReads: Reads[org.joda.time.DateTime] = JodaReads.jodaDateReads(dateFormat)
   implicit val JodaDateWrites: Writes[org.joda.time.DateTime] = JodaWrites.jodaDateWrites(dateFormat)
-  implicit val JodaDateTimeFormat: Format[DateTime]           = Format(JodaDateReads, JodaDateWrites)
+  implicit val JodaDateTimeFormat: Format[DateTime] = Format(JodaDateReads, JodaDateWrites)
 }
 
 object JsonFormatters {
   implicit val dateReads = JodaDateFormats.JodaDateTimeFormat
-
+  implicit val actorFormat = Json.format[Actor]
   implicit val teamMemberAddedEventFormats = Json.format[TeamMemberAddedEvent]
+}
+
+class InvalidEnumException(className: String, input:String)
+  extends RuntimeException(s"Enumeration expected of type: '$className', but it does not contain '$input'")
+
+object EnumJson {
+
+  def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = new Reads[E#Value] {
+    def reads(json: JsValue): JsResult[E#Value] = json match {
+      case JsString(s) =>
+        try {
+          JsSuccess(enum.withName(s))
+        } catch {
+          case _: NoSuchElementException => throw new InvalidEnumException(enum.getClass.getSimpleName, s)
+        }
+      case _ => JsError("String value expected")
+    }
+  }
+
+  implicit def enumWrites[E <: Enumeration]: Writes[E#Value] = new Writes[E#Value] {
+    def writes(v: E#Value): JsValue = JsString(v.toString)
+  }
+
+  implicit def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = {
+    Format(enumReads(enum), enumWrites)
+  }
+
+ object  ReactiveMongoFormats {
+   implicit val format = EnumJson.enumFormat(ApplicationEventType)
+ }
+
 }

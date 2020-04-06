@@ -20,7 +20,7 @@ import java.util.UUID
 
 import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
 import uk.gov.hmrc.apiplatformevents.models.db.ApiPlatformApplicationEvent
-import uk.gov.hmrc.apiplatformevents.models.db.ApplicationEventTypeEnumeration._
+import uk.gov.hmrc.apiplatformevents.models.db.ApplicationEventType._
 
 object ApiPlatformApplicationEventAdaptor {
 
@@ -28,6 +28,7 @@ object ApiPlatformApplicationEventAdaptor {
     ApiPlatformApplicationEvent(
       applicationId = event.applicationId,
       eventId = UUID.randomUUID().toString,
+      actor = event.actor,
       eventType = TEAM_MEMBER_ADDED,
       eventDateTime = event.eventDateTime,
       eventData = Map("teamMemberEmail" -> event.teamMemberEmail, "teamMemberRole" -> event.teamMemberRole)

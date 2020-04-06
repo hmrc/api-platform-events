@@ -19,22 +19,28 @@ package uk.gov.hmrc.apiplatformevents.models.db
 import org.joda.time.DateTime
 import play.api.libs.json.Format
 import play.api.libs.json.Json.format
+import uk.gov.hmrc.apiplatformevents.models.common.Actor
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import uk.gov.hmrc.apiplatformevents.models.EnumJson
+import uk.gov.hmrc.apiplatformevents.models.JsonFormatters.actorFormat
 
-case class ApplicationEventTypeEnumeration(key: String)
 
-object ApplicationEventTypeEnumeration extends Enumeration{
-  val TEAM_MEMBER_ADDED = ApplicationEventTypeEnumeration("TEAM_MEMBER_ADDED")
-  implicit val formats: Format[ApplicationEventTypeEnumeration] = format[ApplicationEventTypeEnumeration]
+object ApplicationEventType extends Enumeration{
+  type AccessType = Value
+  val TEAM_MEMBER_ADDED = Value
+
+  implicit val applicationEventTypeFormat = EnumJson.enumFormat(ApplicationEventType)
 }
 
 case class ApiPlatformApplicationEvent(eventId: String,
                                        applicationId: String,
-                                       eventType: ApplicationEventTypeEnumeration,
+                                       actor: Actor,
+                                       eventType: ApplicationEventType.Value,
                                        eventDateTime: DateTime,
                                        eventData: Map[String, String])
 
 object ApiPlatformApplicationEvent extends ReactiveMongoFormats {
+
   implicit val formats: Format[ApiPlatformApplicationEvent] =
     format[ApiPlatformApplicationEvent]
 }

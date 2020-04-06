@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
 import reactivemongo.core.errors.ReactiveMongoException
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -43,6 +44,7 @@ class ApplicationEventsServiceSpec
 
   val validModel = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
     "bob@bob.com",
     "ADMIN")
 

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.models
+package uk.gov.hmrc.apiplatformevents.models.common
 
-import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatformevents.models.common.Actor
+import uk.gov.hmrc.apiplatformevents.models.EnumJson
+import uk.gov.hmrc.apiplatformevents.models.common.ActorType.ActorType
 
-abstract class ApplicationEvent(applicationId: String, eventDateTime: DateTime, actor: Actor)
+object ActorType extends Enumeration {
+  type ActorType = Value
+  val COLLABORATOR, GATEKEEPER, SCHEDULED_JOB = Value
 
+  implicit val actorTypeFormat = EnumJson.enumFormat(ActorType)
 
-case class TeamMemberAddedEvent(applicationId: String,
-                                eventDateTime: DateTime,
-                                actor: Actor,
-                                teamMemberEmail: String,
-                                teamMemberRole: String) extends ApplicationEvent(applicationId, eventDateTime, actor)
+}
+
+case class Actor(id: String, actorType: ActorType)
