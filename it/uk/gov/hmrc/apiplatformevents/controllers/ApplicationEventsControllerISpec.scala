@@ -70,5 +70,32 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
         result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
     }
+
+    "POST /teamMemberRemoved" should {
+      "respond with 201 when valid json is sent" in {
+        val result = doPost("/teamMemberRemoved", validJsonBody, "Content-Type" -> "application/json")
+        result.status shouldBe 201
+        result.body shouldBe ""
+      }
+
+      "respond with 400 when invalid json is sent" in {
+        val result = doPost("/teamMemberRemoved", "i'm not JSON", "Content-Type" -> "application/json")
+        result.status shouldBe 400
+        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
+      }
+
+      "respond with 415 when contentType header is missing" in {
+        val result = doPost("/teamMemberRemoved", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      }
+
+      "respond with 415 when contentType header isn't JSON" in {
+        val result = doPost("/teamMemberRemoved", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      }
+    }
+
   }
 }

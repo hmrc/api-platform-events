@@ -21,7 +21,7 @@ import java.util.UUID
 import org.joda.time.DateTime
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import uk.gov.hmrc.apiplatformevents.models.{TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
@@ -41,9 +41,15 @@ class ApplicationEventsServiceSpec
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val validModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
+  val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
+    teamMemberEmail = "bob@bob.com",
+    teamMemberRole = "ADMIN")
+
+  val validRemoveTeamMemberModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(applicationId = UUID.randomUUID().toString,
+    DateTime.now,
+    actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
@@ -52,9 +58,9 @@ class ApplicationEventsServiceSpec
       sessionId = Some(SessionId("dummy session id")),
       requestId = Some(RequestId("dummy request id")))
 
-  "ApplicationEventsService" should {
+  "ApplicationEventsServiceAdded" should {
 
-    "send an TeamMemberAdded event to the repository and return true when saved" in {
+    "send a TeamMemberAdded event to the repository and return true when saved" in {
         testService(repoResult = true, repoThrowsException = false) shouldBe true
     }
 
@@ -82,7 +88,41 @@ class ApplicationEventsServiceSpec
       }
 
       val service = new ApplicationEventsService(mockRepository)
-      await(service.captureTeamMemberAddedEvent(validModel))
+      await(service.captureTeamMemberAddedEvent(validAddTeamMemberModel))
+    }
+  }
+
+  "ApplicationEventsServiceRemoved" should {
+
+    "send a TeamMemberRemoved event to the repository and return true when saved" in {
+      testService(repoResult = true, repoThrowsException = false) shouldBe true
+    }
+
+
+    "fail and return false when repository capture event fails" in {
+      testService(repoResult = false, repoThrowsException = false) shouldBe false
+    }
+
+
+    "handle error" in {
+      val exception =  intercept[GenericDriverException] {
+        testService(repoResult = false, repoThrowsException = true)
+      }
+
+      exception.message shouldBe "some mongo error"
+    }
+
+    def testService(repoResult: Boolean, repoThrowsException: Boolean): Boolean = {
+      if(repoThrowsException){
+        when(mockRepository.createEntity(any[TeamMemberRemovedEvent])(any()))
+          .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
+      }else {
+        when(mockRepository.createEntity(any[TeamMemberRemovedEvent])(any()))
+          .thenReturn(Future.successful(repoResult))
+      }
+
+      val service = new ApplicationEventsService(mockRepository)
+      await(service.captureTeamMemberRemovedEvent(validRemoveTeamMemberModel))
     }
   }
 }

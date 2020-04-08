@@ -27,10 +27,11 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
-import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import uk.gov.hmrc.apiplatformevents.models.{TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.reset
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
@@ -49,9 +50,10 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
 
   private val teamMemberAddedUri = "/api-platform-events/application-events/teamMemberAdded"
+  private val teamMemberRemovedUri = "/api-platform-events/application-events/teamMemberRemoved"
   private val validHeaders: Map[String, String] = Map("Content-Type"->"application/json")
 
-  "ApplicationEventsController" should {
+  "ApplicationEventsControllerAdded" should {
 
     "return 201 when post request is valid json" in {
       when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
@@ -94,6 +96,55 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
     "return 415 when content type isn't json" in {
       val result = doPost(teamMemberAddedUri, Map("Content-Type"-> "application/xml"), "{}")
+      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+    }
+
+
+  }
+
+  "ApplicationEventsControllerRemoved" should {
+
+    "return 201 when post request is valid json" in {
+      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEvent])(any(), any()))
+        .thenReturn(Future.successful(true))
+      val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
+                           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+                           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+                           |"teamMemberEmail": "bob@bob.com",
+                           |"teamMemberRole": "ADMIN"}""".stripMargin
+      val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
+      status(result) should be(CREATED)
+
+    }
+
+    "return 500 when post request is valid json but service fails" in {
+      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEvent])(any(), any()))
+        .thenReturn(Future.successful(false))
+
+      val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
+                           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+                           |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
+                           |"teamMemberEmail": "bob@bob.com",
+                           |"teamMemberRole": "ADMIN"}""".stripMargin
+
+      val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
+      status(result) should be(INTERNAL_SERVER_ERROR)
+
+    }
+
+    "return 400 when post request is invalid json" in {
+      val result = doPost(teamMemberRemovedUri, validHeaders, "Not JSON")
+      status(result) should be(BAD_REQUEST)
+    }
+
+    "return 422 when content type header is missing" in {
+
+      val result = doPost(teamMemberRemovedUri, Map.empty, "{}")
+      status(result) should be(UNPROCESSABLE_ENTITY)
+    }
+
+    "return 415 when content type isn't json" in {
+      val result = doPost(teamMemberRemovedUri, Map("Content-Type"-> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
 
