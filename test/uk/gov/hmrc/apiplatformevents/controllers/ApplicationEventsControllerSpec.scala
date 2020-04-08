@@ -54,7 +54,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
   "ApplicationEventsController" should {
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[TeamMemberAddedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
     val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
                           |"eventDateTime": "2014-01-01T13:13:34.441Z",
@@ -67,7 +67,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[TeamMemberAddedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",

@@ -35,11 +35,11 @@ object JsonFormatters {
   implicit val dateReads = JodaDateFormats.JodaDateTimeFormat
   implicit val actorFormat = Json.format[Actor]
   implicit val teamMemberAddedEventFormats = Json.format[TeamMemberAddedEvent]
+  implicit val teamMemberRemovedEventFormats = Json.format[TeamMemberRemovedEvent]
   implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
+    .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .format
-
-
 }
 
 class InvalidEnumException(className: String, input:String)

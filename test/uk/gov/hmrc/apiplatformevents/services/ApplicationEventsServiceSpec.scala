@@ -82,7 +82,7 @@ class ApplicationEventsServiceSpec
       }
 
       val service = new ApplicationEventsService(mockRepository)
-      await(service.captureEvent(validModel))
+      await(service.captureTeamMemberAddedEvent(validModel))
     }
   }
 }
