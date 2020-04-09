@@ -17,14 +17,12 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsError, JsResult, JsSuccess, JsValue, Reads}
-import play.api.mvc.{Action, AnyContent, BodyParsers, ControllerComponents, PlayBodyParsers, Request, Result}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
+import play.api.mvc._
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.apiplatformevents.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformevents.models.JodaDateFormats._
-import uk.gov.hmrc.apiplatformevents.models.{ErrorCode, JsErrorResponse, JsonFormatters, TeamMemberAddedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ErrorCode, JsErrorResponse, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,19 +46,27 @@ class ApplicationEventsController @Inject()(val env: Environment,
 
   def teamMemberAdded() = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberAddedEvent]{ event=>
-      service.captureEvent(event) map {
-        case true => {
-          Created
-        }
+      service.captureTeamMemberAddedEvent(event) map {
+        case true => Created
         case false => InternalServerError
       } recover {
-        case NonFatal(e) => {
-          Logger.info("Exception happened when teamMemberAdded:",e)
+        case NonFatal(e) => Logger.info("Exception happened when teamMemberAdded:",e)
           InternalServerError
         }
       }
     }
-  }
+
+  def teamMemberRemoved() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[TeamMemberRemovedEvent]{ event=>
+      service.captureTeamMemberRemovedEvent(event) map {
+        case true => Created
+        case false => InternalServerError
+      } recover {
+        case NonFatal(e) => Logger.info("Exception happened when teamMemberRemoved:",e)
+          InternalServerError
+        }
+      }
+    }
 
 
   override protected def withJsonBody[T]

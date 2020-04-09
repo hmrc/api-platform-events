@@ -43,15 +43,27 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     await(repo.ensureIndexes)
   }
 
-  val model = TeamMemberAddedEvent(applicationId = "John Smith",
+  val teamMemberAddedModel = TeamMemberAddedEvent(applicationId = "John Smith",
+    eventDateTime = DateTime.now,
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
+    teamMemberEmail = "jkhkhk",
+    teamMemberRole = "ADMIN")
+
+  val teamMemberRemovedModel = TeamMemberAddedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
   "createEntity" should {
-    "create an entity" in {
-      await(repo.createEntity(model))
+
+    "create a teamMemberAdded entity" in {
+      await(repo.createEntity(teamMemberAddedModel))
+      await(repo.find())
+    }
+
+    "create a teamMemberRemoved entity" in {
+      await(repo.createEntity(teamMemberRemovedModel))
       await(repo.find())
     }
 
