@@ -47,34 +47,26 @@ class ApplicationEventsController @Inject()(val env: Environment,
   def teamMemberAdded() = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberAddedEvent]{ event=>
       service.captureTeamMemberAddedEvent(event) map {
-        case true => {
-          Created
-        }
+        case true => Created
         case false => InternalServerError
       } recover {
-        case NonFatal(e) => {
-          Logger.info("Exception happened when teamMemberAdded:",e)
+        case NonFatal(e) => Logger.info("Exception happened when teamMemberAdded:",e)
           InternalServerError
         }
       }
     }
-  }
 
   def teamMemberRemoved() = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberRemovedEvent]{ event=>
       service.captureTeamMemberRemovedEvent(event) map {
-        case true => {
-          Created
-        }
+        case true => Created
         case false => InternalServerError
       } recover {
-        case NonFatal(e) => {
-          Logger.info("Exception happened when teamMemberRemoved:",e)
+        case NonFatal(e) => Logger.info("Exception happened when teamMemberRemoved:",e)
           InternalServerError
         }
       }
     }
-  }
 
 
   override protected def withJsonBody[T]
