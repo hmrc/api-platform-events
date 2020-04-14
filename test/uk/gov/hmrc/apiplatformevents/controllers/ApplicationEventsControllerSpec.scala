@@ -49,8 +49,8 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
   }
 
 
-  private val teamMemberAddedUri = "/api-platform-events/application-events/teamMemberAdded"
-  private val teamMemberRemovedUri = "/api-platform-events/application-events/teamMemberRemoved"
+  private val teamMemberAddedUri = "/application-events/teamMemberAdded"
+  private val teamMemberRemovedUri = "/application-events/teamMemberRemoved"
   private val validHeaders: Map[String, String] = Map("Content-Type"->"application/json")
 
   "ApplicationEventsControllerAdded" should {

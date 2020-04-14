@@ -9,7 +9,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
 
   this: Suite with ServerProvider =>
 
-  val url = s"http://localhost:$port/api-platform-events/application-events"
+  val url = s"http://localhost:$port/application-events"
 
   val wsClient = app.injector.instanceOf[WSClient]
 
