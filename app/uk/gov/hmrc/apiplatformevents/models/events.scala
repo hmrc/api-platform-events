@@ -17,17 +17,18 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import org.joda.time.DateTime
+import play.api.libs.json.Format
 import uk.gov.hmrc.apiplatformevents.models.common.Actor
 
 
 object EventType extends Enumeration{
   type AccessType = Value
-  val TEAM_MEMBER_ADDED = Value
-  val TEAM_MEMBER_REMOVED = Value
-  val CLIENT_SECRET_ADDED = Value
-  val CLIENT_SECRET_REMOVED = Value
+  val TEAM_MEMBER_ADDED: EventType.Value = Value
+  val TEAM_MEMBER_REMOVED: EventType.Value = Value
+  val CLIENT_SECRET_ADDED: EventType.Value = Value
+  val CLIENT_SECRET_REMOVED: EventType.Value = Value
 
-  implicit val applicationEventTypeFormat = EnumJson.enumFormat(EventType)
+  implicit val applicationEventTypeFormat: Format[EventType.Value] = EnumJson.enumFormat(EventType)
 }
 
 trait ApplicationEvent{

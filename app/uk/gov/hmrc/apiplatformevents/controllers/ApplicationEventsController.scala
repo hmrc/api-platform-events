@@ -45,52 +45,28 @@ class ApplicationEventsController @Inject()(val env: Environment,
   }
 
   def teamMemberAdded() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[TeamMemberAddedEvent]{ event=>
-      service.captureTeamMemberAddedEvent(event) map {
-        case true => Created
-        case false => InternalServerError
-      } recover {
-        case NonFatal(e) => Logger.info("Exception happened when teamMemberAdded:",e)
-          InternalServerError
-        }
-      }
+    withJsonBody[TeamMemberAddedEvent] { event =>
+      service.captureTeamMemberAddedEvent(event) map (mapResult(_)) recover recovery
     }
+  }
 
   def teamMemberRemoved() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[TeamMemberRemovedEvent]{ event=>
-      service.captureTeamMemberRemovedEvent(event) map {
-        case true => Created
-        case false => InternalServerError
-      } recover {
-        case NonFatal(e) => Logger.info("Exception happened when teamMemberRemoved:",e)
-          InternalServerError
-        }
-      }
+    withJsonBody[TeamMemberRemovedEvent] { event =>
+      service.captureTeamMemberRemovedEvent(event) map (mapResult(_)) recover recovery
     }
+  }
 
   def clientSecretAdded() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ClientSecretAddedEvent]{ event=>
-      service.captureClientSecretAddedEvent(event) map {
-        case true => Created
-        case false => InternalServerError
-      } recover {
-        case NonFatal(e) => Logger.info("Exception happened when clientSecretAdded:",e)
-          InternalServerError
-        }
-      }
+    withJsonBody[ClientSecretAddedEvent] { event =>
+      service.captureClientSecretAddedEvent(event) map (mapResult(_)) recover recovery
     }
+  }
 
   def clientSecretRemoved() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ClientSecretRemovedEvent]{ event=>
-      service.captureClientSecretRemovedEvent(event) map {
-        case true => Created
-        case false => InternalServerError
-      } recover {
-        case NonFatal(e) => Logger.info("Exception happened when clientSecretRemoved:",e)
-          InternalServerError
-        }
-      }
+    withJsonBody[ClientSecretRemovedEvent] { event =>
+      service.captureClientSecretRemovedEvent(event) map (mapResult(_)) recover recovery
     }
+  }
 
 
   override protected def withJsonBody[T]
@@ -108,6 +84,18 @@ class ApplicationEventsController @Inject()(val env: Environment,
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, e.getMessage)))
       }
     }
+  }
+
+  private def mapResult(result: Boolean) = {
+    result match {
+      case true => Created
+      case false => InternalServerError
+    }
+  }
+
+  private def recovery: PartialFunction[Throwable, Result] = {
+    case NonFatal(e) => Logger.info("An unexpected error occurred:", e)
+      InternalServerError
   }
 
 }
