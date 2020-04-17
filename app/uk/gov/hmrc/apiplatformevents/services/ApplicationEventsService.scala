@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent, RedirectUrisUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -46,8 +46,14 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
   }
 
   def captureClientSecretRemovedEvent(event: ClientSecretRemovedEvent)(
-      implicit hc: HeaderCarrier,
-      ec: ExecutionContext): Future[Boolean] = {
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[Boolean] = {
+    repo.createEntity(event)
+  }
+
+  def captureRedirectUrisUpdatedEvent(event: RedirectUrisUpdatedEvent)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[Boolean] = {
     repo.createEntity(event)
   }
 

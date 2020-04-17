@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.repository
 import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent, RedirectUrisUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
@@ -65,6 +65,12 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
+  val redirectUrisUpdatedModel = RedirectUrisUpdatedEvent(applicationId = "John Smith",
+    eventDateTime = DateTime.now,
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
+    oldRedirectUris = "oldru",
+    newRedirectUris = "newru")
+
   "createEntity" should {
 
     "create a teamMemberAdded entity" in {
@@ -87,5 +93,9 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
       await(repo.find())
     }
 
+    "create a redirectUrisUpdated entity" in {
+      await(repo.createEntity(redirectUrisUpdatedModel))
+      await(repo.find())
+    }
   }
 }
