@@ -21,7 +21,7 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.apiplatformevents.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{ErrorCode, JsErrorResponse, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, ErrorCode, JsErrorResponse, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -63,6 +63,30 @@ class ApplicationEventsController @Inject()(val env: Environment,
         case false => InternalServerError
       } recover {
         case NonFatal(e) => Logger.info("Exception happened when teamMemberRemoved:",e)
+          InternalServerError
+        }
+      }
+    }
+
+  def clientSecretAdded() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ClientSecretAddedEvent]{ event=>
+      service.captureClientSecretAddedEvent(event) map {
+        case true => Created
+        case false => InternalServerError
+      } recover {
+        case NonFatal(e) => Logger.info("Exception happened when clientSecretAdded:",e)
+          InternalServerError
+        }
+      }
+    }
+
+  def clientSecretRemoved() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ClientSecretRemovedEvent]{ event=>
+      service.captureClientSecretRemovedEvent(event) map {
+        case true => Created
+        case false => InternalServerError
+      } recover {
+        case NonFatal(e) => Logger.info("Exception happened when clientSecretRemoved:",e)
           InternalServerError
         }
       }
