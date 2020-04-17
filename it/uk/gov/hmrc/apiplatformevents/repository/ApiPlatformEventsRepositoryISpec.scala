@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.repository
 import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
@@ -49,11 +49,21 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
-  val teamMemberRemovedModel = TeamMemberAddedEvent(applicationId = "John Smith",
+  val teamMemberRemovedModel = TeamMemberRemovedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
+
+  val clientSecretAddedModel = ClientSecretAddedEvent(applicationId = "John Smith",
+    eventDateTime = DateTime.now,
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
+    clientSecretId = "jkhkhk")
+
+  val clientSecretRemovedModel = ClientSecretRemovedEvent(applicationId = "John Smith",
+    eventDateTime = DateTime.now,
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
+    clientSecretId = "jkhkhk")
 
   "createEntity" should {
 
@@ -64,6 +74,16 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
 
     "create a teamMemberRemoved entity" in {
       await(repo.createEntity(teamMemberRemovedModel))
+      await(repo.find())
+    }
+
+    "create a clientSecretAdded entity" in {
+      await(repo.createEntity(clientSecretAddedModel))
+      await(repo.find())
+    }
+
+    "create a clientSecretRemoved entity" in {
+      await(repo.createEntity(clientSecretRemovedModel))
       await(repo.find())
     }
 
