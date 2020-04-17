@@ -21,7 +21,7 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.apiplatformevents.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, ErrorCode, JsErrorResponse, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, ErrorCode, JsErrorResponse, TeamMemberAddedEvent, TeamMemberRemovedEvent, RedirectUrisUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -65,6 +65,12 @@ class ApplicationEventsController @Inject()(val env: Environment,
   def clientSecretRemoved() = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretRemovedEvent] { event =>
       service.captureClientSecretRemovedEvent(event) map (mapResult(_)) recover recovery
+    }
+  }
+
+  def redirectUrisUpdated() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[RedirectUrisUpdatedEvent] { event =>
+      service.captureRedirectUrisUpdatedEvent(event) map (mapResult(_)) recover recovery
     }
   }
 
