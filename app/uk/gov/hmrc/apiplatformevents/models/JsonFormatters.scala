@@ -39,12 +39,16 @@ object JsonFormatters {
   implicit val clientSecretAddedEventFormats = Json.format[ClientSecretAddedEvent]
   implicit val clientSecretRemovedEventFormats = Json.format[ClientSecretRemovedEvent]
   implicit val urisUpdatedEventFormats = Json.format[RedirectUrisUpdatedEvent]
+  implicit val apiSubscribedEventFormats = Json.format[ApiSubscribedEvent]
+  implicit val apiUnsubscribedEventFormats = Json.format[ApiUnsubscribedEvent]
   implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
     .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
     .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
+    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
+    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
 }
 

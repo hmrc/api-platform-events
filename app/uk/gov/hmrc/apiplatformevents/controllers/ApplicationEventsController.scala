@@ -21,7 +21,7 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.apiplatformevents.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, ErrorCode, JsErrorResponse, TeamMemberAddedEvent, TeamMemberRemovedEvent, RedirectUrisUpdatedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, ErrorCode, JsErrorResponse, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -74,6 +74,17 @@ class ApplicationEventsController @Inject()(val env: Environment,
     }
   }
 
+  def apiSubscribed() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ApiSubscribedEvent] { event =>
+      service.captureApiSubscribedEvent(event) map (mapResult(_)) recover recovery
+    }
+  }
+
+  def apiUnsubscribed() = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ApiUnsubscribedEvent] { event =>
+      service.captureApiUnsubscribedEvent(event) map (mapResult(_)) recover recovery
+    }
+  }
 
   override protected def withJsonBody[T]
   (f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
