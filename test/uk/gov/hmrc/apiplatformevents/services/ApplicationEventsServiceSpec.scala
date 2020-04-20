@@ -21,7 +21,7 @@ import java.util.UUID
 import org.joda.time.DateTime
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
@@ -68,6 +68,18 @@ class ApplicationEventsServiceSpec
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     oldRedirectUris = "oldrdu",
     newRedirectUris = "newrdu")
+
+  val validApiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(applicationId = UUID.randomUUID().toString,
+    DateTime.now,
+    actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
+    context = "apicontext",
+    version = "1.0")
+
+  val validApiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(applicationId = UUID.randomUUID().toString,
+    DateTime.now,
+    actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
+    context = "apicontext",
+    version = "1.0")
 
   implicit val hc: HeaderCarrier =
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
@@ -241,6 +253,74 @@ class ApplicationEventsServiceSpec
 
       val service = new ApplicationEventsService(mockRepository)
       await(service.captureRedirectUrisUpdatedEvent(validRedirectUrisUpdatedModel))
+    }
+  }
+
+  "ApiSubscribedService" should {
+
+    "send a ApiSubscribed event to the repository and return true when saved" in {
+      testService(repoResult = true, repoThrowsException = false) shouldBe true
+    }
+
+
+    "fail and return false when repository capture event fails" in {
+      testService(repoResult = false, repoThrowsException = false) shouldBe false
+    }
+
+
+    "handle error" in {
+      val exception =  intercept[GenericDriverException] {
+        testService(repoResult = false, repoThrowsException = true)
+      }
+
+      exception.message shouldBe "some mongo error"
+    }
+
+    def testService(repoResult: Boolean, repoThrowsException: Boolean): Boolean = {
+      if(repoThrowsException){
+        when(mockRepository.createEntity(any[ApiSubscribedEvent])(any()))
+          .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
+      }else {
+        when(mockRepository.createEntity(any[ApiSubscribedEvent])(any()))
+          .thenReturn(Future.successful(repoResult))
+      }
+
+      val service = new ApplicationEventsService(mockRepository)
+      await(service.captureApiSubscribedEvent(validApiSubscribedModel))
+    }
+  }
+
+  "ApiUnsubscribedService" should {
+
+    "send a ApiUnsubscribed event to the repository and return true when saved" in {
+      testService(repoResult = true, repoThrowsException = false) shouldBe true
+    }
+
+
+    "fail and return false when repository capture event fails" in {
+      testService(repoResult = false, repoThrowsException = false) shouldBe false
+    }
+
+
+    "handle error" in {
+      val exception =  intercept[GenericDriverException] {
+        testService(repoResult = false, repoThrowsException = true)
+      }
+
+      exception.message shouldBe "some mongo error"
+    }
+
+    def testService(repoResult: Boolean, repoThrowsException: Boolean): Boolean = {
+      if(repoThrowsException){
+        when(mockRepository.createEntity(any[ApiUnsubscribedEvent])(any()))
+          .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
+      }else {
+        when(mockRepository.createEntity(any[ApiUnsubscribedEvent])(any()))
+          .thenReturn(Future.successful(repoResult))
+      }
+
+      val service = new ApplicationEventsService(mockRepository)
+      await(service.captureApiUnsubscribedEvent(validApiUnsubscribedModel))
     }
   }
 

@@ -33,6 +33,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
          |"oldRedirectUris": "oldrdu",
          |"newRedirectUris": "newrdu"}""".stripMargin
 
+  val validApiSubscriptionJsonBody =
+    raw"""{"applicationId": "akjhjkhjshjkhksaih",
+         |"eventDateTime": "2014-01-01T13:13:34.441Z",
+         |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
+         |"context": "apicontext",
+         |"version": "1.0"}""".stripMargin
+
   def doGet(path: String): WSResponse = {
     wsClient
       .url(s"$url$path")
@@ -183,6 +190,58 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
 
       "respond with 415 when contentType header isn't JSON" in {
         val result = doPost("/redirectUrisUpdated", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      }
+    }
+
+    "POST /apiSubscribed" should {
+      "respond with 201 when valid json is sent" in {
+        val result = doPost("/apiSubscribed", validApiSubscriptionJsonBody, "Content-Type" -> "application/json")
+        result.status shouldBe 201
+        result.body shouldBe ""
+      }
+
+      "respond with 400 when invalid json is sent" in {
+        val result = doPost("/apiSubscribed", "i'm not JSON", "Content-Type" -> "application/json")
+        result.status shouldBe 400
+        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
+      }
+
+      "respond with 415 when contentType header is missing" in {
+        val result = doPost("/apiSubscribed", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      }
+
+      "respond with 415 when contentType header isn't JSON" in {
+        val result = doPost("/apiSubscribed", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      }
+    }
+
+    "POST /apiUnsubscribed" should {
+      "respond with 201 when valid json is sent" in {
+        val result = doPost("/apiUnsubscribed", validApiSubscriptionJsonBody, "Content-Type" -> "application/json")
+        result.status shouldBe 201
+        result.body shouldBe ""
+      }
+
+      "respond with 400 when invalid json is sent" in {
+        val result = doPost("/apiUnsubscribed", "i'm not JSON", "Content-Type" -> "application/json")
+        result.status shouldBe 400
+        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
+      }
+
+      "respond with 415 when contentType header is missing" in {
+        val result = doPost("/apiUnsubscribed", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
+        result.status shouldBe 415
+        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      }
+
+      "respond with 415 when contentType header isn't JSON" in {
+        val result = doPost("/apiUnsubscribed", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
         result.status shouldBe 415
         result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }

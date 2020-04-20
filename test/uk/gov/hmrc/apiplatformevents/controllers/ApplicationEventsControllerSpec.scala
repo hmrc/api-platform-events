@@ -27,7 +27,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
-import uk.gov.hmrc.apiplatformevents.models.{ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.reset
@@ -54,6 +54,8 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
   private val clientSecretAddedUri = "/application-events/clientSecretAdded"
   private val clientSecretRemovedUri = "/application-events/clientSecretRemoved"
   private val redirectUrisUpdatedUri = "/application-events/redirectUrisUpdated"
+  private val apiSubscribedUri = "/application-events/apiSubscribed"
+  private val apiUnsubscribedUri = "/application-events/apiUnsubscribed"
   private val validHeaders: Map[String, String] = Map("Content-Type"->"application/json")
 
   "TeamMemberAddedEvent" should {
@@ -259,6 +261,88 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
     "return 415 when content type isn't json" in {
       val result = doPost(redirectUrisUpdatedUri, Map("Content-Type"-> "application/xml"), "{}")
+      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+    }
+  }
+
+  "ApiSubscribedEvent" should {
+
+    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
+                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
+                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+                         |"context": "apicontext",
+                         |"version": "1.0"}""".stripMargin
+
+    "return 201 when post request is valid json" in {
+      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEvent])(any(), any()))
+        .thenReturn(Future.successful(true))
+
+      val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
+      status(result) should be(CREATED)
+    }
+
+    "return 500 when post request is valid json but service fails" in {
+      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEvent])(any(), any()))
+        .thenReturn(Future.successful(false))
+
+      val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
+      status(result) should be(INTERNAL_SERVER_ERROR)
+    }
+
+    "return 400 when post request is invalid json" in {
+      val result = doPost(apiSubscribedUri, validHeaders, "Not JSON")
+      status(result) should be(BAD_REQUEST)
+    }
+
+    "return 422 when content type header is missing" in {
+
+      val result = doPost(apiSubscribedUri, Map.empty, "{}")
+      status(result) should be(UNPROCESSABLE_ENTITY)
+    }
+
+    "return 415 when content type isn't json" in {
+      val result = doPost(apiSubscribedUri, Map("Content-Type"-> "application/xml"), "{}")
+      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+    }
+  }
+
+  "ApiUnsubscribedEvent" should {
+
+    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
+                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
+                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+                         |"context": "apicontext",
+                         |"version": "1.0"}""".stripMargin
+
+    "return 201 when post request is valid json" in {
+      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEvent])(any(), any()))
+        .thenReturn(Future.successful(true))
+
+      val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
+      status(result) should be(CREATED)
+    }
+
+    "return 500 when post request is valid json but service fails" in {
+      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEvent])(any(), any()))
+        .thenReturn(Future.successful(false))
+
+      val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
+      status(result) should be(INTERNAL_SERVER_ERROR)
+    }
+
+    "return 400 when post request is invalid json" in {
+      val result = doPost(apiUnsubscribedUri, validHeaders, "Not JSON")
+      status(result) should be(BAD_REQUEST)
+    }
+
+    "return 422 when content type header is missing" in {
+
+      val result = doPost(apiUnsubscribedUri, Map.empty, "{}")
+      status(result) should be(UNPROCESSABLE_ENTITY)
+    }
+
+    "return 415 when content type isn't json" in {
+      val result = doPost(apiUnsubscribedUri, Map("Content-Type"-> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
