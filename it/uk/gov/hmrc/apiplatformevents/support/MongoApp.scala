@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformevents.support
 
 import org.scalatest.{BeforeAndAfterEach, Suite, TestSuite}
-import org.scalatestplus.play.OneAppPerSuite
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.mongo.{MongoSpecSupport, Awaiting => MongoAwaiting}
 

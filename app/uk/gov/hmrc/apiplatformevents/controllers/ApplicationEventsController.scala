@@ -20,8 +20,17 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
 import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.apiplatformevents.models.JsonFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, ErrorCode, JsErrorResponse, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.JsonRequestFormatters._
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEventModel,
+  ApiUnsubscribedEventModel,
+  ClientSecretAddedEventModel,
+  ClientSecretRemovedEventModel,
+  ErrorCode,
+  JsErrorResponse,
+  RedirectUrisUpdatedEventModel,
+  TeamMemberAddedEventModel,
+  TeamMemberRemovedEventModel}
+
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
@@ -37,52 +46,45 @@ class ApplicationEventsController @Inject()(val env: Environment,
                                              implicit val configuration: Configuration,
                                              ec: ExecutionContext) extends BackendController(cc) {
 
-  def helloworld: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(
-      Ok("hello world application")
-    )
-
-  }
-
-  def teamMemberAdded() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[TeamMemberAddedEvent] { event =>
-      service.captureTeamMemberAddedEvent(event) map (mapResult(_)) recover recovery
+  def teamMemberAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[TeamMemberAddedEventModel] { event =>
+      service.captureTeamMemberAddedEvent(event) map mapResult recover recovery
     }
   }
 
-  def teamMemberRemoved() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[TeamMemberRemovedEvent] { event =>
-      service.captureTeamMemberRemovedEvent(event) map (mapResult(_)) recover recovery
+  def teamMemberRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[TeamMemberRemovedEventModel] { event =>
+      service.captureTeamMemberRemovedEvent(event) map mapResult recover recovery
     }
   }
 
-  def clientSecretAdded() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ClientSecretAddedEvent] { event =>
-      service.captureClientSecretAddedEvent(event) map (mapResult(_)) recover recovery
+  def clientSecretAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ClientSecretAddedEventModel] { event =>
+      service.captureClientSecretAddedEvent(event) map mapResult recover recovery
     }
   }
 
-  def clientSecretRemoved() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ClientSecretRemovedEvent] { event =>
-      service.captureClientSecretRemovedEvent(event) map (mapResult(_)) recover recovery
+  def clientSecretRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ClientSecretRemovedEventModel] { event =>
+      service.captureClientSecretRemovedEvent(event) map mapResult recover recovery
     }
   }
 
-  def redirectUrisUpdated() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[RedirectUrisUpdatedEvent] { event =>
-      service.captureRedirectUrisUpdatedEvent(event) map (mapResult(_)) recover recovery
+  def redirectUrisUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[RedirectUrisUpdatedEventModel] { event =>
+      service.captureRedirectUrisUpdatedEvent(event) map mapResult recover recovery
     }
   }
 
-  def apiSubscribed() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ApiSubscribedEvent] { event =>
-      service.captureApiSubscribedEvent(event) map (mapResult(_)) recover recovery
+  def apiSubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ApiSubscribedEventModel] { event =>
+      service.captureApiSubscribedEvent(event) map mapResult recover recovery
     }
   }
 
-  def apiUnsubscribed() = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ApiUnsubscribedEvent] { event =>
-      service.captureApiUnsubscribedEvent(event) map (mapResult(_)) recover recovery
+  def apiUnsubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ApiUnsubscribedEventModel] { event =>
+      service.captureApiUnsubscribedEvent(event) map mapResult recover recovery
     }
   }
 
@@ -94,19 +96,18 @@ class ApplicationEventsController @Inject()(val env: Environment,
   private def withJson[T](json: JsValue)(f: T => Future[Result])(implicit m: Manifest[T], reads: Reads[T]): Future[Result] = {
     Try(json.validate[T]) match {
       case Success(JsSuccess(payload, _)) => f(payload)
-      case Success(JsError(errs)) => {
+      case Success(JsError(errs)) =>
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, JsError.toJson(errs))))
-      }
-      case Failure(e) => {
+      case Failure(e) =>
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, e.getMessage)))
-      }
     }
   }
 
-  private def mapResult(result: Boolean) = {
-    result match {
-      case true => Created
-      case false => InternalServerError
+  private def mapResult(result: Boolean): Status = {
+    if (result) {
+      Created
+    } else {
+      InternalServerError
     }
   }
 

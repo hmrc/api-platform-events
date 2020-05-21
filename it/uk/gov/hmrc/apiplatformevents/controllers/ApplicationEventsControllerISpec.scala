@@ -11,29 +11,29 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
 
   val url = s"http://localhost:$port/application-events"
 
-  val wsClient = app.injector.instanceOf[WSClient]
+  val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val validTeamMemberJsonBody =
+  val validTeamMemberJsonBody: String =
     raw"""{"applicationId": "akjhjkhjshjkhksaih",
          |"eventDateTime": "2014-01-01T13:13:34.441Z",
          |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
          |"teamMemberEmail": "bob@bob.com",
          |"teamMemberRole": "ADMIN"}""".stripMargin
 
-  val validClientSecretJsonBody =
+  val validClientSecretJsonBody: String =
     raw"""{"applicationId": "akjhjkhjshjkhksaih",
          |"eventDateTime": "2014-01-01T13:13:34.441Z",
          |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
          |"clientSecretId": "abababab"}""".stripMargin
 
-  val validRedirectUrisUpdatedJsonBody =
+  val validRedirectUrisUpdatedJsonBody: String =
     raw"""{"applicationId": "akjhjkhjshjkhksaih",
          |"eventDateTime": "2014-01-01T13:13:34.441Z",
          |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
          |"oldRedirectUris": "oldrdu",
          |"newRedirectUris": "newrdu"}""".stripMargin
 
-  val validApiSubscriptionJsonBody =
+  val validApiSubscriptionJsonBody: String =
     raw"""{"applicationId": "akjhjkhjshjkhksaih",
          |"eventDateTime": "2014-01-01T13:13:34.441Z",
          |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
@@ -56,14 +56,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec {
   }
 
   "ApplicationEventsController" when {
-
-    "GET /helloworld" should {
-      "respond with 200" in {
-        val result = doGet("/helloworld")
-        result.status shouldBe 200
-        result.body shouldBe "hello world application"
-      }
-    }
 
     "POST /teamMemberAdded" should {
       "respond with 201 when valid json is sent" in {

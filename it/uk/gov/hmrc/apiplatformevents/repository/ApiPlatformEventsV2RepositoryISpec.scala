@@ -18,14 +18,14 @@ package uk.gov.hmrc.apiplatformevents.repository
 import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
+import uk.gov.hmrc.apiplatformevents.models.db._
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
+class ApiPlatformEventsV2RepositoryISpec extends UnitSpec with MongoApp {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -35,8 +35,8 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  def repo: ApplicationEventsRepository =
-    app.injector.instanceOf[ApplicationEventsRepository]
+  def repo: ApplicationEventsV2Repository =
+    app.injector.instanceOf[ApplicationEventsV2Repository]
 
   override def beforeEach() {
     super.beforeEach()

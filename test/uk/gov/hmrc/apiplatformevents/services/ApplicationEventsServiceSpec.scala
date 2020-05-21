@@ -21,15 +21,16 @@ import java.util.UUID
 import org.joda.time.DateTime
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsV2Repository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.any
 import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
+import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
+import uk.gov.hmrc.apiplatformevents.models.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -39,43 +40,43 @@ class ApplicationEventsServiceSpec
     with MockitoSugar
     with Eventually {
 
-  val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
+  val mockRepository: ApplicationEventsV2Repository = mock[ApplicationEventsV2Repository]
 
-  val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
+  val validAddTeamMemberModel: TeamMemberAddedEventModel = TeamMemberAddedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
-  val validRemoveTeamMemberModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(applicationId = UUID.randomUUID().toString,
+  val validRemoveTeamMemberModel: TeamMemberRemovedEventModel = TeamMemberRemovedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
-  val validAddClientSecretModel: ClientSecretAddedEvent = ClientSecretAddedEvent(applicationId = UUID.randomUUID().toString,
+  val validAddClientSecretModel: ClientSecretAddedEventModel = ClientSecretAddedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     clientSecretId = "abababab")
 
-  val validRemoveClientSecretModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(applicationId = UUID.randomUUID().toString,
+  val validRemoveClientSecretModel: ClientSecretRemovedEventModel = ClientSecretRemovedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     clientSecretId = "abababab")
 
-  val validRedirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(applicationId = UUID.randomUUID().toString,
+  val validRedirectUrisUpdatedModel: RedirectUrisUpdatedEventModel = RedirectUrisUpdatedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     oldRedirectUris = "oldrdu",
     newRedirectUris = "newrdu")
 
-  val validApiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(applicationId = UUID.randomUUID().toString,
+  val validApiSubscribedModel: ApiSubscribedEventModel = ApiSubscribedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     context = "apicontext",
     version = "1.0")
 
-  val validApiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(applicationId = UUID.randomUUID().toString,
+  val validApiUnsubscribedModel: ApiUnsubscribedEventModel = ApiUnsubscribedEventModel(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     context = "apicontext",

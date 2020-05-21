@@ -14,39 +14,30 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.models
+package uk.gov.hmrc.apiplatformevents.models.db
 
 import org.joda.time.DateTime
-import play.api.libs.json.Format
-import uk.gov.hmrc.apiplatformevents.models.common.Actor
-
-
-object EventType extends Enumeration{
-  type AccessType = Value
-  val TEAM_MEMBER_ADDED: EventType.Value = Value
-  val TEAM_MEMBER_REMOVED: EventType.Value = Value
-  val CLIENT_SECRET_ADDED: EventType.Value = Value
-  val CLIENT_SECRET_REMOVED: EventType.Value = Value
-  val REDIRECT_URIS_UPDATED: EventType.Value = Value
-  val API_SUBSCRIBED: EventType.Value = Value
-  val API_UNSUBSCRIBED: EventType.Value = Value
-
-  implicit val applicationEventTypeFormat: Format[EventType.Value] = EnumJson.enumFormat(EventType)
-}
-
-trait ApplicationEvent{
-  val applicationId: String
-  val eventDateTime: DateTime
-  val eventType: EventType.Value
-  val actor: Actor
-}
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEventModel,
+  ApiUnsubscribedEventModel,
+  ClientSecretAddedEventModel,
+  ClientSecretRemovedEventModel,
+  RedirectUrisUpdatedEventModel,
+  TeamMemberAddedEventModel,
+  TeamMemberRemovedEventModel}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventType}
 
 case class TeamMemberAddedEvent(override val applicationId: String,
                                 override val eventDateTime: DateTime,
                                 override val actor: Actor,
                                 teamMemberEmail: String,
                                 teamMemberRole: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.TEAM_MEMBER_ADDED
+  override val eventType: EventType = EventType.TEAM_MEMBER_ADDED
+}
+
+object TeamMemberAddedEvent {
+  def fromRequest(event: TeamMemberAddedEventModel): ApplicationEvent = {
+    TeamMemberAddedEvent(event.applicationId, event.eventDateTime, event.actor, event.teamMemberEmail, event.teamMemberRole)
+  }
 }
 
 case class TeamMemberRemovedEvent(override val applicationId: String,
@@ -54,21 +45,39 @@ case class TeamMemberRemovedEvent(override val applicationId: String,
                                   override val actor: Actor,
                                   teamMemberEmail: String,
                                   teamMemberRole: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.TEAM_MEMBER_REMOVED
+  override val eventType: EventType = EventType.TEAM_MEMBER_REMOVED
+}
+
+object TeamMemberRemovedEvent {
+  def fromRequest(event: TeamMemberRemovedEventModel): ApplicationEvent = {
+    TeamMemberRemovedEvent(event.applicationId, event.eventDateTime, event.actor, event.teamMemberEmail, event.teamMemberRole)
+  }
 }
 
 case class ClientSecretAddedEvent(override val applicationId: String,
                                   override val eventDateTime: DateTime,
                                   override val actor: Actor,
                                   clientSecretId: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.CLIENT_SECRET_ADDED
+  override val eventType: EventType = EventType.CLIENT_SECRET_ADDED
+}
+
+object ClientSecretAddedEvent {
+  def fromRequest(event: ClientSecretAddedEventModel): ApplicationEvent = {
+    ClientSecretAddedEvent(event.applicationId, event.eventDateTime, event.actor, event.clientSecretId)
+  }
 }
 
 case class ClientSecretRemovedEvent(override val applicationId: String,
                                    override val eventDateTime: DateTime,
                                    override val actor: Actor,
                                    clientSecretId: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.CLIENT_SECRET_REMOVED
+  override val eventType: EventType = EventType.CLIENT_SECRET_REMOVED
+}
+
+object ClientSecretRemovedEvent {
+  def fromRequest(event: ClientSecretRemovedEventModel): ApplicationEvent = {
+    ClientSecretRemovedEvent(event.applicationId, event.eventDateTime, event.actor, event.clientSecretId)
+  }
 }
 
 case class RedirectUrisUpdatedEvent(override val applicationId: String,
@@ -76,7 +85,13 @@ case class RedirectUrisUpdatedEvent(override val applicationId: String,
                                     override val actor: Actor,
                                     oldRedirectUris: String,
                                     newRedirectUris: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.REDIRECT_URIS_UPDATED
+  override val eventType: EventType = EventType.REDIRECT_URIS_UPDATED
+}
+
+object RedirectUrisUpdatedEvent {
+  def fromRequest(event: RedirectUrisUpdatedEventModel): ApplicationEvent = {
+    RedirectUrisUpdatedEvent(event.applicationId, event.eventDateTime, event.actor, event.oldRedirectUris, event.newRedirectUris)
+  }
 }
 
 case class ApiSubscribedEvent(override val applicationId: String,
@@ -84,7 +99,13 @@ case class ApiSubscribedEvent(override val applicationId: String,
                                     override val actor: Actor,
                                     context: String,
                                     version: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.API_SUBSCRIBED
+  override val eventType: EventType = EventType.API_SUBSCRIBED
+}
+
+object ApiSubscribedEvent {
+  def fromRequest(event: ApiSubscribedEventModel): ApplicationEvent = {
+    ApiSubscribedEvent(event.applicationId, event.eventDateTime, event.actor, event.context, event.version)
+  }
 }
 
 case class ApiUnsubscribedEvent(override val applicationId: String,
@@ -92,5 +113,11 @@ case class ApiUnsubscribedEvent(override val applicationId: String,
                               override val actor: Actor,
                               context: String,
                               version: String) extends ApplicationEvent {
-  override val eventType: EventType.Value = EventType.API_UNSUBSCRIBED
+  override val eventType: EventType = EventType.API_UNSUBSCRIBED
+}
+
+object ApiUnsubscribedEvent {
+  def fromRequest(event: ApiUnsubscribedEventModel): ApplicationEvent = {
+    ApiUnsubscribedEvent(event.applicationId, event.eventDateTime, event.actor, event.context, event.version)
+  }
 }
