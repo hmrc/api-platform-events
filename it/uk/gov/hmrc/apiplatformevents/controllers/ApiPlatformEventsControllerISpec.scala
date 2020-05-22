@@ -11,7 +11,7 @@ class ApiPlatformEventsControllerISpec extends ServerBaseISpec {
 
   val url = s"http://localhost:$port"
 
-  val wsClient = app.injector.instanceOf[WSClient]
+  val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   def entity(): WSResponse =
     wsClient

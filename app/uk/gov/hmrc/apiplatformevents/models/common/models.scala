@@ -16,15 +16,42 @@
 
 package uk.gov.hmrc.apiplatformevents.models.common
 
-import uk.gov.hmrc.apiplatformevents.models.EnumJson
-import uk.gov.hmrc.apiplatformevents.models.common.ActorType.ActorType
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import org.joda.time.DateTime
+import play.api.libs.json.Json
 
-object ActorType extends Enumeration {
-  type ActorType = Value
-  val COLLABORATOR, GATEKEEPER, SCHEDULED_JOB = Value
+import scala.collection.immutable
 
-  implicit val actorTypeFormat = EnumJson.enumFormat(ActorType)
 
+sealed trait ActorType extends EnumEntry
+
+object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
+  val values: immutable.IndexedSeq[ActorType] = findValues
+
+  case object COLLABORATOR extends ActorType
+  case object GATEKEEPER extends  ActorType
+  case object SCHEDULED_JOB extends ActorType
 }
 
 case class Actor(id: String, actorType: ActorType)
+
+sealed trait EventType extends EnumEntry
+
+object EventType extends  Enum[EventType] with PlayJsonEnum[EventType]  {
+  val values: immutable.IndexedSeq[EventType] = findValues
+
+  case object TEAM_MEMBER_ADDED extends EventType
+  case object  TEAM_MEMBER_REMOVED extends EventType
+  case object  CLIENT_SECRET_ADDED extends EventType
+  case object  CLIENT_SECRET_REMOVED extends EventType
+  case object  REDIRECT_URIS_UPDATED extends EventType
+  case object  API_SUBSCRIBED extends EventType
+  case object  API_UNSUBSCRIBED extends EventType
+}
+
+trait ApplicationEvent{
+  val applicationId: String
+  val eventDateTime: DateTime
+  val eventType: EventType
+  val actor: Actor
+}
