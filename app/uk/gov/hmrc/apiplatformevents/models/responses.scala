@@ -16,13 +16,20 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.Json.JsValueWrapper
+import play.api.libs.json.{JsObject, Json}
 
-case class ApiPlatformEventsModel(parameter1: String,
-                                  parameter2: Option[String],
-                                  telephoneNumber: Option[String],
-                                  emailAddress: Option[String])
+object ErrorCode extends Enumeration {
+  type ErrorCode = Value
 
-object ApiPlatformEventsModel {
-  implicit val modelFormat = Json.format[ApiPlatformEventsModel]
+  val INVALID_REQUEST_PAYLOAD = Value("INVALID_REQUEST_PAYLOAD")
+  val UNKNOWN_ERROR = Value("UNKNOWN_ERROR")
+}
+
+object JsErrorResponse {
+  def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
+    Json.obj(
+      "code" -> errorCode.toString,
+      "message" -> message
+    )
 }

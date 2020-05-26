@@ -30,7 +30,7 @@ import org.mockito.ArgumentMatchers.any
 import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
-import uk.gov.hmrc.apiplatformevents.models.db._
+
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -42,41 +42,41 @@ class ApplicationEventsServiceSpec
 
   val mockRepository: ApplicationEventsV2Repository = mock[ApplicationEventsV2Repository]
 
-  val validAddTeamMemberModel: TeamMemberAddedEventModel = TeamMemberAddedEventModel(applicationId = UUID.randomUUID().toString,
+  val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
-  val validRemoveTeamMemberModel: TeamMemberRemovedEventModel = TeamMemberRemovedEventModel(applicationId = UUID.randomUUID().toString,
+  val validRemoveTeamMemberModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
-  val validAddClientSecretModel: ClientSecretAddedEventModel = ClientSecretAddedEventModel(applicationId = UUID.randomUUID().toString,
+  val validAddClientSecretModel: ClientSecretAddedEvent = ClientSecretAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     clientSecretId = "abababab")
 
-  val validRemoveClientSecretModel: ClientSecretRemovedEventModel = ClientSecretRemovedEventModel(applicationId = UUID.randomUUID().toString,
+  val validRemoveClientSecretModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     clientSecretId = "abababab")
 
-  val validRedirectUrisUpdatedModel: RedirectUrisUpdatedEventModel = RedirectUrisUpdatedEventModel(applicationId = UUID.randomUUID().toString,
+  val validRedirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     oldRedirectUris = "oldrdu",
     newRedirectUris = "newrdu")
 
-  val validApiSubscribedModel: ApiSubscribedEventModel = ApiSubscribedEventModel(applicationId = UUID.randomUUID().toString,
+  val validApiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     context = "apicontext",
     version = "1.0")
 
-  val validApiUnsubscribedModel: ApiUnsubscribedEventModel = ApiUnsubscribedEventModel(applicationId = UUID.randomUUID().toString,
+  val validApiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,
     actor = Actor("iam@admin.com", ActorType.COLLABORATOR),
     context = "apicontext",

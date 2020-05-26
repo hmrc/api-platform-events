@@ -17,8 +17,6 @@
 package uk.gov.hmrc.apiplatformevents.repository
 
 import javax.inject.{Inject, Singleton}
-import org.joda.time.DateTime
-import play.api.libs.json.Format
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormattersV1

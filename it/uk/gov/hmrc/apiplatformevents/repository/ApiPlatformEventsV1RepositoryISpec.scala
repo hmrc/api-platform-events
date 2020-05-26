@@ -18,8 +18,8 @@ package uk.gov.hmrc.apiplatformevents.repository
 import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
-import uk.gov.hmrc.apiplatformevents.models.db.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 
