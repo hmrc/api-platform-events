@@ -18,8 +18,8 @@ package uk.gov.hmrc.apiplatformevents.repository
 import org.joda.time.DateTime
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
-import uk.gov.hmrc.apiplatformevents.models.db._
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -43,41 +43,41 @@ class ApiPlatformEventsV2RepositoryISpec extends UnitSpec with MongoApp {
     await(repo.ensureIndexes)
   }
 
-  val teamMemberAddedModel = TeamMemberAddedEvent(applicationId = "John Smith",
+  val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
-  val teamMemberRemovedModel = TeamMemberRemovedEvent(applicationId = "John Smith",
+  val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
-  val clientSecretAddedModel = ClientSecretAddedEvent(applicationId = "John Smith",
+  val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
-  val clientSecretRemovedModel = ClientSecretRemovedEvent(applicationId = "John Smith",
+  val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
-  val redirectUrisUpdatedModel = RedirectUrisUpdatedEvent(applicationId = "John Smith",
+  val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     oldRedirectUris = "oldru",
     newRedirectUris = "newru")
 
-  val apiSubscribedModel = ApiSubscribedEvent(applicationId = "John Smith",
+  val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
 
-  val apiUnsubscribedModel = ApiUnsubscribedEvent(applicationId = "John Smith",
+  val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(applicationId = "John Smith",
     eventDateTime = DateTime.now,
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",

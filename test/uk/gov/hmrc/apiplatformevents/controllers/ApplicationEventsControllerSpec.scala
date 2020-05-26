@@ -21,6 +21,7 @@ import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
@@ -39,11 +40,11 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockApplicationsEventService: ApplicationEventsService = mock[ApplicationEventsService]
 
-  override lazy val app = GuiceApplicationBuilder()
+  override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[ApplicationEventsService].to(mockApplicationsEventService))
     .build()
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     reset(mockApplicationsEventService)
   }
 
@@ -66,7 +67,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
                          |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(teamMemberAddedUri, validHeaders, jsonBody))
@@ -75,7 +76,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(teamMemberAddedUri, validHeaders, jsonBody))
@@ -109,7 +110,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
                          |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
@@ -118,7 +119,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
@@ -151,7 +152,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
                          |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureClientSecretAddedEvent(any[ClientSecretAddedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureClientSecretAddedEvent(any[ClientSecretAddedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(clientSecretAddedUri, validHeaders, jsonBody))
@@ -159,7 +160,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureClientSecretAddedEvent(any[ClientSecretAddedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureClientSecretAddedEvent(any[ClientSecretAddedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(clientSecretAddedUri, validHeaders, jsonBody))
@@ -191,7 +192,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
                          |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureClientSecretRemovedEvent(any[ClientSecretRemovedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureClientSecretRemovedEvent(any[ClientSecretRemovedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(clientSecretRemovedUri, validHeaders, jsonBody))
@@ -199,7 +200,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureClientSecretRemovedEvent(any[ClientSecretRemovedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureClientSecretRemovedEvent(any[ClientSecretRemovedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(clientSecretRemovedUri, validHeaders, jsonBody))
@@ -232,7 +233,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
                          |"newRedirectUris": "newrdu"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureRedirectUrisUpdatedEvent(any[RedirectUrisUpdatedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureRedirectUrisUpdatedEvent(any[RedirectUrisUpdatedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(redirectUrisUpdatedUri, validHeaders, jsonBody))
@@ -240,7 +241,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureRedirectUrisUpdatedEvent(any[RedirectUrisUpdatedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureRedirectUrisUpdatedEvent(any[RedirectUrisUpdatedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(redirectUrisUpdatedUri, validHeaders, jsonBody))
@@ -273,7 +274,7 @@ value
                          |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
@@ -281,7 +282,7 @@ value
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
@@ -314,7 +315,7 @@ value
                          |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEvent])(any(), any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
@@ -322,7 +323,7 @@ value
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEventModel])(any(), any()))
+      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEvent])(any(), any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))

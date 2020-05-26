@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformevents.models.common
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import org.joda.time.DateTime
-import play.api.libs.json.Json
 
 import scala.collection.immutable
 
