@@ -21,7 +21,7 @@ import java.util.UUID
 import org.joda.time.DateTime
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsV2Repository
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -40,7 +40,7 @@ class ApplicationEventsServiceSpec
     with MockitoSugar
     with Eventually {
 
-  val mockRepository: ApplicationEventsV2Repository = mock[ApplicationEventsV2Repository]
+  val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
     DateTime.now,

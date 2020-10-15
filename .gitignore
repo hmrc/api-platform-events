@@ -22,11 +22,9 @@ npm-debug.log
 yarn-debug.log
 yarn-error.log
 
-    
-/.bloop/bloop.settings.json
-/.metals/metals.h2.db
-/.metals/metals.log
-/project/metals.sbt
-/.bloop/root.json
-/.bloop/root-it.json
-/.bloop/root-test.json
+
+/project/.bloop/*    
+/project/metals.sbt   
+/.bloop/*
+/.metals/*
+/.vscode/*

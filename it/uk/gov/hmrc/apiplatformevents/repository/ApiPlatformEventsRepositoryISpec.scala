@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApiPlatformEventsV2RepositoryISpec extends UnitSpec with MongoApp {
+class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -35,8 +35,8 @@ class ApiPlatformEventsV2RepositoryISpec extends UnitSpec with MongoApp {
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  def repo: ApplicationEventsV2Repository =
-    app.injector.instanceOf[ApplicationEventsV2Repository]
+  def repo: ApplicationEventsRepository =
+    app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach() {
     super.beforeEach()

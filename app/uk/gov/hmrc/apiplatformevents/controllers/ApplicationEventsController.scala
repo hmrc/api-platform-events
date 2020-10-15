@@ -37,6 +37,14 @@ class ApplicationEventsController @Inject()(val env: Environment,
                                              implicit val configuration: Configuration,
                                              ec: ExecutionContext) extends BackendController(cc) {
 
+ 
+
+def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[PpnsCallBackUriUpdatedEvent] { event =>
+      service.capturePpnsCallbackUriUpdatedEvent(event) map mapResult recover recovery
+    }
+  }
+
   def teamMemberAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberAddedEvent] { event =>
       service.captureTeamMemberAddedEvent(event) map mapResult recover recovery

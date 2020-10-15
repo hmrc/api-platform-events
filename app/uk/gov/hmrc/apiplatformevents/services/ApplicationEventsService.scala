@@ -19,15 +19,20 @@ package uk.gov.hmrc.apiplatformevents.services
 import com.google.inject.Singleton
 import javax.inject.Inject
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsV2Repository
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsV2Repository) {
+class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
 
 
+
+  def capturePpnsCallbackUriUpdatedEvent( event: PpnsCallBackUriUpdatedEvent)
+                                        (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    repo.createEntity(event)
+  }
   def captureTeamMemberAddedEvent(event: TeamMemberAddedEvent)
                                  (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     repo.createEntity(event)

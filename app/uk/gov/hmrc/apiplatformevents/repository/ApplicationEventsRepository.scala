@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformevents.repository
 import javax.inject.{Inject, Singleton}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormattersV1
+import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters
 import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
@@ -27,12 +27,12 @@ import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationEventsV1Repository @Inject()(
+class ApplicationEventsRepository @Inject()(
     mongoComponent: ReactiveMongoComponent)
     extends ReactiveRepository[ApplicationEvent, BSONObjectID](
-      "api-platform-application-events",
+      "application-events",
       mongoComponent.mongoConnector.db,
-      ReactiveMongoFormattersV1.formatApplicationEvent,
+      ReactiveMongoFormatters.formatApplicationEvent,
       ReactiveMongoFormats.objectIdFormats) {
 
   def createEntity(event: ApplicationEvent)
