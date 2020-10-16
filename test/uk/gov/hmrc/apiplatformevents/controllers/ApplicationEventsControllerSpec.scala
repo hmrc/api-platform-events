@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{reset, verifyNoInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 class ApplicationEventsControllerSpec extends UnitSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory with MockitoSugar
-with GuiceOneAppPerSuite with BeforeAndAfterEach {
+  with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockApplicationsEventService: ApplicationEventsService = mock[ApplicationEventsService]
 
@@ -56,18 +56,20 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
   private val redirectUrisUpdatedUri = "/application-events/redirectUrisUpdated"
   private val apiSubscribedUri = "/application-events/apiSubscribed"
   private val apiUnsubscribedUri = "/application-events/apiUnsubscribed"
-  private val validHeaders: Map[String, String] = Map("Content-Type"->"application/json")
+  private val ppnsCallBackUriUpdateddUri = "/application-events/ppnsCallbackUriUpdated"
+  private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
 
   "TeamMemberAddedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"teamMemberEmail": "bob@bob.com",
-                         |"teamMemberRole": "ADMIN"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"teamMemberEmail": "bob@bob.com",
+           |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[TeamMemberAddedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(teamMemberAddedUri, validHeaders, jsonBody))
@@ -76,7 +78,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureTeamMemberAddedEvent(any[TeamMemberAddedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[TeamMemberAddedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(teamMemberAddedUri, validHeaders, jsonBody))
@@ -96,21 +98,22 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(teamMemberAddedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(teamMemberAddedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
 
   "TeamMemberRemovedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"teamMemberEmail": "bob@bob.com",
-                         |"teamMemberRole": "ADMIN"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"teamMemberEmail": "bob@bob.com",
+           |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[TeamMemberRemovedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
@@ -119,7 +122,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureTeamMemberRemovedEvent(any[TeamMemberRemovedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[TeamMemberRemovedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
@@ -139,20 +142,21 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(teamMemberRemovedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(teamMemberRemovedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
 
   "ClientSecretAddedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"clientSecretId": "abababab"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureClientSecretAddedEvent(any[ClientSecretAddedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ClientSecretAddedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(clientSecretAddedUri, validHeaders, jsonBody))
@@ -160,7 +164,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureClientSecretAddedEvent(any[ClientSecretAddedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ClientSecretAddedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(clientSecretAddedUri, validHeaders, jsonBody))
@@ -179,20 +183,21 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(clientSecretAddedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(clientSecretAddedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
 
   "ClientSecretRemovedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"clientSecretId": "abababab"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureClientSecretRemovedEvent(any[ClientSecretRemovedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ClientSecretRemovedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(clientSecretRemovedUri, validHeaders, jsonBody))
@@ -200,7 +205,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureClientSecretRemovedEvent(any[ClientSecretRemovedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ClientSecretRemovedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(clientSecretRemovedUri, validHeaders, jsonBody))
@@ -219,21 +224,22 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(clientSecretRemovedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(clientSecretRemovedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
 
   "RedirectUrisUpdatedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"oldRedirectUris": "oldrdu",
-                         |"newRedirectUris": "newrdu"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"oldRedirectUris": "oldrdu",
+           |"newRedirectUris": "newrdu"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureRedirectUrisUpdatedEvent(any[RedirectUrisUpdatedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[RedirectUrisUpdatedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(redirectUrisUpdatedUri, validHeaders, jsonBody))
@@ -241,7 +247,7 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureRedirectUrisUpdatedEvent(any[RedirectUrisUpdatedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[RedirectUrisUpdatedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(redirectUrisUpdatedUri, validHeaders, jsonBody))
@@ -260,21 +266,22 @@ with GuiceOneAppPerSuite with BeforeAndAfterEach {
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(redirectUrisUpdatedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(redirectUrisUpdatedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
-value
+
   "ApiSubscribedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"context": "apicontext",
-                         |"version": "1.0"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"context": "apicontext",
+           |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ApiSubscribedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
@@ -282,7 +289,7 @@ value
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureApiSubscribedEvent(any[ApiSubscribedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ApiSubscribedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
@@ -301,21 +308,22 @@ value
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(apiSubscribedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(apiSubscribedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
 
   "ApiUnsubscribedEvent" should {
 
-    val jsonBody =  raw"""{"applicationId": "akjhjkhjshjkhksaih",
-                         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-                         |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-                         |"context": "apicontext",
-                         |"version": "1.0"}""".stripMargin
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"context": "apicontext",
+           |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ApiUnsubscribedEvent])(any()))
         .thenReturn(Future.successful(true))
 
       val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
@@ -323,7 +331,7 @@ value
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureApiUnsubscribedEvent(any[ApiUnsubscribedEvent])(any(), any()))
+      when(mockApplicationsEventService.captureEvent(any[ApiUnsubscribedEvent])(any()))
         .thenReturn(Future.successful(false))
 
       val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
@@ -342,20 +350,65 @@ value
     }
 
     "return 415 when content type isn't json" in {
-      val result = doPost(apiUnsubscribedUri, Map("Content-Type"-> "application/xml"), "{}")
+      val result = doPost(apiUnsubscribedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) should be(UNSUPPORTED_MEDIA_TYPE)
     }
   }
 
-  def doPost(uri: String, headers: Map[String, String], bodyValue: String): Future[Result] ={
-   val maybeBody: Option[JsValue] =  Try{
+
+  "PpnsCallBackUriUpdatedEvent" should {
+
+    val jsonBody =
+      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+           |"oldCallbackUrl": "oldUri",
+           |"newCallbackUrl": "newUri"}""".stripMargin
+
+    "return 201 when post request is valid json" in {
+      when(mockApplicationsEventService.captureEvent(any[PpnsCallBackUriUpdatedEvent])(any()))
+        .thenReturn(Future.successful(true))
+
+      val result = await(doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody))
+      status(result) should be(CREATED)
+    }
+
+    "return 500 when post request is valid json but service fails" in {
+      when(mockApplicationsEventService.captureEvent(any[PpnsCallBackUriUpdatedEvent])(any()))
+        .thenReturn(Future.successful(false))
+
+      val result = await(doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody))
+      status(result) should be(INTERNAL_SERVER_ERROR)
+    }
+
+    "return 400 when post request is invalid json" in {
+      val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, "Not JSON")
+      status(result) should be(BAD_REQUEST)
+      verifyNoInteractions(mockApplicationsEventService)
+    }
+
+    "return 422 when content type header is missing" in {
+      val result = doPost(ppnsCallBackUriUpdateddUri, Map.empty, "{}")
+      status(result) should be(UNPROCESSABLE_ENTITY)
+      verifyNoInteractions(mockApplicationsEventService)
+    }
+
+    "return 415 when content type isn't json" in {
+      val result = doPost(ppnsCallBackUriUpdateddUri, Map("Content-Type" -> "application/xml"), "{}")
+      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      verifyNoInteractions(mockApplicationsEventService)
+    }
+  }
+
+  def doPost(uri: String, headers: Map[String, String], bodyValue: String): Future[Result] = {
+    val maybeBody: Option[JsValue] = Try {
       Json.parse(bodyValue)
     } match {
-     case Success(value) => Some(value)
-     case Failure(_) =>  None
-   }
+      case Success(value) => Some(value)
+      case Failure(_) => None
+    }
 
-    val fakeRequest =  FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
+    val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
     maybeBody
       .fold(route(app, fakeRequest.withBody(bodyValue)).get)(jsonBody => route(app, fakeRequest.withJsonBody(jsonBody)).get)
 
