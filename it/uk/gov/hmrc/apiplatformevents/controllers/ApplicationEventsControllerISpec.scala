@@ -1,17 +1,22 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
-import org.scalatest.Suite
+import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
+import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
-class ApplicationEventsControllerISpec extends ServerBaseISpec {
+class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with  BeforeAndAfterEach {
 
   this: Suite with ServerProvider =>
 
   val url = s"http://localhost:$port/application-events"
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
+
+  override def beforeEach(): Unit = {
+   super.beforeEach()
+    primeAuditService()
+  }
 
   val validTeamMemberJsonBody: String =
     raw"""{"applicationId": "akjhjkhjshjkhksaih",
