@@ -30,6 +30,7 @@ object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
   case object COLLABORATOR extends ActorType
   case object GATEKEEPER extends  ActorType
   case object SCHEDULED_JOB extends ActorType
+  case object UNKNOWN extends ActorType
 }
 
 case class Actor(id: String, actorType: ActorType)
@@ -39,13 +40,19 @@ sealed trait EventType extends EnumEntry
 object EventType extends  Enum[EventType] with PlayJsonEnum[EventType]  {
   val values: immutable.IndexedSeq[EventType] = findValues
 
-  case object TEAM_MEMBER_ADDED extends EventType
-  case object  TEAM_MEMBER_REMOVED extends EventType
-  case object  CLIENT_SECRET_ADDED extends EventType
-  case object  CLIENT_SECRET_REMOVED extends EventType
-  case object  REDIRECT_URIS_UPDATED extends EventType
   case object  API_SUBSCRIBED extends EventType
   case object  API_UNSUBSCRIBED extends EventType
+
+  case object  CLIENT_SECRET_ADDED extends EventType
+  case object  CLIENT_SECRET_REMOVED extends EventType
+
+  case object  PPNS_CALLBACK_URI_UPDATED extends EventType
+
+  case object  REDIRECT_URIS_UPDATED extends EventType
+
+  case object  TEAM_MEMBER_ADDED extends EventType
+  case object  TEAM_MEMBER_REMOVED extends EventType
+
 }
 
 trait ApplicationEvent{

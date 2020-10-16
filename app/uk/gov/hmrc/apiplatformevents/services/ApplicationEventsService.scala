@@ -18,48 +18,18 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsV2Repository
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsV2Repository) {
+class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
 
 
-  def captureTeamMemberAddedEvent(event: TeamMemberAddedEvent)
-                                 (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event)
-  }
 
-  def captureTeamMemberRemovedEvent(event: TeamMemberRemovedEvent)
-                                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event)
-  }
 
-  def captureClientSecretAddedEvent(event: ClientSecretAddedEvent)
-                                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event)
-  }
-
-  def captureClientSecretRemovedEvent(event: ClientSecretRemovedEvent)
-                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event)
-  }
-
-  def captureRedirectUrisUpdatedEvent(event: RedirectUrisUpdatedEvent)
-                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event)
-  }
-
-  def captureApiSubscribedEvent(event: ApiSubscribedEvent)
-                               (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    repo.createEntity(event)
-  }
-
-  def captureApiUnsubscribedEvent(event: ApiUnsubscribedEvent)
-                                 (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+  def captureEvent[A <: ApplicationEvent](event : A)(implicit ec: ExecutionContext): Future[Boolean] ={
     repo.createEntity(event)
   }
 
