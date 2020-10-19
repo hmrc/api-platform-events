@@ -5,45 +5,98 @@ import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
-class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with  BeforeAndAfterEach {
+import uk.gov.hmrc.mongo.MongoSpecSupport
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.global
+
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
+import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
+import java.{util => ju}
+import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.models.TeamMemberRemovedEvent
+import uk.gov.hmrc.apiplatformevents.models.ClientSecretAddedEvent
+import uk.gov.hmrc.apiplatformevents.models.ClientSecretRemovedEvent
+import uk.gov.hmrc.apiplatformevents.models.RedirectUrisUpdatedEvent
+import uk.gov.hmrc.apiplatformevents.models.ApiSubscribedEvent
+import uk.gov.hmrc.apiplatformevents.models.ApiUnsubscribedEvent
+import uk.gov.hmrc.apiplatformevents.models.PpnsCallBackUriUpdatedEvent
+
+
+class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSupport with AuditService with  BeforeAndAfterEach {
 
   this: Suite with ServerProvider =>
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+      primeAuditService()
+    dropMongoDb()(global)
+  }
+
+  def dropMongoDb()(implicit ec: ExecutionContext): Unit = {
+   await(mongo().drop())
+}
+
+
+  def repo: ApplicationEventsRepository =
+    app.injector.instanceOf[ApplicationEventsRepository]
+
 
   val url = s"http://localhost:$port/application-events"
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  override def beforeEach(): Unit = {
-   super.beforeEach()
-    primeAuditService()
-  }
+  val applicationId = ju.UUID.randomUUID.toString
+  val teamMemberEmail =  "bob@bob.com"
+  val adminRole = "ADMIN"
+  val actorId = "123454654"
+  val actorTypeGK = "GATEKEEPER"
+  val eventDateTimeString = "2014-01-01T13:13:34.441Z"
+  val clientSecretId = "abababab"
+  val oldRedirectUri = "oldrdu"
+  val newRedirectUri = "newrdu"
+  val apiContext = "apicontext"
+  val apiVersion = "1.0"
+  val boxId = "someBoxId"
+  val oldCallbackUrl = "oldUrl"
+  val newCallbackUrl = "newUrl"
 
   val validTeamMemberJsonBody: String =
-    raw"""{"applicationId": "akjhjkhjshjkhksaih",
-         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-         |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
-         |"teamMemberEmail": "bob@bob.com",
-         |"teamMemberRole": "ADMIN"}""".stripMargin
+    raw"""{"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
+         |"teamMemberEmail": "$teamMemberEmail",
+         |"teamMemberRole": "$adminRole"}""".stripMargin
 
   val validClientSecretJsonBody: String =
-    raw"""{"applicationId": "akjhjkhjshjkhksaih",
-         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-         |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
-         |"clientSecretId": "abababab"}""".stripMargin
+  raw"""{"applicationId": "$applicationId",
+        |"eventDateTime": "$eventDateTimeString",
+        |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
+        |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   val validRedirectUrisUpdatedJsonBody: String =
-    raw"""{"applicationId": "akjhjkhjshjkhksaih",
-         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-         |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
-         |"oldRedirectUris": "oldrdu",
-         |"newRedirectUris": "newrdu"}""".stripMargin
+    raw"""{"applicationId": "$applicationId",
+           |"eventDateTime": "$eventDateTimeString",
+           |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
+           |"oldRedirectUris": "$oldRedirectUri",
+           |"newRedirectUris": "$newRedirectUri"}""".stripMargin
 
   val validApiSubscriptionJsonBody: String =
-    raw"""{"applicationId": "akjhjkhjshjkhksaih",
-         |"eventDateTime": "2014-01-01T13:13:34.441Z",
-         |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
-         |"context": "apicontext",
-         |"version": "1.0"}""".stripMargin
+    raw"""{"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
+         |"context": "$apiContext",
+         |"version": "$apiVersion"}""".stripMargin
+
+  val validPpnsCallBackUpdatedJsonBody: String =
+    raw"""{"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
+         |"boxId": "$boxId",
+         |"context": "$apiContext",
+         |"version": "$apiVersion",
+         |"oldCallbackUrl": "$oldCallbackUrl",
+         |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
   def doGet(path: String): WSResponse = {
     wsClient
@@ -60,187 +113,184 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       .futureValue
   }
 
+ def checkCommonEventValues[A <: ApplicationEvent](event: A){
+            event.applicationId shouldBe applicationId
+            event.eventDateTime.toString() shouldBe eventDateTimeString
+            event.actor.id shouldBe actorId
+            event.actor.actorType.toString shouldBe actorTypeGK
+ }
+
   "ApplicationEventsController" when {
 
     "POST /teamMemberAdded" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/teamMemberAdded", validTeamMemberJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/teamMemberAdded", validTeamMemberJsonBody)
+        val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[TeamMemberAddedEvent]
+
+        checkCommonEventValues(event)
+        event.teamMemberEmail shouldBe teamMemberEmail
+        event.teamMemberRole shouldBe adminRole
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/teamMemberAdded", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/teamMemberAdded", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/teamMemberAdded", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/teamMemberAdded")
       }
     }
 
     "POST /teamMemberRemoved" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/teamMemberRemoved", validTeamMemberJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+         testSuccessScenario("/teamMemberRemoved", validTeamMemberJsonBody)
+
+        val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[TeamMemberRemovedEvent]
+
+        checkCommonEventValues(event)
+        event.teamMemberEmail shouldBe teamMemberEmail
+        event.teamMemberRole shouldBe adminRole
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/teamMemberRemoved", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/teamMemberRemoved", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/teamMemberRemoved", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/teamMemberRemoved")
       }
     }
 
     "POST /clientSecretAdded" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/clientSecretAdded", validClientSecretJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+         testSuccessScenario("/clientSecretAdded", validClientSecretJsonBody)
+
+
+        val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ClientSecretAddedEvent]
+
+        checkCommonEventValues(event)
+        event.clientSecretId shouldBe clientSecretId
+        
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/clientSecretAdded", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/clientSecretAdded", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/clientSecretAdded", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/clientSecretAdded")
       }
     }
 
     "POST /clientSecretRemoved" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/clientSecretRemoved", validClientSecretJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/clientSecretRemoved", validClientSecretJsonBody)
+
+        val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ClientSecretRemovedEvent]
+
+        checkCommonEventValues(event)
+        event.clientSecretId shouldBe clientSecretId
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/clientSecretRemoved", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/clientSecretRemoved", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/clientSecretRemoved", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/clientSecretRemoved")
       }
     }
 
     "POST /redirectUrisUpdated" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody)
+
+        val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
+
+        checkCommonEventValues(event)
+        event.oldRedirectUris shouldBe oldRedirectUri
+        event.newRedirectUris shouldBe newRedirectUri
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/redirectUrisUpdated", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/redirectUrisUpdated", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/redirectUrisUpdated", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/redirectUrisUpdated")
       }
     }
 
     "POST /apiSubscribed" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/apiSubscribed", validApiSubscriptionJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/apiSubscribed", validApiSubscriptionJsonBody)
+        val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ApiSubscribedEvent]
+
+        checkCommonEventValues(event)
+        event.context shouldBe apiContext
+        event.version shouldBe apiVersion
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/apiSubscribed", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/apiSubscribed", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/apiSubscribed", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/apiSubscribed")
       }
     }
 
     "POST /apiUnsubscribed" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/apiUnsubscribed", validApiSubscriptionJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/apiUnsubscribed", validApiSubscriptionJsonBody)
+       val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ApiUnsubscribedEvent]
+
+        checkCommonEventValues(event)
+        event.context shouldBe apiContext
+        event.version shouldBe apiVersion
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/apiUnsubscribed", "i'm not JSON", "Content-Type" -> "application/json")
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/apiUnsubscribed")
+      }
+    }
+
+    "POST /ppnsCallbackUriUpdated" should {
+      "respond with 201 when valid json is sent" in {
+        testSuccessScenario("/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody)
+
+          val results = await(repo.findAll()(global))
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
+
+        checkCommonEventValues(event)
+        event.boxId shouldBe boxId
+        event.oldCallbackUrl shouldBe oldCallbackUrl
+        event.newCallbackUrl shouldBe newCallbackUrl
+        event.context shouldBe apiContext
+        event.version shouldBe apiVersion
+      }
+
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/ppnsCallbackUriUpdated")
+      }
+
+    }
+
+    def testSuccessScenario(uriToTest: String, bodyString: String):Unit = {
+         val result = doPost(uriToTest, bodyString, "Content-Type" -> "application/json")
+        result.status shouldBe 201
+        result.body shouldBe ""
+    }
+
+
+    def testErrorScenarios(uriToTest: String): Unit ={
+      val result = doPost(uriToTest, "i'm not JSON", "Content-Type" -> "application/json")
+      withClue("should respond with 400 when invalid json is sent"){
         result.status shouldBe 400
         result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
       }
 
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/apiUnsubscribed", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      val result2 = doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
+      withClue("should respond with 415 when contentType header is missing"){
+        result2.status shouldBe 415
+        result2.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
 
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/apiUnsubscribed", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      val result3 = doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
+      withClue("should respond with 415 when contentType header isn't JSON") {
+        result3.status shouldBe 415
+        result3.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
     }
   }

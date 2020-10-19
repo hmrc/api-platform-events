@@ -19,24 +19,24 @@ package uk.gov.hmrc.apiplatformevents.services
 import java.util.UUID
 
 import org.joda.time.DateTime
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.when
+import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
+import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
+import uk.gov.hmrc.apiplatformevents.models._
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
 import uk.gov.hmrc.play.test.UnitSpec
-import org.mockito.Mockito.when
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.stubbing.OngoingStubbing
-import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
-import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, ApplicationEvent}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationEventsServiceSpec
-    extends UnitSpec
+  extends UnitSpec
     with MockitoSugar
     with Eventually {
 
@@ -64,15 +64,16 @@ class ApplicationEventsServiceSpec
           .thenReturn(Future.successful(repoResult))
       }
     }
+
     val inTest = new ApplicationEventsService(mockRepository)
 
   }
 
   "Capture event" should {
 
-    "send an event to the repository and return true when saved" in new Setup{
-        primeService(repoResult = true, repoThrowsException = false)
-        await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe true
+    "send an event to the repository and return true when saved" in new Setup {
+      primeService(repoResult = true, repoThrowsException = false)
+      await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe true
     }
 
 
@@ -82,17 +83,16 @@ class ApplicationEventsServiceSpec
     }
 
 
-    "handle error" in new Setup{
+    "handle error" in new Setup {
       primeService(repoResult = false, repoThrowsException = true)
 
-     val exception: GenericDriverException =  intercept[GenericDriverException] {
+      val exception: GenericDriverException = intercept[GenericDriverException] {
         await(inTest.captureEvent(validAddTeamMemberModel))
       }
 
       exception.message shouldBe "some mongo error"
     }
   }
-
 
 
 }
