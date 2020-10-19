@@ -363,8 +363,7 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"boxId": "boxId",
-           |"context": "somecontext",
-           |"version": "someVErsion",
+           |"boxName": "some##box##name",
            |"oldCallbackUrl": "oldUri",
            |"newCallbackUrl": "newUri"}""".stripMargin
 

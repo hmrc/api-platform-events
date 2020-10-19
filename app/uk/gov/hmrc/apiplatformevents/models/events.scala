@@ -54,13 +54,12 @@ case class ClientSecretRemovedEvent(override val applicationId: String,
 
 
 case class PpnsCallBackUriUpdatedEvent(override val applicationId: String,
-                                    override val eventDateTime: DateTime,
-                                    override val actor: Actor,
-                                    boxId: String,
-                                    context: String,
-                                    version: String,
-                                    oldCallbackUrl: String,
-                                    newCallbackUrl: String) extends ApplicationEvent {
+                                       override val eventDateTime: DateTime,
+                                       override val actor: Actor,
+                                       boxId: String,
+                                       boxName: String,
+                                       oldCallbackUrl: String,
+                                       newCallbackUrl: String) extends ApplicationEvent {
   override val eventType: EventType = EventType.PPNS_CALLBACK_URI_UPDATED
 }
 
@@ -71,7 +70,6 @@ case class RedirectUrisUpdatedEvent(override val applicationId: String,
                                     newRedirectUris: String) extends ApplicationEvent {
   override val eventType: EventType = EventType.REDIRECT_URIS_UPDATED
 }
-
 
 
 case class ApiSubscribedEvent(override val applicationId: String,
