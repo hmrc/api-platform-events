@@ -56,6 +56,9 @@ case class ClientSecretRemovedEvent(override val applicationId: String,
 case class PpnsCallBackUriUpdatedEvent(override val applicationId: String,
                                     override val eventDateTime: DateTime,
                                     override val actor: Actor,
+                                    boxId: String,
+                                    context: String,
+                                    version: String,
                                     oldCallbackUrl: String,
                                     newCallbackUrl: String) extends ApplicationEvent {
   override val eventType: EventType = EventType.PPNS_CALLBACK_URI_UPDATED

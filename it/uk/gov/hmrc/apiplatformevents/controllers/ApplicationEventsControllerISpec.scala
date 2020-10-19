@@ -45,6 +45,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"context": "apicontext",
          |"version": "1.0"}""".stripMargin
 
+  val validPpnsCallBackUpdatedJsonBody: String =
+    raw"""{"applicationId": "akjhjkhjshjkhksaih",
+         |"eventDateTime": "2014-01-01T13:13:34.441Z",
+         |"actor": { "id": "123454654", "actorType": "GATEKEEPER" },
+         |"boxId": "someBoxId",
+         |"context": "apicontext",
+         |"version": "1.0",
+         |"oldCallbackUrl": "oldUrl",
+         |"newCallbackUrl": "newUrl"}""".stripMargin
+
   def doGet(path: String): WSResponse = {
     wsClient
       .url(s"$url$path")
@@ -64,183 +74,109 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
     "POST /teamMemberAdded" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/teamMemberAdded", validTeamMemberJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/teamMemberAdded", validTeamMemberJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/teamMemberAdded", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/teamMemberAdded", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/teamMemberAdded", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/teamMemberAdded")
       }
     }
 
     "POST /teamMemberRemoved" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/teamMemberRemoved", validTeamMemberJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+         testSuccessScenario("/teamMemberRemoved", validTeamMemberJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/teamMemberRemoved", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/teamMemberRemoved", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/teamMemberRemoved", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/teamMemberRemoved")
       }
     }
 
     "POST /clientSecretAdded" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/clientSecretAdded", validClientSecretJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+         testSuccessScenario("/clientSecretAdded", validClientSecretJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/clientSecretAdded", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/clientSecretAdded", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/clientSecretAdded", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/clientSecretAdded")
       }
     }
 
     "POST /clientSecretRemoved" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/clientSecretRemoved", validClientSecretJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/clientSecretRemoved", validClientSecretJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/clientSecretRemoved", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/clientSecretRemoved", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/clientSecretRemoved", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/clientSecretRemoved")
       }
     }
 
     "POST /redirectUrisUpdated" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/redirectUrisUpdated", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/redirectUrisUpdated", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/redirectUrisUpdated", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/redirectUrisUpdated")
       }
     }
 
     "POST /apiSubscribed" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/apiSubscribed", validApiSubscriptionJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/apiSubscribed", validApiSubscriptionJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/apiSubscribed", "i'm not JSON", "Content-Type" -> "application/json")
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
-
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/apiSubscribed", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
-      }
-
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/apiSubscribed", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/apiSubscribed")
       }
     }
 
     "POST /apiUnsubscribed" should {
       "respond with 201 when valid json is sent" in {
-        val result = doPost("/apiUnsubscribed", validApiSubscriptionJsonBody, "Content-Type" -> "application/json")
-        result.status shouldBe 201
-        result.body shouldBe ""
+        testSuccessScenario("/apiUnsubscribed", validApiSubscriptionJsonBody)
       }
 
-      "respond with 400 when invalid json is sent" in {
-        val result = doPost("/apiUnsubscribed", "i'm not JSON", "Content-Type" -> "application/json")
+     "handle error scenarios correctly" in {
+        testErrorScenarios("/apiUnsubscribed")
+      }
+    }
+
+    "POST /ppnsCallbackUriUpdated" should {
+      "respond with 201 when valid json is sent" in {
+        testSuccessScenario("/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody)
+      }
+
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/ppnsCallbackUriUpdated")
+      }
+
+    }
+
+    def testSuccessScenario(uriToTest: String, bodyString: String):Unit = {
+         val result = doPost(uriToTest, bodyString, "Content-Type" -> "application/json")
+        result.status shouldBe 201
+        result.body shouldBe ""
+    }
+
+
+    def testErrorScenarios(uriToTest: String): Unit ={
+      val result = doPost(uriToTest, "i'm not JSON", "Content-Type" -> "application/json")
+      withClue("should respond with 400 when invalid json is sent"){
         result.status shouldBe 400
         result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
       }
 
-      "respond with 415 when contentType header is missing" in {
-        val result = doPost("/apiUnsubscribed", "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      val result2 = doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
+      withClue("should respond with 415 when contentType header is missing"){
+        result2.status shouldBe 415
+        result2.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
 
-      "respond with 415 when contentType header isn't JSON" in {
-        val result = doPost("/apiUnsubscribed", "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
-        result.status shouldBe 415
-        result.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
+      val result3 = doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
+      withClue("should respond with 415 when contentType header isn't JSON") {
+        result3.status shouldBe 415
+        result3.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
     }
   }
