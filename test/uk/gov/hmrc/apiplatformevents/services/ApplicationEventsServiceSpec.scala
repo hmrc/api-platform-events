@@ -43,7 +43,7 @@ class ApplicationEventsServiceSpec
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = UUID.randomUUID().toString,
     eventDateTime= DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),

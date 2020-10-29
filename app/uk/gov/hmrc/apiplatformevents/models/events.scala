@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformevents.models
 import org.joda.time.DateTime
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
 
-case class TeamMemberAddedEvent(override val id: Option[EventId],
+case class TeamMemberAddedEvent(override val id: EventId,
                                 override val applicationId: String,
                                 override val eventDateTime: DateTime,
                                 override val actor: Actor,
@@ -29,7 +29,7 @@ case class TeamMemberAddedEvent(override val id: Option[EventId],
 }
 
 
-case class TeamMemberRemovedEvent(override val id: Option[EventId],
+case class TeamMemberRemovedEvent(override val id: EventId,
                                   override val applicationId: String,
                                   override val eventDateTime: DateTime,
                                   override val actor: Actor,
@@ -38,7 +38,7 @@ case class TeamMemberRemovedEvent(override val id: Option[EventId],
   override val eventType: EventType = EventType.TEAM_MEMBER_REMOVED
 }
 
-case class ClientSecretAddedEvent(override val id: Option[EventId],
+case class ClientSecretAddedEvent(override val id: EventId,
                                   override val applicationId: String,
                                   override val eventDateTime: DateTime,
                                   override val actor: Actor,
@@ -47,7 +47,7 @@ case class ClientSecretAddedEvent(override val id: Option[EventId],
 }
 
 
-case class ClientSecretRemovedEvent(override val id: Option[EventId],
+case class ClientSecretRemovedEvent(override val id: EventId,
                                     override val applicationId: String,
                                     override val eventDateTime: DateTime,
                                     override val actor: Actor,
@@ -56,7 +56,7 @@ case class ClientSecretRemovedEvent(override val id: Option[EventId],
 }
 
 
-case class PpnsCallBackUriUpdatedEvent(override val id: Option[EventId],
+case class PpnsCallBackUriUpdatedEvent(override val id: EventId,
                                        override val applicationId: String,
                                        override val eventDateTime: DateTime,
                                        override val actor: Actor,
@@ -67,7 +67,7 @@ case class PpnsCallBackUriUpdatedEvent(override val id: Option[EventId],
   override val eventType: EventType = EventType.PPNS_CALLBACK_URI_UPDATED
 }
 
-case class RedirectUrisUpdatedEvent(override val id: Option[EventId],
+case class RedirectUrisUpdatedEvent(override val id: EventId,
                                     override val applicationId: String,
                                     override val eventDateTime: DateTime,
                                     override val actor: Actor,
@@ -77,7 +77,7 @@ case class RedirectUrisUpdatedEvent(override val id: Option[EventId],
 }
 
 
-case class ApiSubscribedEvent(override val id: Option[EventId],
+case class ApiSubscribedEvent(override val id: EventId,
                               override val applicationId: String,
                               override val eventDateTime: DateTime,
                               override val actor: Actor,
@@ -87,7 +87,7 @@ case class ApiSubscribedEvent(override val id: Option[EventId],
 }
 
 
-case class ApiUnsubscribedEvent(override val id: Option[EventId],
+case class ApiUnsubscribedEvent(override val id: EventId,
                                 override val applicationId: String,
                                 override val eventDateTime: DateTime,
                                 override val actor: Actor,

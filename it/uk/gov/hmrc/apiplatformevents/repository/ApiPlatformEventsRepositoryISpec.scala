@@ -45,7 +45,7 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
   }
 
   val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -53,7 +53,7 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     teamMemberRole = "ADMIN")
 
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -61,21 +61,21 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     teamMemberRole = "ADMIN")
 
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -83,7 +83,7 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     newRedirectUris = "newru")
 
   val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -91,7 +91,7 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     version = "1.0")
 
   val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
-    id = Some(EventId.random),
+    id = EventId.random,
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -133,22 +133,6 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     "create an apiUnsubsribed entity" in {
       await(repo.createEntity(apiUnsubscribedModel))
       await(repo.find()) should contain only apiUnsubscribedModel
-    }
-  }
-
-  "populateEventIds" should {
-    "add event IDs when missing" in {
-      await(repo.createEntity(teamMemberAddedModel))
-      val eventWithNoId = teamMemberAddedModel.copy(id = None)
-      await(repo.createEntity(eventWithNoId))
-
-      await(repo.populateEventIds())
-
-      val result: Seq[Option[EventId]] = await(repo.find()).map(_.id)
-      result should have size 2
-      result should contain (teamMemberAddedModel.id)
-      result should not contain None
-      result.head.get should not be result(1).get
     }
   }
 }

@@ -63,7 +63,7 @@ object EventId {
 }
 
 trait ApplicationEvent{
-  val id: Option[EventId]
+  val id: EventId
   val applicationId: String
   val eventDateTime: DateTime
   val eventType: EventType
