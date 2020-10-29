@@ -1,26 +1,18 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
+import java.{util => ju}
+
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
+import uk.gov.hmrc.apiplatformevents.models._
+import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventId}
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
-
 import uk.gov.hmrc.mongo.MongoSpecSupport
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.global
-
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
-import uk.gov.hmrc.apiplatformevents.models.TeamMemberAddedEvent
-import java.{util => ju}
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
-import uk.gov.hmrc.apiplatformevents.models.TeamMemberRemovedEvent
-import uk.gov.hmrc.apiplatformevents.models.ClientSecretAddedEvent
-import uk.gov.hmrc.apiplatformevents.models.ClientSecretRemovedEvent
-import uk.gov.hmrc.apiplatformevents.models.RedirectUrisUpdatedEvent
-import uk.gov.hmrc.apiplatformevents.models.ApiSubscribedEvent
-import uk.gov.hmrc.apiplatformevents.models.ApiUnsubscribedEvent
-import uk.gov.hmrc.apiplatformevents.models.PpnsCallBackUriUpdatedEvent
 
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSupport with AuditService with BeforeAndAfterEach {
@@ -44,40 +36,46 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
+  val eventId = EventId.random.value
   val applicationId = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorTypeGK = "GATEKEEPER"
   val eventDateTimeString = "2014-01-01T13:13:34.441Z"
 
   def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
-    raw"""{"applicationId": "$applicationId",
+    raw"""{"id": "$eventId",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"teamMemberEmail": "$teamMemberEmail",
          |"teamMemberRole": "$teamMemberRole"}""".stripMargin
 
   def validClientSecretJsonBody(clientSecretId: String): String =
-    raw"""{"applicationId": "$applicationId",
+    raw"""{"id": "$eventId",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   def validRedirectUrisUpdatedJsonBody(oldRedirectUri: String, newRedirectUri: String): String =
-    raw"""{"applicationId": "$applicationId",
+    raw"""{"id": "$eventId",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"oldRedirectUris": "$oldRedirectUri",
          |"newRedirectUris": "$newRedirectUri"}""".stripMargin
 
   def validApiSubscriptionJsonBody(apiContext: String, apiVersion: String): String =
-    raw"""{"applicationId": "$applicationId",
+    raw"""{"id": "$eventId",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"context": "$apiContext",
          |"version": "$apiVersion"}""".stripMargin
 
   def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
-    raw"""{"applicationId": "$applicationId",
+    raw"""{"id": "$eventId",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"boxId": "$boxId",

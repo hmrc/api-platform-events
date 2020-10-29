@@ -29,6 +29,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
 import uk.gov.hmrc.apiplatformevents.models._
+import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -62,7 +63,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "TeamMemberAddedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"teamMemberEmail": "bob@bob.com",
@@ -106,7 +108,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "TeamMemberRemovedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"teamMemberEmail": "bob@bob.com",
@@ -150,7 +153,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "ClientSecretAddedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"clientSecretId": "abababab"}""".stripMargin
@@ -191,7 +195,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "ClientSecretRemovedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"clientSecretId": "abababab"}""".stripMargin
@@ -232,7 +237,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "RedirectUrisUpdatedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"oldRedirectUris": "oldrdu",
@@ -274,7 +280,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "ApiSubscribedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"context": "apicontext",
@@ -316,7 +323,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "ApiUnsubscribedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"context": "apicontext",
@@ -359,7 +367,8 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
   "PpnsCallBackUriUpdatedEvent" should {
 
     val jsonBody =
-      raw"""{"applicationId": "akjhjkhjshjkhksaih",
+      raw"""{"id": "${EventId.random.value}",
+           |"applicationId": "akjhjkhjshjkhksaih",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"boxId": "boxId",

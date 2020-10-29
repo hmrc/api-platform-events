@@ -19,21 +19,21 @@ package uk.gov.hmrc.apiplatformevents.services
 import java.util.UUID
 
 import org.joda.time.DateTime
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito.when
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.concurrent.Eventually
 import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ApplicationEventsServiceSpec
   extends UnitSpec
@@ -42,8 +42,10 @@ class ApplicationEventsServiceSpec
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = UUID.randomUUID().toString,
-    DateTime.now,
+  val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
+    id = Some(EventId.random),
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime= DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
@@ -57,10 +59,10 @@ class ApplicationEventsServiceSpec
   trait Setup {
     def primeService(repoResult: Boolean, repoThrowsException: Boolean): OngoingStubbing[Future[Boolean]] = {
       if (repoThrowsException) {
-        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel))(any[ExecutionContext]))
+        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
           .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
       } else {
-        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel))(any[ExecutionContext]))
+        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
           .thenReturn(Future.successful(repoResult))
       }
     }

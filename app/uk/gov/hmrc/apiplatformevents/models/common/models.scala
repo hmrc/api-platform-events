@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.apiplatformevents.models.common
 
+import java.util.UUID
+
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import org.joda.time.DateTime
 
@@ -55,7 +57,13 @@ object EventType extends  Enum[EventType] with PlayJsonEnum[EventType]  {
 
 }
 
+case class EventId(value: UUID) extends AnyVal
+object EventId {
+  def random: EventId = EventId(UUID.randomUUID())
+}
+
 trait ApplicationEvent{
+  val id: Option[EventId]
   val applicationId: String
   val eventDateTime: DateTime
   val eventType: EventType
