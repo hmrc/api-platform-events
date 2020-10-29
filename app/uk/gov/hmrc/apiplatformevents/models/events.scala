@@ -17,10 +17,10 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import org.joda.time.DateTime
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
 
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventType}
-
-case class TeamMemberAddedEvent(override val applicationId: String,
+case class TeamMemberAddedEvent(override val id: Option[EventId],
+                                override val applicationId: String,
                                 override val eventDateTime: DateTime,
                                 override val actor: Actor,
                                 teamMemberEmail: String,
@@ -29,7 +29,8 @@ case class TeamMemberAddedEvent(override val applicationId: String,
 }
 
 
-case class TeamMemberRemovedEvent(override val applicationId: String,
+case class TeamMemberRemovedEvent(override val id: Option[EventId],
+                                  override val applicationId: String,
                                   override val eventDateTime: DateTime,
                                   override val actor: Actor,
                                   teamMemberEmail: String,
@@ -37,7 +38,8 @@ case class TeamMemberRemovedEvent(override val applicationId: String,
   override val eventType: EventType = EventType.TEAM_MEMBER_REMOVED
 }
 
-case class ClientSecretAddedEvent(override val applicationId: String,
+case class ClientSecretAddedEvent(override val id: Option[EventId],
+                                  override val applicationId: String,
                                   override val eventDateTime: DateTime,
                                   override val actor: Actor,
                                   clientSecretId: String) extends ApplicationEvent {
@@ -45,7 +47,8 @@ case class ClientSecretAddedEvent(override val applicationId: String,
 }
 
 
-case class ClientSecretRemovedEvent(override val applicationId: String,
+case class ClientSecretRemovedEvent(override val id: Option[EventId],
+                                    override val applicationId: String,
                                     override val eventDateTime: DateTime,
                                     override val actor: Actor,
                                     clientSecretId: String) extends ApplicationEvent {
@@ -53,7 +56,8 @@ case class ClientSecretRemovedEvent(override val applicationId: String,
 }
 
 
-case class PpnsCallBackUriUpdatedEvent(override val applicationId: String,
+case class PpnsCallBackUriUpdatedEvent(override val id: Option[EventId],
+                                       override val applicationId: String,
                                        override val eventDateTime: DateTime,
                                        override val actor: Actor,
                                        boxId: String,
@@ -63,7 +67,8 @@ case class PpnsCallBackUriUpdatedEvent(override val applicationId: String,
   override val eventType: EventType = EventType.PPNS_CALLBACK_URI_UPDATED
 }
 
-case class RedirectUrisUpdatedEvent(override val applicationId: String,
+case class RedirectUrisUpdatedEvent(override val id: Option[EventId],
+                                    override val applicationId: String,
                                     override val eventDateTime: DateTime,
                                     override val actor: Actor,
                                     oldRedirectUris: String,
@@ -72,7 +77,8 @@ case class RedirectUrisUpdatedEvent(override val applicationId: String,
 }
 
 
-case class ApiSubscribedEvent(override val applicationId: String,
+case class ApiSubscribedEvent(override val id: Option[EventId],
+                              override val applicationId: String,
                               override val eventDateTime: DateTime,
                               override val actor: Actor,
                               context: String,
@@ -81,7 +87,8 @@ case class ApiSubscribedEvent(override val applicationId: String,
 }
 
 
-case class ApiUnsubscribedEvent(override val applicationId: String,
+case class ApiUnsubscribedEvent(override val id: Option[EventId],
+                                override val applicationId: String,
                                 override val eventDateTime: DateTime,
                                 override val actor: Actor,
                                 context: String,

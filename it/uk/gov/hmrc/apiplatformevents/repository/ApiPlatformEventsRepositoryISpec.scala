@@ -15,11 +15,12 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
-import org.joda.time.DateTime
+import org.joda.time.DateTime.now
+import org.joda.time.DateTimeZone.UTC
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -43,42 +44,56 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
     await(repo.ensureIndexes)
   }
 
-  val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
-  val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
-  val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
-  val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
-  val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     oldRedirectUris = "oldru",
     newRedirectUris = "newru")
 
-  val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
 
-  val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(applicationId = "John Smith",
-    eventDateTime = DateTime.now,
+  val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
+    id = Some(EventId.random),
+    applicationId = "John Smith",
+    eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
@@ -87,37 +102,53 @@ class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
 
     "create a teamMemberAdded entity" in {
       await(repo.createEntity(teamMemberAddedModel))
-      await(repo.find())
+      await(repo.find()) should contain only teamMemberAddedModel
     }
 
     "create a teamMemberRemoved entity" in {
       await(repo.createEntity(teamMemberRemovedModel))
-      await(repo.find())
+      await(repo.find()) should contain only teamMemberRemovedModel
     }
 
     "create a clientSecretAdded entity" in {
       await(repo.createEntity(clientSecretAddedModel))
-      await(repo.find())
+      await(repo.find()) should contain only clientSecretAddedModel
     }
 
     "create a clientSecretRemoved entity" in {
       await(repo.createEntity(clientSecretRemovedModel))
-      await(repo.find())
+      await(repo.find()) should contain only clientSecretRemovedModel
     }
 
     "create a redirectUrisUpdated entity" in {
       await(repo.createEntity(redirectUrisUpdatedModel))
-      await(repo.find())
+      await(repo.find()) should contain only redirectUrisUpdatedModel
     }
 
     "create an apiSubsribed entity" in {
       await(repo.createEntity(apiSubscribedModel))
-      await(repo.find())
+      await(repo.find()) should contain only apiSubscribedModel
     }
 
     "create an apiUnsubsribed entity" in {
       await(repo.createEntity(apiUnsubscribedModel))
-      await(repo.find())
+      await(repo.find()) should contain only apiUnsubscribedModel
+    }
+  }
+
+  "populateEventIds" should {
+    "add event IDs when missing" in {
+      await(repo.createEntity(teamMemberAddedModel))
+      val eventWithNoId = teamMemberAddedModel.copy(id = None)
+      await(repo.createEntity(eventWithNoId))
+
+      await(repo.populateEventIds())
+
+      val result: Seq[Option[EventId]] = await(repo.find()).map(_.id)
+      result should have size 2
+      result should contain (teamMemberAddedModel.id)
+      result should not contain None
+      result.head.get should not be result(1).get
     }
   }
 }

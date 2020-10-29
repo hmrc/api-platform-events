@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.models
 
 import org.joda.time.DateTime
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
 
@@ -33,6 +33,7 @@ object JodaDateFormats {
 
 object ReactiveMongoFormatters {
   implicit val dateReads: Format[DateTime] = ReactiveMongoFormats.dateTimeFormats
+  implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
@@ -56,6 +57,7 @@ object ReactiveMongoFormatters {
 
 object JsonRequestFormatters {
   implicit val dateReads: Format[DateTime] = JodaDateFormats.JodaDateTimeFormat
+  implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
@@ -76,4 +78,3 @@ object JsonRequestFormatters {
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
 }
-
