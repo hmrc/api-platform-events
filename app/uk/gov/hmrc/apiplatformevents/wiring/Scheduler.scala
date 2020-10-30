@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule
 import javax.inject.{Inject, Singleton}
 import play.api.Application
 import play.api.inject.ApplicationLifecycle
-import uk.gov.hmrc.apiplatformevents.scheduled.PopulateEventIdsJob
+import uk.gov.hmrc.apiplatformevents.scheduled.SendEventNotificationsJob
 import uk.gov.hmrc.play.scheduling.{RunningOfScheduledJobs, ScheduledJob}
 
 import scala.concurrent.ExecutionContext
@@ -32,9 +32,9 @@ class SchedulerModule extends AbstractModule {
 }
 
 @Singleton
-class Scheduler @Inject()(populateEventIdsJob: PopulateEventIdsJob,
-                          override val applicationLifecycle: ApplicationLifecycle,
-                          override val application: Application)
+class Scheduler @Inject()(override val applicationLifecycle: ApplicationLifecycle,
+                          override val application: Application,
+                          sendEventNotificationsJob: SendEventNotificationsJob)
                          (implicit val ec: ExecutionContext) extends RunningOfScheduledJobs {
-  override lazy val scheduledJobs: Seq[ScheduledJob] = Seq(populateEventIdsJob).filter(_.isEnabled)
+  override lazy val scheduledJobs: Seq[ScheduledJob] = Seq(sendEventNotificationsJob).filter(_.isEnabled)
 }
