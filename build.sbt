@@ -86,6 +86,7 @@ lazy val root = (project in file("."))
     majorVersion := 0
   )
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .disablePlugins(JUnitXmlReportPlugin)
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>
