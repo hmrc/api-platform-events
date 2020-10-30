@@ -17,11 +17,15 @@
 package uk.gov.hmrc.apiplatformevents.repository
 
 import akka.stream.Materializer
+import akka.stream.scaladsl.Source
 import javax.inject.{Inject, Singleton}
+import play.api.libs.json.{Json, OFormat}
 import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.akkastream.cursorProducer
+import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID
 import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventType}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
@@ -36,6 +40,25 @@ class ApplicationEventsRepository @Inject()(mongoComponent: ReactiveMongoCompone
       ReactiveMongoFormatters.formatApplicationEvent,
       ReactiveMongoFormats.objectIdFormats) {
 
+  override def indexes = Seq(
+    Index(
+      key = Seq("id" -> IndexType.Ascending),
+      name = Some("id_index"),
+      unique = true,
+      background = true
+    )
+  )
+
   def createEntity(event: ApplicationEvent): Future[Boolean] =
     insert(event).map(wr => wr.ok)
+
+  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType)(implicit formatter: OFormat[A]): Source[A, Future[Any]] = {
+    val builder = collection.BatchCommands.AggregationFramework
+    val pipeline = List(
+      builder.Match(Json.obj("eventType" -> eventType)),
+      builder.Lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "notifications"),
+      builder.Match(Json.obj("notifications" -> Json.obj("$size" -> 0)))
+    )
+    collection.aggregateWith[A]()(_ => (pipeline.head, pipeline.tail)).documentSource()
+  }
 }

@@ -22,22 +22,13 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
-
   val appName: String
-
-  val someInt: Int
-  val someBoolean: Boolean
-
-  val authBaseUrl: String
-  val fooBaseUrl: String
+  val thirdPartyApplicationUrl: String
+  val emailUrl: String
 }
 
 class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
   val appName: String = config.getString("appName")
-
-  val someInt: Int = config.getInt("someInt")
-  val someBoolean: Boolean = config.getBoolean("someBoolean")
-
-  val authBaseUrl: String = config.baseUrl("auth")
-  val fooBaseUrl: String = config.baseUrl("foo")
+  val thirdPartyApplicationUrl: String = config.baseUrl("third-party-application")
+  val emailUrl: String = config.baseUrl("email")
 }

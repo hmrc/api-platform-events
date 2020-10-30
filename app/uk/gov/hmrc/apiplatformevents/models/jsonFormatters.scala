@@ -53,6 +53,7 @@ object ReactiveMongoFormatters {
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
+  implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 
 object JsonRequestFormatters {
