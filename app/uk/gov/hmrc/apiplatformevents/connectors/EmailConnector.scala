@@ -29,14 +29,17 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
 
-  val dtf: DateTimeFormatter = DateTimeFormat.forPattern("dd MMMM yyyy HH:mm")
+  val dateFormatter: DateTimeFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+  val timeFormatter: DateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
 
-  def sendPpnsCallbackUrlChangedNotification(applicationName: String, newCallbackURL: String, dateTimeOfChange: DateTime, recipients: Set[String])
+  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: DateTime, recipients: Set[String])
                                             (implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    post(SendEmailRequest(recipients, "ppnsCallbackUrlChangedNotification",
+    post(SendEmailRequest(
+      recipients,
+      "ppnsCallbackUrlChangedNotification",
       Map("applicationName" -> applicationName,
-          "newCallbackURL" -> newCallbackURL,
-          "dateTimeOfChange" -> dateTimeOfChange.toString(dtf))))
+        "dateOfChange" -> dateTimeOfChange.toString(dateFormatter),
+        "timeOfChange" -> dateTimeOfChange.toString(timeFormatter))))
   }
 
   private def post(payload: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
