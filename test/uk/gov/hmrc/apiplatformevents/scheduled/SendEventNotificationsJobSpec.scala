@@ -100,13 +100,13 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
       when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
       when(mockThirdPartyApplicationConnector.getApplication(meq(event.applicationId))(any())).thenReturn(application)
-      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(any(), any(), any(), any())(any())).thenReturn(HttpResponse(OK, body = ""))
+      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())).thenReturn(HttpResponse(OK, body = ""))
       when(mockNotificationsRepository.createEntity(notificationCaptor.capture())).thenReturn(successful(true))
 
       val result: underTest.Result = await(underTest.execute)
 
       verify(mockEmailConnector, times(1))
-        .sendPpnsCallbackUrlChangedNotification(meq(application.name), meq(event.newCallbackUrl), meq(event.eventDateTime), meq(Set(adminEmail)))(any())
+        .sendPpnsCallbackUrlChangedNotification(meq(application.name), meq(event.eventDateTime), meq(Set(adminEmail)))(any())
       notificationCaptor.getValue.eventId shouldBe event.id
       notificationCaptor.getValue.status shouldBe SENT
       result.message shouldBe "SendEventNotificationsJob Job ran successfully."
@@ -116,7 +116,7 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
       when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
       when(mockThirdPartyApplicationConnector.getApplication(meq(event.applicationId))(any())).thenReturn(application)
-      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(any(), any(), any(), any())(any())).thenReturn(failed(new RuntimeException("Failed")))
+      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())).thenReturn(failed(new RuntimeException("Failed")))
       when(mockNotificationsRepository.createEntity(notificationCaptor.capture())).thenReturn(successful(true))
 
       val result: underTest.Result = await(underTest.execute)
@@ -131,7 +131,7 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
 
       val result: underTest.Result = await(underTest.execute)
 
-      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(any(), any(), any(), any())(any())
+      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())
       result.message shouldBe "SendEventNotificationsJob did not run because repository was locked by another instance of the scheduler."
     }
 
@@ -141,7 +141,7 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
 
       val result: underTest.Result = await(underTest.execute)
 
-      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(any(), any(), any(), any())(any())
+      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())
       result.message shouldBe "The execution of scheduled job SendEventNotificationsJob failed with error 'Failed'. " +
         "The next execution of the job will do retry."
     }

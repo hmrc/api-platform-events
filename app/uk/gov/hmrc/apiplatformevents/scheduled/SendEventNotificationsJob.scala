@@ -67,7 +67,7 @@ class SendEventNotificationsJob @Inject()(override val lockKeeper: SendEventNoti
   private def sendEventNotification(event: PpnsCallBackUriUpdatedEvent)(implicit ec: ExecutionContext): Future[Unit] = {
     (for {
       app <- thirdPartyApplicationConnector.getApplication(event.applicationId)
-      _ <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, event.newCallbackUrl, event.eventDateTime, app.adminEmails)
+      _ <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, event.eventDateTime, app.adminEmails)
       _ <- notificationsRepository.createEntity(Notification(event.id, now(UTC), SENT))
     } yield ()) recoverWith {
       case NonFatal(e) =>
