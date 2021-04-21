@@ -16,26 +16,25 @@ lazy val scoverageSettings = {
 
 lazy val compileDeps = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "2.0.0",
+  "uk.gov.hmrc" %% "bootstrap-play-26" % "2.3.0",
   "com.beachape" %% "enumeratum-play-json" % "1.6.0",
   "uk.gov.hmrc" %% "play-json-union-formatter" % "1.12.0-play-26",
   "com.kenshoo" %% "metrics-play" % "2.6.19_0.7.0",
-  "uk.gov.hmrc" %% "domain" % "5.10.0-play-26",
+  "uk.gov.hmrc" %% "domain" % "5.11.0-play-26",
   "com.github.blemale" %% "scaffeine" % "3.1.0",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "4.4.0",
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
   "uk.gov.hmrc" %% "play-scheduling" % "7.4.0-play-26",
   "org.reactivemongo" %% "reactivemongo-akkastream" % "0.20.11",
-  "com.typesafe.play" %% "play-json-joda" % "2.6.10",
+  "com.typesafe.play" %% "play-json-joda" % "2.7.4",
   ws
 )
 
 def testDeps(scope: String) = Seq(
   "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
-  "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "org.mockito" % "mockito-core" % "3.1.0" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.21.0-play-26" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.22.0-play-26" % scope,
   "com.github.tomakehurst" % "wiremock" % "2.25.1" % scope
 )
 
@@ -62,14 +61,9 @@ lazy val root = (project in file("."))
   .settings(
     name := "api-platform-events",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.10",
+    scalaVersion := "2.12.12",
     PlayKeys.playDefaultPort := 6700,
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("hmrc", "release-candidates"),
-      Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
-    ),
+    resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
     dependencyOverrides ++= jettyOverrides,
     publishingSettings,
