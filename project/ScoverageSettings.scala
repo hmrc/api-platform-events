@@ -3,8 +3,7 @@ import scoverage.ScoverageKeys
 object ScoverageSettings {
   def apply() = Seq(
     ScoverageKeys.coverageExcludedPackages := Seq(
-      "<empty",
-      """uk\.gov\.hmrc\.apiplatformevents""",
+      "<empty>",
       """uk\.gov\.hmrc\.BuildInfo""" ,
       """.*\.Routes""" ,
       """.*\.RoutesPrefix""" ,

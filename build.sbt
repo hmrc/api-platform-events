@@ -1,6 +1,7 @@
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.SbtAutoBuildPlugin
+import bloop.integrations.sbt.BloopDefaults
 
 lazy val root = (project in file("."))
   .settings(
@@ -11,19 +12,25 @@ lazy val root = (project in file("."))
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
     publishingSettings,
-    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
+    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
+    majorVersion := 0
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
+
   .settings(ScoverageSettings())
+
+  .settings(inConfig(Test)(BloopDefaults.configSettings))
+
   .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(
     Defaults.itSettings,
     Keys.fork in IntegrationTest := false,
+    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / parallelExecution := false,
-    IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
-    majorVersion := 0
+    IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value)
   )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
