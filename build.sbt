@@ -13,18 +13,18 @@ lazy val root = (project in file("."))
     publishingSettings,
     unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
   )
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .disablePlugins(JUnitXmlReportPlugin)
   .settings(ScoverageSettings())
   .configs(IntegrationTest)
   .settings(
-    Keys.fork in IntegrationTest := false,
     Defaults.itSettings,
-    unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
-    parallelExecution in IntegrationTest := false,
-    testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
+    Keys.fork in IntegrationTest := false,
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
+    IntegrationTest / parallelExecution := false,
+    IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
     majorVersion := 0
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
-  .disablePlugins(JUnitXmlReportPlugin)
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>
