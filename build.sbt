@@ -14,25 +14,6 @@ lazy val scoverageSettings = {
   )
 }
 
-val jettyVersion = "9.2.24.v20180105"
-
-val jettyOverrides = Seq(
-  "org.eclipse.jetty" % "jetty-server" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-servlet" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-security" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-servlets" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-continuation" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-webapp" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-xml" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-client" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-http" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-io" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-util" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-api" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-common" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-client" % jettyVersion % IntegrationTest
-)
-
 lazy val root = (project in file("."))
   .settings(
     name := "api-platform-events",
@@ -41,7 +22,6 @@ lazy val root = (project in file("."))
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
-    dependencyOverrides ++= jettyOverrides,
     publishingSettings,
     scoverageSettings,
     unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
