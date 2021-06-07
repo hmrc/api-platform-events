@@ -21,16 +21,11 @@ import javax.inject.Inject
 import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
-
-
-
-
-  def captureEvent[A <: ApplicationEvent](event : A)(implicit ec: ExecutionContext): Future[Boolean] ={
+  def captureEvent[A <: ApplicationEvent](event : A): Future[Boolean] ={
     repo.createEntity(event)
   }
-
 }
