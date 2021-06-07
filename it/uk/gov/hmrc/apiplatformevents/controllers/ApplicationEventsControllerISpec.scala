@@ -13,6 +13,7 @@ import uk.gov.hmrc.mongo.MongoSpecSupport
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.global
+import scala.concurrent.Future
 
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSupport with AuditService with BeforeAndAfterEach {
@@ -83,19 +84,17 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
          |"oldCallbackUrl": "$oldCallbackUrl",
          |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
-  def doGet(path: String): WSResponse = {
+  def doGet(path: String): Future[WSResponse] = {
     wsClient
       .url(s"$url$path")
       .get()
-      .futureValue
   }
 
-  def doPost(path: String, body: String, headers: (String, String)): WSResponse = {
+  def doPost(path: String, body: String, headers: (String, String)): Future[WSResponse] = {
     wsClient
       .url(s"$url$path")
       .withHttpHeaders(headers)
       .post(body)
-      .futureValue
   }
 
   def checkCommonEventValues[A <: ApplicationEvent](event: A) {
@@ -276,26 +275,26 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
     }
 
     def testSuccessScenario(uriToTest: String, bodyString: String): Unit = {
-      val result = doPost(uriToTest, bodyString, "Content-Type" -> "application/json")
+      val result = await(doPost(uriToTest, bodyString, "Content-Type" -> "application/json"))
       result.status shouldBe 201
       result.body shouldBe ""
     }
 
 
     def testErrorScenarios(uriToTest: String): Unit = {
-      val result = doPost(uriToTest, "i'm not JSON", "Content-Type" -> "application/json")
+      val result = await(doPost(uriToTest, "i'm not JSON", "Content-Type" -> "application/json"))
       withClue("should respond with 400 when invalid json is sent") {
-        result.status shouldBe 400
-        result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      }
+      result.status shouldBe 400
+      result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
+    }
 
-      val result2 = doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue")
+      val result2 = await(doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue"))
       withClue("should respond with 415 when contentType header is missing") {
         result2.status shouldBe 415
         result2.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"
       }
 
-      val result3 = doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml")
+      val result3 = await(doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "Content-Type" -> "application/xml"))
       withClue("should respond with 415 when contentType header isn't JSON") {
         result3.status shouldBe 415
         result3.body shouldBe "{\"statusCode\":415,\"message\":\"Expecting text/json or application/json body\"}"

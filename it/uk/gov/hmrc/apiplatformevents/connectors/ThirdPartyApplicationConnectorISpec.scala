@@ -2,7 +2,6 @@ package uk.gov.hmrc.apiplatformevents.connectors
 
 import java.util.UUID.randomUUID
 
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -12,7 +11,7 @@ import uk.gov.hmrc.apiplatformevents.support.{MetricsTestSupport, ThirdPartyAppl
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with ScalaFutures with MetricsTestSupport with ThirdPartyApplicationService {
+class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with ThirdPartyApplicationService {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
