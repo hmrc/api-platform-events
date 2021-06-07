@@ -19,8 +19,7 @@ object AppDependencies {
   )
 
   private lazy val testDependencies = Seq(
-    "uk.gov.hmrc"             %% "hmrctest"                     % "3.9.0-play-26",
-    "org.mockito"             %  "mockito-core"                 % "3.1.0",
+    "org.mockito"             %% "mockito-scala-scalatest"      % "1.7.1",
     "org.scalatestplus.play"  %% "scalatestplus-play"           % "3.1.3",
     "uk.gov.hmrc"             %% "reactivemongo-test"           % "4.22.0-play-26",
     "com.github.tomakehurst"  %  "wiremock-jre8-standalone"     % "2.27.1"

@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.wiring
+package uk.gov.hmrc.apiplatformevents.utils
 
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+import org.scalatest.{Matchers, OptionValues, WordSpec}
+import org.scalatestplus.play.WsScalaTestClient
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-class AppConfigSpec extends AsyncHmrcSpec {
+abstract class HmrcSpec extends WordSpec with Matchers with OptionValues with WsScalaTestClient with MockitoSugar with ArgumentMatchersSugar
 
-  private val mockServiceConfig = mock[ServicesConfig]
-  private val appName = "TestAppName"
-
-  trait Setup {
-    when(mockServiceConfig.getString("appName")).thenReturn(appName)
-    val objInTest = new AppConfigImpl(mockServiceConfig)
-  }
-
-  "appconfig" should {
-
-    "returns value from service config when called" in new Setup {
-      objInTest.appName shouldBe appName
-    }
-  }
-
-}
+abstract class AsyncHmrcSpec extends HmrcSpec with DefaultAwaitTimeout with FutureAwaits

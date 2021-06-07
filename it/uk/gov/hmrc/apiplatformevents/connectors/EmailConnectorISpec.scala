@@ -11,10 +11,9 @@ import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.support.{EmailService, MetricsTestSupport, WireMockSupport}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class EmailConnectorISpec
-  extends UnitSpec with WireMockSupport with GuiceOneAppPerSuite with ScalaFutures with MetricsTestSupport with EmailService {
+class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with ScalaFutures with MetricsTestSupport with EmailService {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 

@@ -28,11 +28,11 @@ import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, ApplicationEvent, EventId}
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApiPlatformEventsRepositoryISpec extends UnitSpec with MongoApp {
+class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()

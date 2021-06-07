@@ -21,6 +21,11 @@ lazy val root = (project in file("."))
   .settings(ScoverageSettings())
 
   .settings(inConfig(Test)(BloopDefaults.configSettings))
+  .settings(
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
+  )
 
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
@@ -28,6 +33,7 @@ lazy val root = (project in file("."))
     Defaults.itSettings,
     Keys.fork in IntegrationTest := false,
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / parallelExecution := false,
     IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value)

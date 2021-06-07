@@ -24,11 +24,11 @@ import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.support.MongoApp
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationsRepositoryISpec extends UnitSpec with MongoApp {
+class NotificationsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
