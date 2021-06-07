@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.services
+package uk.gov.hmrc.apiplatformevents.utils
 
-import com.google.inject.Singleton
-import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
+import org.scalatest.{Matchers, OptionValues, WordSpec}
+import org.scalatestplus.play.WsScalaTestClient
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import scala.concurrent.Future
+abstract class HmrcSpec extends WordSpec with Matchers with OptionValues with WsScalaTestClient with MockitoSugar with ArgumentMatchersSugar
 
-@Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
-  def captureEvent[A <: ApplicationEvent](event : A): Future[Boolean] ={
-    repo.createEntity(event)
-  }
-}
+abstract class AsyncHmrcSpec extends HmrcSpec with DefaultAwaitTimeout with FutureAwaits

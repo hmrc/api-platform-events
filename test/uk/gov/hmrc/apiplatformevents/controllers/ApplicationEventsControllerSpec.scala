@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.apiplatformevents.controllers
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verifyNoInteractions, when}
+import org.mockito.Mockito.verifyNoInteractions
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
@@ -31,12 +29,12 @@ import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBody
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class ApplicationEventsControllerSpec extends UnitSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory with MockitoSugar
+class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory
   with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockApplicationsEventService: ApplicationEventsService = mock[ApplicationEventsService]
@@ -71,37 +69,36 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[TeamMemberAddedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[TeamMemberAddedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(teamMemberAddedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
 
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[TeamMemberAddedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[TeamMemberAddedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(teamMemberAddedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
 
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(teamMemberAddedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
-
       val result = doPost(teamMemberAddedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(teamMemberAddedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -116,37 +113,37 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[TeamMemberRemovedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[TeamMemberRemovedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(teamMemberRemovedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
 
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[TeamMemberRemovedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[TeamMemberRemovedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(teamMemberRemovedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(teamMemberRemovedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
 
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(teamMemberRemovedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
 
       val result = doPost(teamMemberRemovedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(teamMemberRemovedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -160,35 +157,34 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[ClientSecretAddedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ClientSecretAddedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(clientSecretAddedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(clientSecretAddedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[ClientSecretAddedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ClientSecretAddedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(clientSecretAddedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(clientSecretAddedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(clientSecretAddedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
-
       val result = doPost(clientSecretAddedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(clientSecretAddedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -202,35 +198,35 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[ClientSecretRemovedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ClientSecretRemovedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(clientSecretRemovedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(clientSecretRemovedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[ClientSecretRemovedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ClientSecretRemovedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(clientSecretRemovedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(clientSecretRemovedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(clientSecretRemovedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
 
       val result = doPost(clientSecretRemovedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(clientSecretRemovedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -245,35 +241,35 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"newRedirectUris": "newrdu"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[RedirectUrisUpdatedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[RedirectUrisUpdatedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(redirectUrisUpdatedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(redirectUrisUpdatedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[RedirectUrisUpdatedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[RedirectUrisUpdatedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(redirectUrisUpdatedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(redirectUrisUpdatedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(redirectUrisUpdatedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
 
       val result = doPost(redirectUrisUpdatedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(redirectUrisUpdatedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -288,35 +284,35 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[ApiSubscribedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ApiSubscribedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(apiSubscribedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[ApiSubscribedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ApiSubscribedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(apiSubscribedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(apiSubscribedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(apiSubscribedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
 
       val result = doPost(apiSubscribedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(apiSubscribedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -331,35 +327,35 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[ApiUnsubscribedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ApiUnsubscribedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(apiUnsubscribedUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[ApiUnsubscribedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[ApiUnsubscribedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(apiUnsubscribedUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(apiUnsubscribedUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(apiUnsubscribedUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return 422 when content type header is missing" in {
 
       val result = doPost(apiUnsubscribedUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(apiUnsubscribedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }
 
@@ -377,36 +373,36 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
            |"newCallbackUrl": "newUri"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(any[PpnsCallBackUriUpdatedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[PpnsCallBackUriUpdatedEvent]))
         .thenReturn(Future.successful(true))
 
-      val result = await(doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody))
-      status(result) should be(CREATED)
+      val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody)
+      status(result) shouldBe CREATED
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(any[PpnsCallBackUriUpdatedEvent])(any()))
+      when(mockApplicationsEventService.captureEvent(*[PpnsCallBackUriUpdatedEvent]))
         .thenReturn(Future.successful(false))
 
-      val result = await(doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody))
-      status(result) should be(INTERNAL_SERVER_ERROR)
+      val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody)
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return 400 when post request is invalid json" in {
       val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, "Not JSON")
-      status(result) should be(BAD_REQUEST)
+      status(result) shouldBe BAD_REQUEST
       verifyNoInteractions(mockApplicationsEventService)
     }
 
     "return 422 when content type header is missing" in {
       val result = doPost(ppnsCallBackUriUpdateddUri, Map.empty, "{}")
-      status(result) should be(UNPROCESSABLE_ENTITY)
+      status(result) shouldBe UNPROCESSABLE_ENTITY
       verifyNoInteractions(mockApplicationsEventService)
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(ppnsCallBackUriUpdateddUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) should be(UNSUPPORTED_MEDIA_TYPE)
+      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
       verifyNoInteractions(mockApplicationsEventService)
     }
   }
@@ -420,9 +416,7 @@ class ApplicationEventsControllerSpec extends UnitSpec with StubControllerCompon
     }
 
     val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
-    maybeBody
-      .fold(route(app, fakeRequest.withBody(bodyValue)).get)(jsonBody => route(app, fakeRequest.withJsonBody(jsonBody)).get)
-
+    maybeBody.fold(route(app, fakeRequest.withBody(bodyValue)).get)(jsonBody => route(app, fakeRequest.withJsonBody(jsonBody)).get)
   }
 
 }

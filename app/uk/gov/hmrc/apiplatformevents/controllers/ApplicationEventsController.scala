@@ -92,7 +92,7 @@ def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.jso
     withJson(request.body)(f)
   }
 
-  private def withJson[T](json: JsValue)(f: T => Future[Result])(implicit m: Manifest[T], reads: Reads[T]): Future[Result] = {
+  private def withJson[T](json: JsValue)(f: T => Future[Result])(implicit reads: Reads[T]): Future[Result] = {
     Try(json.validate[T]) match {
       case Success(JsSuccess(payload, _)) => f(payload)
       case Success(JsError(errs)) =>
@@ -114,5 +114,4 @@ def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.jso
     case NonFatal(e) => Logger.info("An unexpected error occurred:", e)
       InternalServerError
   }
-
 }

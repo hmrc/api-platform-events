@@ -19,26 +19,18 @@ package uk.gov.hmrc.apiplatformevents.services
 import java.util.UUID
 
 import org.joda.time.DateTime
-import org.mockito.ArgumentMatchers.{eq => eqTo}
-import org.mockito.Mockito.when
-import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.concurrent.Eventually
-import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class ApplicationEventsServiceSpec
-  extends UnitSpec
-    with MockitoSugar
-    with Eventually {
+class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
@@ -57,7 +49,7 @@ class ApplicationEventsServiceSpec
       requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
-    def primeService(repoResult: Boolean, repoThrowsException: Boolean): OngoingStubbing[Future[Boolean]] = {
+    def primeService(repoResult: Boolean, repoThrowsException: Boolean) = {
       if (repoThrowsException) {
         when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
           .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
@@ -68,22 +60,18 @@ class ApplicationEventsServiceSpec
     }
 
     val inTest = new ApplicationEventsService(mockRepository)
-
   }
 
   "Capture event" should {
-
     "send an event to the repository and return true when saved" in new Setup {
       primeService(repoResult = true, repoThrowsException = false)
       await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe true
     }
 
-
     "fail and return false when repository capture event fails" in new Setup {
       primeService(repoResult = false, repoThrowsException = false)
       await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe false
     }
-
 
     "handle error" in new Setup {
       primeService(repoResult = false, repoThrowsException = true)
@@ -95,6 +83,4 @@ class ApplicationEventsServiceSpec
       exception.message shouldBe "some mongo error"
     }
   }
-
-
 }

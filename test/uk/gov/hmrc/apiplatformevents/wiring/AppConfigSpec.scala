@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
-import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.test.UnitSpec
-import org.mockito.Mockito.when
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class AppConfigSpec extends UnitSpec with MockitoSugar {
+class AppConfigSpec extends AsyncHmrcSpec {
 
   private val mockServiceConfig = mock[ServicesConfig]
   private val appName = "TestAppName"

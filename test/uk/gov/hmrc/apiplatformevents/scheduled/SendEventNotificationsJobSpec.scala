@@ -24,9 +24,6 @@ import org.joda.time.DateTime.now
 import org.joda.time.DateTimeZone.UTC
 import org.joda.time.Duration
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{never, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.OK
@@ -44,13 +41,13 @@ import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, No
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.lock.LockRepository
 import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with MongoSpecSupport with GuiceOneAppPerSuite {
+class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport with GuiceOneAppPerSuite {
 
   implicit override lazy val app: Application = new GuiceApplicationBuilder()
     .disable[com.kenshoo.play.metrics.PlayModule]
@@ -60,21 +57,22 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val lockKeeperSuccess: () => Boolean = () => true
+
     private val reactiveMongoComponent = new ReactiveMongoComponent {
       override def mongoConnector: MongoConnector = mongoConnectorForTest
     }
+
     val mockLockKeeper: SendEventNotificationsJobLockKeeper = new SendEventNotificationsJobLockKeeper(reactiveMongoComponent) {
       override def lockId: String = "testLock"
       override def repo: LockRepository = mock[LockRepository]
       override val forceLockReleaseAfter: Duration = Duration.standardMinutes(5) // scalastyle:off magic.number
       override def tryLock[T](body: => Future[T])(implicit ec: ExecutionContext): Future[Option[T]] =
-        if (lockKeeperSuccess()) body.map(value => successful(Some(value)))
+        if (lockKeeperSuccess()) body.map(Some(_))
         else successful(None)
     }
 
     val notificationCaptor: ArgumentCaptor[Notification] = ArgumentCaptor.forClass(classOf[Notification])
-    val sendEventNotificationsJobConfig: SendEventNotificationsJobConfig = SendEventNotificationsJobConfig(
-      FiniteDuration(60, SECONDS), FiniteDuration(24, HOURS), enabled = true, 1)
+    val sendEventNotificationsJobConfig: SendEventNotificationsJobConfig = SendEventNotificationsJobConfig(FiniteDuration(60, SECONDS), FiniteDuration(24, HOURS), enabled = true, 1)
     val mockApplicationEventsRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
     val mockNotificationsRepository: NotificationsRepository = mock[NotificationsRepository]
     val mockEmailConnector: EmailConnector = mock[EmailConnector]
@@ -97,16 +95,15 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
     "send email notifications for PPNS_CALLBACK_URI_UPDATED events" in new Setup {
-      when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED))
-        .thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
-      when(mockThirdPartyApplicationConnector.getApplication(meq(event.applicationId))(any())).thenReturn(application)
-      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())).thenReturn(HttpResponse(OK, body = ""))
+      when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED)).thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
+      when(mockThirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
+      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(*, *, *)(*)).thenReturn(successful(HttpResponse(OK, body = "")))
       when(mockNotificationsRepository.createEntity(notificationCaptor.capture())).thenReturn(successful(true))
 
       val result: underTest.Result = await(underTest.execute)
 
       verify(mockEmailConnector, times(1))
-        .sendPpnsCallbackUrlChangedNotification(meq(application.name), meq(event.eventDateTime), meq(Set(adminEmail)))(any())
+        .sendPpnsCallbackUrlChangedNotification(eqTo(application.name), eqTo(event.eventDateTime), eqTo(Set(adminEmail)))(*)
       notificationCaptor.getValue.eventId shouldBe event.id
       notificationCaptor.getValue.status shouldBe SENT
       result.message shouldBe "SendEventNotificationsJob Job ran successfully."
@@ -115,8 +112,8 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
     "record failed individual notification attempts without failing the stream" in new Setup {
       when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
-      when(mockThirdPartyApplicationConnector.getApplication(meq(event.applicationId))(any())).thenReturn(application)
-      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())).thenReturn(failed(new RuntimeException("Failed")))
+      when(mockThirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
+      when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(*, *, *)(*)).thenReturn(failed(new RuntimeException("Failed")))
       when(mockNotificationsRepository.createEntity(notificationCaptor.capture())).thenReturn(successful(true))
 
       val result: underTest.Result = await(underTest.execute)
@@ -131,7 +128,7 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
 
       val result: underTest.Result = await(underTest.execute)
 
-      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())
+      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(*, *, *)(*)
       result.message shouldBe "SendEventNotificationsJob did not run because repository was locked by another instance of the scheduler."
     }
 
@@ -141,7 +138,7 @@ class SendEventNotificationsJobSpec extends UnitSpec with MockitoSugar with Mong
 
       val result: underTest.Result = await(underTest.execute)
 
-      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(any(), any(), any())(any())
+      verify(mockEmailConnector, never).sendPpnsCallbackUrlChangedNotification(*, *, *)(*)
       result.message shouldBe "The execution of scheduled job SendEventNotificationsJob failed with error 'Failed'. " +
         "The next execution of the job will do retry."
     }

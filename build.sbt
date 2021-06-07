@@ -1,61 +1,7 @@
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.SbtAutoBuildPlugin
-
-lazy val scoverageSettings = {
-  import scoverage.ScoverageKeys
-  Seq(
-    // Semicolon-separated list of regexs matching classes to exclude
-    ScoverageKeys.coverageExcludedPackages := """uk\.gov\.hmrc\.BuildInfo;.*\.Routes;.*\.RoutesPrefix;.*Filters?;MicroserviceAuditConnector;Module;GraphiteStartUp;.*\.Reverse[^.]*""",
-    ScoverageKeys.coverageMinimum := 90,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
-    parallelExecution in Test := false
-  )
-}
-
-lazy val compileDeps = Seq(
-  ws,
-  "uk.gov.hmrc" %% "bootstrap-play-26" % "2.3.0",
-  "com.beachape" %% "enumeratum-play-json" % "1.6.0",
-  "uk.gov.hmrc" %% "play-json-union-formatter" % "1.12.0-play-26",
-  "com.kenshoo" %% "metrics-play" % "2.6.19_0.7.0",
-  "uk.gov.hmrc" %% "domain" % "5.11.0-play-26",
-  "com.github.blemale" %% "scaffeine" % "3.1.0",
-  "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "4.4.0",
-  "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
-  "uk.gov.hmrc" %% "play-scheduling" % "7.4.0-play-26",
-  "org.reactivemongo" %% "reactivemongo-akkastream" % "0.20.11",
-  "com.typesafe.play" %% "play-json-joda" % "2.7.4",
-  ws
-)
-
-def testDeps(scope: String) = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
-  "org.mockito" % "mockito-core" % "3.1.0" % scope,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
-  "uk.gov.hmrc" %% "reactivemongo-test" % "4.22.0-play-26" % scope,
-  "com.github.tomakehurst" % "wiremock" % "2.25.1" % scope
-)
-
-val jettyVersion = "9.2.24.v20180105"
-
-val jettyOverrides = Seq(
-  "org.eclipse.jetty" % "jetty-server" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-servlet" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-security" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-servlets" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-continuation" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-webapp" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-xml" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-client" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-http" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-io" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty" % "jetty-util" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-api" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-common" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-client" % jettyVersion % IntegrationTest
-)
+import bloop.integrations.sbt.BloopDefaults
 
 lazy val root = (project in file("."))
   .settings(
@@ -64,23 +10,34 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.12",
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
-    libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
-    dependencyOverrides ++= jettyOverrides,
+    libraryDependencies ++= AppDependencies(),
     publishingSettings,
-    scoverageSettings,
-    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
-  )
-  .configs(IntegrationTest)
-  .settings(
-    Keys.fork in IntegrationTest := false,
-    Defaults.itSettings,
-    unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
-    parallelExecution in IntegrationTest := false,
-    testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
+    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
     majorVersion := 0
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
+
+  .settings(ScoverageSettings())
+
+  .settings(inConfig(Test)(BloopDefaults.configSettings))
+  .settings(
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
+  )
+
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
+  .settings(
+    Defaults.itSettings,
+    Keys.fork in IntegrationTest := false,
+    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
+    IntegrationTest / parallelExecution := false,
+    IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value)
+  )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>
