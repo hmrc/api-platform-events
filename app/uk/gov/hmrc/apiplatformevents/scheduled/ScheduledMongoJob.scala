@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduled
 
-import play.api.Logger
 import uk.gov.hmrc.lock.LockKeeper
-import uk.gov.hmrc.play.scheduling.{ExclusiveScheduledJob, ScheduledJob}
+import uk.gov.hmrc.apiplatformevents.scheduling.{ExclusiveScheduledJob, ScheduledJob}
+import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ScheduledMongoJob extends ExclusiveScheduledJob with ScheduledJobState {
+trait ScheduledMongoJob extends ExclusiveScheduledJob with ScheduledJobState with ApplicationLogger {
 
   val lockKeeper: LockKeeper
   def isEnabled: Boolean
@@ -37,7 +37,7 @@ trait ScheduledMongoJob extends ExclusiveScheduledJob with ScheduledJobState {
       case _ => Result(s"$name did not run because repository was locked by another instance of the scheduler.")
     } recover {
       case failure: RunningOfJobFailed => {
-        Logger.error("The execution of the job failed.", failure.wrappedCause)
+        logger.error("The execution of the job failed.", failure.wrappedCause)
         failure.asResult
       }
     }

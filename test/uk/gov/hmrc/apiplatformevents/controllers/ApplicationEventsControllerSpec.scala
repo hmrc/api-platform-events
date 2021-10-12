@@ -47,7 +47,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-
   private val teamMemberAddedUri = "/application-events/teamMemberAdded"
   private val teamMemberRemovedUri = "/application-events/teamMemberRemoved"
   private val clientSecretAddedUri = "/application-events/clientSecretAdded"
@@ -59,7 +58,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
 
   "TeamMemberAddedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -103,7 +101,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   "TeamMemberRemovedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -148,7 +145,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   "ClientSecretAddedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -189,7 +185,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   "ClientSecretRemovedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -231,7 +226,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   "RedirectUrisUpdatedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -274,7 +268,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   "ApiSubscribedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -317,7 +310,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   "ApiUnsubscribedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -361,7 +353,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
 
   "PpnsCallBackUriUpdatedEvent" should {
-
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "akjhjkhjshjkhksaih",
@@ -418,5 +409,4 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
     maybeBody.fold(route(app, fakeRequest.withBody(bodyValue)).get)(jsonBody => route(app, fakeRequest.withJsonBody(jsonBody)).get)
   }
-
 }

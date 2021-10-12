@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-import com.google.inject.AbstractModule
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+package uk.gov.hmrc.apiplatformevents.util
 
-class MicroserviceModule(val environment: Environment,
-                         val configuration: Configuration)
-    extends AbstractModule {
+import play.api.Logger
 
-  def configure(): Unit = {
-    bind(classOf[HttpGet]).to(classOf[DefaultHttpClient])
-    bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
-  }
+trait ApplicationLogger {
+  val logger = Logger("application")
 }

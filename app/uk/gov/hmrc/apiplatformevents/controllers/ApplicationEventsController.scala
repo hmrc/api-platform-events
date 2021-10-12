@@ -19,23 +19,27 @@ package uk.gov.hmrc.apiplatformevents.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
-import play.api.{Configuration, Environment, Logger}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatformevents.models.JsonRequestFormatters._
 import uk.gov.hmrc.apiplatformevents.models._
+import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class ApplicationEventsController @Inject()(val env: Environment,
-                                            service: ApplicationEventsService,
-                                            playBodyParsers: PlayBodyParsers,
-                                            cc: ControllerComponents)(
-                                             implicit val configuration: Configuration,
-                                             ec: ExecutionContext) extends BackendController(cc) {
+class ApplicationEventsController @Inject()(
+  val env: Environment,
+  service: ApplicationEventsService,
+  playBodyParsers: PlayBodyParsers,
+  cc: ControllerComponents
+)(
+  implicit val configuration: Configuration,
+  ec: ExecutionContext
+) extends BackendController(cc) with ApplicationLogger {
 
  
 
@@ -111,7 +115,7 @@ def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.jso
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {
-    case NonFatal(e) => Logger.info("An unexpected error occurred:", e)
+    case NonFatal(e) => logger.info("An unexpected error occurred:", e)
       InternalServerError
   }
 }

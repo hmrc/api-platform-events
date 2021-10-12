@@ -42,12 +42,11 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
         "timeOfChange" -> dateTimeOfChange.toString(DateTimeFormat.forPattern("HH:mm"))))
 
     "send the notification using the email service" in new SetUp() {
-      val expectedHttpStatus: Int = OK
-      primeEmailEndpoint(expectedHttpStatus)
+      primeEmailEndpoint(OK)
 
       val result: HttpResponse = await(objInTest.sendPpnsCallbackUrlChangedNotification(applicationName, dateTimeOfChange, recipients))
 
-      result.status shouldBe expectedHttpStatus
+      result.status shouldBe OK
       verifyRequestBody(expectedRequestBody)
     }
 

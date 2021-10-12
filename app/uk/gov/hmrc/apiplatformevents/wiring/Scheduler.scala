@@ -21,7 +21,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Application
 import play.api.inject.ApplicationLifecycle
 import uk.gov.hmrc.apiplatformevents.scheduled.SendEventNotificationsJob
-import uk.gov.hmrc.play.scheduling.{RunningOfScheduledJobs, ScheduledJob}
+import uk.gov.hmrc.apiplatformevents.scheduling.{RunningOfScheduledJobs, ScheduledJob}
 
 import scala.concurrent.ExecutionContext
 

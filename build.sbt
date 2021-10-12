@@ -23,6 +23,7 @@ lazy val root = (project in file("."))
   .settings(inConfig(Test)(BloopDefaults.configSettings))
   .settings(
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    Test / parallelExecution := false,
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
