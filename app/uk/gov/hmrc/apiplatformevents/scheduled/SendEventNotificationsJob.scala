@@ -23,7 +23,6 @@ import javax.inject.Inject
 import org.joda.time.DateTime.now
 import org.joda.time.DateTimeZone.UTC
 import org.joda.time.Duration
-import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
@@ -33,20 +32,23 @@ import uk.gov.hmrc.apiplatformevents.models.{Notification, PpnsCallBackUriUpdate
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.lock.{LockKeeper, LockRepository}
+import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 @Singleton
-class SendEventNotificationsJob @Inject()(override val lockKeeper: SendEventNotificationsJobLockKeeper,
-                                          jobConfig: SendEventNotificationsJobConfig,
-                                          applicationEventsRepository: ApplicationEventsRepository,
-                                          notificationsRepository: NotificationsRepository,
-                                          emailConnector: EmailConnector,
-                                          thirdPartyApplicationConnector: ThirdPartyApplicationConnector)
-                                         (implicit mat: Materializer) extends ScheduledMongoJob {
-
+class SendEventNotificationsJob @Inject()(
+  override val lockKeeper: SendEventNotificationsJobLockKeeper,
+  jobConfig: SendEventNotificationsJobConfig,
+  applicationEventsRepository: ApplicationEventsRepository,
+  notificationsRepository: NotificationsRepository,
+  emailConnector: EmailConnector,
+  thirdPartyApplicationConnector: ThirdPartyApplicationConnector
+)(
+  implicit mat: Materializer
+) extends ScheduledMongoJob with ApplicationLogger {
   override def name: String = "SendEventNotificationsJob"
   override def interval: FiniteDuration = jobConfig.interval
   override def initialDelay: FiniteDuration = jobConfig.initialDelay
@@ -71,7 +73,7 @@ class SendEventNotificationsJob @Inject()(override val lockKeeper: SendEventNoti
       _ <- notificationsRepository.createEntity(Notification(event.id, now(UTC), SENT))
     } yield ()) recoverWith {
       case NonFatal(e) =>
-        Logger.error(s"Failed to send email notification for event ID ${event.id}", e)
+        logger.error(s"Failed to send email notification for event ID ${event.id}", e)
         notificationsRepository.createEntity(Notification(event.id, now(UTC), FAILED)).map(_ => ())
     }
   }

@@ -17,19 +17,24 @@
 package uk.gov.hmrc.apiplatformevents.scheduled
 
 import java.util.concurrent.TimeUnit.{HOURS, SECONDS}
+import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{ExecutionContext, Future}
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.Source.{fromFutureSource, fromIterator}
+import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.Source.fromIterator
 import org.joda.time.DateTime.now
 import org.joda.time.DateTimeZone.UTC
 import org.joda.time.Duration
 import org.mockito.ArgumentCaptor
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import reactivemongo.akkastream.State
+
 import play.api.Application
 import play.api.http.Status.OK
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.akkastream.State
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters.PpnsCallBackUriUpdatedEventFormats
@@ -38,14 +43,10 @@ import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_U
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Collaborator, Notification, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.lock.LockRepository
 import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
-
-import scala.concurrent.Future.{failed, successful}
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport with GuiceOneAppPerSuite {
 
@@ -95,7 +96,7 @@ class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport 
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
     "send email notifications for PPNS_CALLBACK_URI_UPDATED events" in new Setup {
-      when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED)).thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
+      when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED)).thenReturn(Source.futureSource(successful(fromIterator(() => Seq(event).toIterator))))
       when(mockThirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
       when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(*, *, *)(*)).thenReturn(successful(HttpResponse(OK, body = "")))
       when(mockNotificationsRepository.createEntity(notificationCaptor.capture())).thenReturn(successful(true))
@@ -111,7 +112,7 @@ class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport 
 
     "record failed individual notification attempts without failing the stream" in new Setup {
       when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED))
-        .thenReturn(fromFutureSource(successful(fromIterator(() => Seq(event).toIterator))))
+        .thenReturn(Source.futureSource(successful(fromIterator(() => Seq(event).toIterator))))
       when(mockThirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
       when(mockEmailConnector.sendPpnsCallbackUrlChangedNotification(*, *, *)(*)).thenReturn(failed(new RuntimeException("Failed")))
       when(mockNotificationsRepository.createEntity(notificationCaptor.capture())).thenReturn(successful(true))
@@ -134,7 +135,7 @@ class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport 
 
     "fail the job when fetching the events fails" in new Setup {
       when(mockApplicationEventsRepository.fetchEventsToNotify[PpnsCallBackUriUpdatedEvent](PPNS_CALLBACK_URI_UPDATED))
-        .thenReturn(fromFutureSource[PpnsCallBackUriUpdatedEvent, State](failed(new RuntimeException("Failed"))))
+        .thenReturn(Source.futureSource[PpnsCallBackUriUpdatedEvent, State](failed(new RuntimeException("Failed"))))
 
       val result: underTest.Result = await(underTest.execute)
 

@@ -22,8 +22,6 @@ import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, Eve
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
 
-import scala.language.implicitConversions
-
 object JodaDateFormats {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
   implicit val JodaDateReads: Reads[org.joda.time.DateTime] = JodaReads.jodaDateReads(dateFormat)

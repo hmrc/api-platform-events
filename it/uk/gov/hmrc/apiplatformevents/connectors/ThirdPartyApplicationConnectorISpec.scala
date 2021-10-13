@@ -8,8 +8,9 @@ import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 import uk.gov.hmrc.apiplatformevents.support.{MetricsTestSupport, ThirdPartyApplicationService, WireMockSupport}
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with ThirdPartyApplicationService {
 
@@ -45,9 +46,9 @@ class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSup
     "return failed Future if TPA returns a 404" in new SetUp {
       primeApplicationEndpoint(NOT_FOUND, "", applicationId)
 
-      intercept[NotFoundException] {
+      intercept[UpstreamErrorResponse] {
         await(objInTest.getApplication(applicationId))
-      }
+      }.statusCode shouldBe NOT_FOUND
     }
   }
 }

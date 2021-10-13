@@ -22,9 +22,12 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.http.Status.NOT_FOUND
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.NotFoundException
 
 @Singleton
 class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
@@ -44,6 +47,12 @@ class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(imp
 
   private def post(payload: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient.POST[SendEmailRequest, HttpResponse](s"${appConfig.emailUrl}/hmrc/email", payload)
+      .map { response =>
+        response.status match {
+          case NOT_FOUND => throw new NotFoundException("Endpoint for sending email was not found")
+          case _ => response
+        }
+      }
   }
 }
 
