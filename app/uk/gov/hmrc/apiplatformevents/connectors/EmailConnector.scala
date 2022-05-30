@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.apiplatformevents.connectors
 
+
+
 import javax.inject.{Inject, Singleton}
-import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -29,20 +29,23 @@ import play.api.http.Status.NOT_FOUND
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.NotFoundException
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 @Singleton
 class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
 
-  val dateFormatter: DateTimeFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
-  val timeFormatter: DateTimeFormatter = DateTimeFormat.forPattern("HH:mm")
+  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+  val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: DateTime, recipients: Set[String])
+  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: LocalDateTime, recipients: Set[String])
                                             (implicit hc: HeaderCarrier): Future[HttpResponse] = {
     post(SendEmailRequest(
       recipients,
       "ppnsCallbackUrlChangedNotification",
       Map("applicationName" -> applicationName,
-        "dateOfChange" -> dateTimeOfChange.toString(dateFormatter),
-        "timeOfChange" -> dateTimeOfChange.toString(timeFormatter))))
+        "dateOfChange" -> dateTimeOfChange.format(dateFormatter),
+        "timeOfChange" -> dateTimeOfChange.format(timeFormatter))))
   }
 
   private def post(payload: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {

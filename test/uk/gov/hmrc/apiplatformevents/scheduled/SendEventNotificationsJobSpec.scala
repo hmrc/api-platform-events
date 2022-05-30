@@ -37,7 +37,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters.PpnsCallBackUriUpdatedEventFormats
+import uk.gov.hmrc.apiplatformevents.models.MongoFormatters.PpnsCallBackUriUpdatedEventFormats
 import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_UPDATED
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}

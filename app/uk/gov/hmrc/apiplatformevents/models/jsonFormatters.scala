@@ -16,21 +16,14 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import org.joda.time.DateTime
+
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.play.json.Union
 
-object JodaDateFormats {
-  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-  implicit val JodaDateReads: Reads[org.joda.time.DateTime] = JodaReads.jodaDateReads(dateFormat)
-  implicit val JodaDateWrites: Writes[org.joda.time.DateTime] = JodaWrites.jodaDateWrites(dateFormat)
-  implicit val JodaDateTimeFormat: Format[DateTime] = Format(JodaDateReads, JodaDateWrites)
-}
 
-object ReactiveMongoFormatters {
-  implicit val dateReads: Format[DateTime] = ReactiveMongoFormats.dateTimeFormats
+object MongoFormatters {
+
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
@@ -55,7 +48,7 @@ object ReactiveMongoFormatters {
 }
 
 object JsonRequestFormatters {
-  implicit val dateReads: Format[DateTime] = JodaDateFormats.JodaDateTimeFormat
+
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]

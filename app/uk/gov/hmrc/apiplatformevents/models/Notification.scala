@@ -17,13 +17,15 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import org.joda.time.DateTime
+
+import java.time.LocalDateTime
+
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
 
 import scala.collection.immutable
 
 case class Notification(eventId: EventId,
-                        lastUpdated: DateTime,
+                        lastUpdated: LocalDateTime,
                         status: NotificationStatus)
 
 sealed trait NotificationStatus extends EnumEntry

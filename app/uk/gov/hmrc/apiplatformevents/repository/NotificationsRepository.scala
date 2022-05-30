@@ -16,35 +16,33 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
-import javax.inject.{Inject, Singleton}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.apiplatformevents.models.{Notification, ReactiveMongoFormatters}
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import uk.gov.hmrc.apiplatformevents.models.{MongoFormatters, Notification}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NotificationsRepository @Inject()(mongoComponent: ReactiveMongoComponent)
+class NotificationsRepository @Inject()(mongoComponent: MongoComponent)
                                        (implicit ec: ExecutionContext)
-  extends ReactiveRepository[Notification, BSONObjectID](
-      "notifications",
-      mongoComponent.mongoConnector.db,
-      ReactiveMongoFormatters.formatNotification,
-      ReactiveMongoFormats.objectIdFormats) {
+  extends PlayMongoRepository[Notification](
 
-  override def indexes = Seq(
-    Index(
-      key = Seq("eventId" -> IndexType.Ascending),
-      name = Some("event_id_index"),
-      unique = true,
-      background = true
-    )
-  )
+      mongoComponent,
+    "notifications",
+      MongoFormatters.formatNotification,
+    indexes = Seq(IndexModel(ascending("eventId"),
+                    IndexOptions()
+                      .name("event_id_index")
+                      .unique(true)
+                      .background(true)
+                  ))
+    ) {
+
 
   def createEntity(notification: Notification): Future[Boolean] =
-    insert(notification).map(wr => wr.ok)
+    collection.insertOne(notification).toFuture().map(wr => wr.wasAcknowledged())
 
 }

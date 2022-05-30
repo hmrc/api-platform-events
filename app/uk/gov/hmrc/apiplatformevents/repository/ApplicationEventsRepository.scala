@@ -17,48 +17,47 @@
 package uk.gov.hmrc.apiplatformevents.repository
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.Source
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{Json, OFormat}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.akkastream.cursorProducer
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters
+import org.mongodb.scala.model.Aggregates._
+import org.mongodb.scala.model.Filters.{equal, size}
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import play.api.libs.json.OFormat
+import uk.gov.hmrc.apiplatformevents.models.MongoFormatters
 import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventType}
-import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationEventsRepository @Inject()(mongoComponent: ReactiveMongoComponent)
+class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
                                            (implicit ec: ExecutionContext, val mat: Materializer)
-    extends ReactiveRepository[ApplicationEvent, BSONObjectID](
-      "application-events",
-      mongoComponent.mongoConnector.db,
-      ReactiveMongoFormatters.formatApplicationEvent,
-      ReactiveMongoFormats.objectIdFormats) {
+    extends PlayMongoRepository[ApplicationEvent](
+      mongoComponent = mongoComponent,
+      collectionName = "application-events",
+     domainFormat = MongoFormatters.formatApplicationEvent,
+      indexes = Seq(
+        IndexModel(ascending("id"),
+          IndexOptions()
+            .name("id_index")
+            .unique(true)
+            .background(true))
+      )
 
-  override def indexes = Seq(
-    Index(
-      key = Seq("id" -> IndexType.Ascending),
-      name = Some("id_index"),
-      unique = true,
-      background = true
-    )
-  )
+    ) with MongoJavatimeFormats.Implicits {
+
 
   def createEntity(event: ApplicationEvent): Future[Boolean] =
-    insert(event).map(wr => wr.ok)
+    collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType)(implicit formatter: OFormat[A]): Source[A, Future[Any]] = {
-    val builder = collection.BatchCommands.AggregationFramework
-    val pipeline = List(
-      builder.Match(Json.obj("eventType" -> eventType)),
-      builder.Lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "notifications"),
-      builder.Match(Json.obj("notifications" -> Json.obj("$size" -> 0)))
-    )
-    collection.aggregateWith[A]()(_ => (pipeline.head, pipeline.tail)).documentSource()
+
+  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType)(implicit formatter: OFormat[A]): Future[Seq[ApplicationEvent]] = {
+      collection.aggregate(List(filter(equal("eventType", eventType)),
+        lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "notifcations"),
+        filter(size("notifications", 0)))
+      ).toFuture()
   }
-}
+
+  }

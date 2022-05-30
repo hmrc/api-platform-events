@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import reactivemongo.api.indexes.Index
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
-import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters.teamMemberAddedEventFormats
+import uk.gov.hmrc.apiplatformevents.models.MongoFormatters.teamMemberAddedEventFormats
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, ApplicationEvent, EventId}
