@@ -14,14 +14,31 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.wiring
+package uk.gov.hmrc.apiplatformevents.scheduler
 
-import com.google.inject.AbstractModule
+
+
+import akka.actor.{Actor, ActorLogging, Props}
+import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsNewJob
 
-class SchedulerModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[SendEventNotificationsNewJob]).asEagerSingleton()
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class SchedulingActor extends Actor with ActorLogging {
+
+  override def receive: Receive = {
+    case message: ScheduledMessage[_] => message.service.invoke
   }
 }
 
+object SchedulingActor {
+
+  sealed trait ScheduledMessage[A] {
+    val service: ScheduledService[A]
+  }
+
+  def props: Props = Props[SchedulingActor]
+
+  case class SendEventNotificationsClass(service: SendEventNotificationsNewJob) extends ScheduledMessage[Boolean]
+
+}

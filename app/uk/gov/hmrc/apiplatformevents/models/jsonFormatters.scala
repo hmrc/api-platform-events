@@ -17,8 +17,10 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 
+import org.bson.codecs.ObjectIdCodec
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
+import uk.gov.hmrc.mongo.play.json.Codecs
 import uk.gov.hmrc.play.json.Union
 
 
@@ -44,6 +46,24 @@ object MongoFormatters {
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
+
+  val mongoCodecs = Seq(
+    Codecs.playFormatCodec(formatApplicationEvent),
+    Codecs.playFormatCodec(EventType.jsonFormat),
+    Codecs.playFormatCodec(eventIdFormat),
+    Codecs.playFormatCodec(actorFormat),
+    Codecs.playFormatCodec(teamMemberAddedEventFormats),
+    Codecs.playFormatCodec(teamMemberRemovedEventFormats),
+    Codecs.playFormatCodec(clientSecretAddedEventFormats),
+    Codecs.playFormatCodec(clientSecretRemovedEventFormats),
+    Codecs.playFormatCodec(urisUpdatedEventFormats),
+    Codecs.playFormatCodec(apiSubscribedEventFormats),
+    Codecs.playFormatCodec(apiUnsubscribedEventFormats),
+    Codecs.playFormatCodec(apiUnsubscribedEventFormats),
+    Codecs.playFormatCodec(PpnsCallBackUriUpdatedEventFormats),
+    new ObjectIdCodec
+  )
+
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 

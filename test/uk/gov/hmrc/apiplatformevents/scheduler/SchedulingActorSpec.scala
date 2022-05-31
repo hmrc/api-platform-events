@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.wiring
+package uk.gov.hmrc.apiplatformevents.scheduler
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsNewJob
+import akka.actor.Props
+import org.scalatestplus.play.PlaySpec
 
-class SchedulerModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[SendEventNotificationsNewJob]).asEagerSingleton()
+class SchedulingActorSpec extends PlaySpec {
+  class Setup {
+    val schedulingActorCompanionObject: SchedulingActor.type = SchedulingActor
+  }
+
+  "props" should {
+    "return the correct type of props" in new Setup {
+      val expectedType: Props = Props[SchedulingActor]
+      val result: Props = schedulingActorCompanionObject.props
+      result mustBe expectedType
+    }
   }
 }
-

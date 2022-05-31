@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.scheduling
+package uk.gov.hmrc.apiplatformevents.scheduler
 
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Future, ExecutionContext => ExC}
 
-trait ScheduledJob {
-  def name: String
-  def execute(implicit ec: ExecutionContext): Future[Result]
-  def isRunning: Future[Boolean]
-
-  case class Result(message: String)
-
-  def configKey: String = name
-
-  def initialDelay: FiniteDuration
-
-  def interval: FiniteDuration
-
-  override def toString() = s"$name after $initialDelay every $interval"
+trait ScheduledService[R] {
+  val jobName: String
+  def invoke(implicit ec : ExC) : Future[R]
 }

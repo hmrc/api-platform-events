@@ -15,24 +15,22 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
-import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
-import org.joda.time.DateTime.now
-import org.joda.time.DateTimeZone.UTC
-import play.api.Application
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
-import reactivemongo.api.indexes.Index
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters.teamMemberAddedEventFormats
+import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, ApplicationEvent, EventId}
-import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
-
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
+import java.time.LocalDateTime
+
+class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with DefaultPlayMongoRepositorySupport[ApplicationEvent] {
+
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -40,21 +38,22 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
 
-  override implicit lazy val app: Application = appBuilder.build()
-  implicit val mat: Materializer = app.injector.instanceOf[Materializer]
-
-  def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
-  def notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
+  protected def repository: PlayMongoRepository[ApplicationEvent] = new ApplicationEventsRepository(mongoComponent)
+  val repo: ApplicationEventsRepository = repository.asInstanceOf[ApplicationEventsRepository]
+  val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
   override def beforeEach() {
     super.beforeEach()
+    await(notificationsRepo.collection.drop().toFuture())
+    await(repo.collection.drop().toFuture())
     await(repo.ensureIndexes)
+
   }
 
   val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
@@ -62,7 +61,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
@@ -70,21 +69,21 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     oldRedirectUris = "oldru",
     newRedirectUris = "newru")
@@ -92,7 +91,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
   val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
@@ -100,56 +99,46 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
   val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
     id = EventId.random,
     applicationId = "John Smith",
-    eventDateTime = now(UTC),
+    eventDateTime = LocalDateTime.now(),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
 
-  def getIndex(indexName: String): Option[Index] ={
-    await(repo.collection.indexesManager.list().map(_.find(_.eventualName.equalsIgnoreCase(indexName))))
-  }
-
-  "Indexes" should {
-    "create unique ID index"in {
-      val Some(index) = getIndex("id_index")
-      index.unique shouldBe true
-    }
-  }
 
   "createEntity" should {
     "create a teamMemberAdded entity" in {
       await(repo.createEntity(teamMemberAddedModel))
-      await(repo.find()) should contain only teamMemberAddedModel
+      await(repo.collection.find().toFuture()) should contain only teamMemberAddedModel
     }
 
     "create a teamMemberRemoved entity" in {
       await(repo.createEntity(teamMemberRemovedModel))
-      await(repo.find()) should contain only teamMemberRemovedModel
+      await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
     }
 
     "create a clientSecretAdded entity" in {
       await(repo.createEntity(clientSecretAddedModel))
-      await(repo.find()) should contain only clientSecretAddedModel
+      await(repo.collection.find().toFuture()) should contain only clientSecretAddedModel
     }
 
     "create a clientSecretRemoved entity" in {
       await(repo.createEntity(clientSecretRemovedModel))
-      await(repo.find()) should contain only clientSecretRemovedModel
+      await(repo.collection.find().toFuture()) should contain only clientSecretRemovedModel
     }
 
     "create a redirectUrisUpdated entity" in {
       await(repo.createEntity(redirectUrisUpdatedModel))
-      await(repo.find()) should contain only redirectUrisUpdatedModel
+      await(repo.collection.find().toFuture()) should contain only redirectUrisUpdatedModel
     }
 
     "create an apiSubsribed entity" in {
       await(repo.createEntity(apiSubscribedModel))
-      await(repo.find()) should contain only apiSubscribedModel
+      await(repo.collection.find().toFuture()) should contain only apiSubscribedModel
     }
 
     "create an apiUnsubsribed entity" in {
       await(repo.createEntity(apiUnsubscribedModel))
-      await(repo.find()) should contain only apiUnsubscribedModel
+      await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
     }
   }
 
@@ -158,7 +147,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
       await(repo.createEntity(teamMemberAddedModel))
       await(repo.createEntity(clientSecretAddedModel))
 
-      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED).runWith(Sink.seq))
+      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only teamMemberAddedModel
     }
@@ -169,9 +158,9 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
       await(repo.createEntity(anotherTeamMemberAddedModel))
       val alreadyNotifiedTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
       await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
-      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, now(UTC), SENT)))
+      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, LocalDateTime.now(), SENT)))
 
-      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED).runWith(Sink.seq))
+      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
     }

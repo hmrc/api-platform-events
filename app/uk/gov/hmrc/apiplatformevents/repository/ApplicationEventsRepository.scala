@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
-import akka.stream.Materializer
+
 import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import play.api.libs.json.OFormat
-import uk.gov.hmrc.apiplatformevents.models.MongoFormatters
+import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
+import uk.gov.hmrc.apiplatformevents.models.{MongoFormatters, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventType}
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import javax.inject.{Inject, Singleton}
@@ -33,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
-                                           (implicit ec: ExecutionContext, val mat: Materializer)
+                                           (implicit ec: ExecutionContext)
     extends PlayMongoRepository[ApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
@@ -44,7 +45,8 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
             .name("id_index")
             .unique(true)
             .background(true))
-      )
+      ),
+      extraCodecs  = mongoCodecs
 
     ) with MongoJavatimeFormats.Implicits {
 

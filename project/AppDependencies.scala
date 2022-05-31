@@ -15,6 +15,7 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "domain"                       % "8.1.0-play-28",
     "com.github.blemale"      %% "scaffeine"                    % "3.1.0",
     "uk.gov.hmrc"             %% "agent-kenshoo-monitoring"     % "4.8.0-play-28",
+    "com.enragedginger"       %%  "akka-quartz-scheduler"       %  "1.9.1-akka-2.6.x",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"           % hmrcMongoVersion,
     "com.typesafe.play"       %% "play-json-joda"               % "2.8.1",
   )
