@@ -44,6 +44,11 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
           IndexOptions()
             .name("id_index")
             .unique(true)
+            .background(true)),
+        IndexModel(ascending("eventType"),
+          IndexOptions()
+            .name("eventType_index")
+            .unique(false)
             .background(true))
       ),
       extraCodecs  = mongoCodecs
@@ -56,7 +61,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
 
 
   def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType)(implicit formatter: OFormat[A]): Future[Seq[ApplicationEvent]] = {
-      collection.aggregate(List(filter(equal("eventType", eventType)),
+      collection.aggregate(List(filter(equal("eventType", eventType.entryName)),
         lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "notifcations"),
         filter(size("notifications", 0)))
       ).toFuture()
