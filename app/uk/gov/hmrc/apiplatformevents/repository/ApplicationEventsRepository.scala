@@ -57,17 +57,12 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
   def createEntity(event: ApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchByEventType(eventType: EventType): Future[Seq[ApplicationEvent]] = {
-    collection.find(equal("eventType2", eventType.entryName)).toFuture()
-  }
-
   def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType): Future[Seq[ApplicationEvent]] = {
       collection.aggregate(
         Seq(
           filter(equal("eventType2", eventType.entryName)),
-          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched-notifications"),
-          unwind("$matched-notifications"),
-          filter(size("notifications", 0))
+          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
+          filter(size("matched", 0))
         )
       ).toFuture()
   }
