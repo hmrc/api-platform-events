@@ -16,9 +16,18 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType}
 
 import java.time.LocalDateTime
+
+sealed trait ApplicationEvent {
+  val id: EventId
+  val applicationId: String
+  val eventDateTime: LocalDateTime
+  val actor: Actor
+  
+  def eventType: EventType
+}
 
 case class TeamMemberAddedEvent(override val id: EventId,
                                 override val applicationId: String,

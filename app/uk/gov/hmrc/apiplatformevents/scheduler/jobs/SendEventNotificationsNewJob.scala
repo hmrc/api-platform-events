@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters.PpnsCallBackUriUpdatedEventFormats
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_UPDATED
 import uk.gov.hmrc.apiplatformevents.models.{Notification, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}

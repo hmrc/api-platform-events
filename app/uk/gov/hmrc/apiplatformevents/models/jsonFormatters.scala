@@ -18,48 +18,10 @@ package uk.gov.hmrc.apiplatformevents.models
 
 
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ApplicationEvent, EventId, EventType}
-import uk.gov.hmrc.mongo.play.json.Codecs
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType}
 import uk.gov.hmrc.play.json.Union
-import org.bson.codecs.Codec
-import scala.reflect.runtime.universe._
-
 
 object MongoFormatters {
-
-    def allCodecs[P](
-      format: Format[P],
-      legacyNumbers: Boolean = false
-    )(implicit tt: TypeTag[P]): Seq[Codec[_]] = {
-
-      val clazz =  tt.tpe.typeSymbol.asClass
-      require(clazz.isSealed && clazz.isTrait)
-      
-      val subs = clazz.knownDirectSubclasses
-
-      subs.toSeq.map { s =>
-        UnionCodecs.playUnionFormatCodec(format, legacyNumbers)
-      }
-    }
-
-
-  trait UnionCodecs extends Codecs {
-    def playUnionFormatCodec[S <: P, P](
-      format: Format[P],
-      legacyNumbers: Boolean = false
-    )(implicit tag: TypeTag[S]): Codec[S] = new Codec[S] {
-    
-      override def getEncoderClass: Class[S] = {
-        val mirror = tag.mirror
-        val clazz = mirror.runtimeClass(tag.tpe.typeSymbol.asClass)   
-        clazz.asInstanceOf[Class[S]]
-      }
-    }
-  }
-
-
-  object UnionCodecs extends UnionCodecs
-
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
@@ -72,9 +34,9 @@ object MongoFormatters {
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   
-  implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
-    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
+  implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType2")
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
+    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
     .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
     .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString())
@@ -83,23 +45,8 @@ object MongoFormatters {
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
 
-  val mongoCodes = allCodecs[ApplicationEvent](formatApplicationEvent)
-  // val mongoCodecs = Seq(
-    // Codecs.playFormatCodec(formatApplicationEvent),
-    // Codecs.playFormatCodec(EventType.jsonFormat),
-    // Codecs.playFormatCodec(eventIdFormat),
-    // Codecs.playFormatCodec(actorFormat),
-    // // Codecs.playFormatCodec[TeamMemberAddedEvent](formatApplicationEvent),
-    // // Codecs.playFormatCodec[TeamMemberRemovedEvent](formatApplicationEvent),
-    // Codecs.playFormatCodec(clientSecretAddedEventFormats),
-    // Codecs.playFormatCodec(clientSecretRemovedEventFormats),
-    // Codecs.playFormatCodec(urisUpdatedEventFormats),
-    // Codecs.playFormatCodec(apiSubscribedEventFormats),
-    // Codecs.playFormatCodec(apiUnsubscribedEventFormats),
-    // Codecs.playFormatCodec(apiUnsubscribedEventFormats),
-    // Codecs.playFormatCodec(PpnsCallBackUriUpdatedEventFormats),
-    // new ObjectIdCodec
-  // )
+  val mongoCodecs = 
+      Codecs.allCodecs[ApplicationEvent](formatApplicationEvent)
 
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }

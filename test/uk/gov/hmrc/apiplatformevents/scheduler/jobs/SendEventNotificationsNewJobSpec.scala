@@ -23,7 +23,7 @@ import org.scalatestplus.play.PlaySpec
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, ApplicationEvent, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId, EventType}
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters.PpnsCallBackUriUpdatedEventFormats
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
@@ -31,7 +31,6 @@ import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Collaborator, 
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream4xxResponse
 import uk.gov.hmrc.mongo.lock.MongoLockRepository
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
@@ -41,6 +40,7 @@ import scala.concurrent.{Future, duration}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.{failed, successful}
+import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
 
 class SendEventNotificationsNewJobSpec extends PlaySpec with MockitoSugar with FutureAwaits with DefaultAwaitTimeout with LogCapturing {
 
@@ -125,7 +125,7 @@ class SendEventNotificationsNewJobSpec extends PlaySpec with MockitoSugar with F
       val result =  await(job.invoke)
       result mustBe true
 
-      verify(applicationEventsRepository).fetchEventsToNotify(*)(*)
+      verify(applicationEventsRepository).fetchEventsToNotify(*)
       verify(thirdPartyApplicationConnector).getApplication(*)(*)
       verify(emailConnector).sendPpnsCallbackUrlChangedNotification(*, *, *)(*)
       verify(notificationsRepository).createEntity(*)
@@ -137,7 +137,7 @@ class SendEventNotificationsNewJobSpec extends PlaySpec with MockitoSugar with F
       val result =  await(job.invoke)
       result mustBe true
 
-      verify(applicationEventsRepository).fetchEventsToNotify(*)(*)
+      verify(applicationEventsRepository).fetchEventsToNotify(*)
       verifyZeroInteractions(thirdPartyApplicationConnector)
       verifyZeroInteractions(emailConnector)
       verifyZeroInteractions(notificationsRepository)
@@ -154,7 +154,7 @@ class SendEventNotificationsNewJobSpec extends PlaySpec with MockitoSugar with F
       val result =  await(job.invoke)
       result mustBe true
 
-      verify(applicationEventsRepository).fetchEventsToNotify(*)(*)
+      verify(applicationEventsRepository).fetchEventsToNotify(*)
       verify(thirdPartyApplicationConnector).getApplication(*)(*)
       verifyZeroInteractions(emailConnector)
       verifyZeroInteractions(notificationsRepository)

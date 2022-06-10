@@ -61,10 +61,3 @@ object EventId {
   def random: EventId = EventId(UUID.randomUUID())
 }
 
-trait ApplicationEvent{
-  val id: EventId
-  val applicationId: String
-  val eventDateTime: LocalDateTime
-  val eventType: EventType
-  val actor: Actor
-}

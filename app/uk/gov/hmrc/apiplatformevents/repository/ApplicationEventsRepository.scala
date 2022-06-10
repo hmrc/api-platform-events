@@ -21,12 +21,11 @@ import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import play.api.libs.json.OFormat
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{MongoFormatters, TeamMemberAddedEvent, TeamMemberRemovedEvent}
-import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventType}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
+import uk.gov.hmrc.apiplatformevents.models.common.EventType
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import javax.inject.{Inject, Singleton}
@@ -44,27 +43,32 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
           IndexOptions()
             .name("id_index")
             .unique(true)
-            .background(true)),
-        IndexModel(ascending("eventType"),
+            .background(false)),
+        IndexModel(ascending("eventType2"),
           IndexOptions()
             .name("eventType_index")
             .unique(false)
-            .background(true))
+            .background(false))
       ),
       extraCodecs  = mongoCodecs
 
     ) with MongoJavatimeFormats.Implicits {
 
-
   def createEntity(event: ApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
+  def fetchByEventType(eventType: EventType): Future[Seq[ApplicationEvent]] = {
+    collection.find(equal("eventType2", eventType.entryName)).toFuture()
+  }
 
-  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType)(implicit formatter: OFormat[A]): Future[Seq[ApplicationEvent]] = {
-      collection.aggregate(List(filter(equal("eventType", eventType.entryName)),
-        lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "notifcations"),
-        filter(size("notifications", 0)))
+  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType): Future[Seq[ApplicationEvent]] = {
+      collection.aggregate(
+        Seq(
+          filter(equal("eventType2", eventType.entryName)),
+          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched-notifications"),
+          unwind("$matched-notifications"),
+          filter(size("notifications", 0))
+        )
       ).toFuture()
   }
-
-  }
+}

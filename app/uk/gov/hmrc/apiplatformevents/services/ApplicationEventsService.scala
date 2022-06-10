@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.Future
