@@ -34,7 +34,7 @@ object MongoFormatters {
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   
-  implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType2")
+  implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
@@ -46,7 +46,7 @@ object MongoFormatters {
     .format
 
   val mongoCodecs = 
-      Codecs.allCodecs[ApplicationEvent](formatApplicationEvent)
+      Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent)
 
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }

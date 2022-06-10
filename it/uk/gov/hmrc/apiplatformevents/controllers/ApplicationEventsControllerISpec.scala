@@ -12,17 +12,16 @@ import java.util.UUID
 import java.{util => ju}
 import scala.concurrent.Future
 
-
 class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach {
 
   this: Suite with ServerProvider =>
-  def repo: ApplicationEventsRepository =
-    app.injector.instanceOf[ApplicationEventsRepository]
+
+  def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     primeAuditService()
-    repo.collection.drop()
+    await(repo.collection.drop().toFuture())
   }
 
   val url = s"http://localhost:$port/application-events"
@@ -33,10 +32,10 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val applicationId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorTypeGK = "GATEKEEPER"
-  val eventDateTimeString = "2014-01-01T13:13:34.441Z"
+  val eventDateTimeString = "2014-01-01T13:13:34.441"
 
   def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -44,14 +43,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"teamMemberRole": "$teamMemberRole"}""".stripMargin
 
   def validClientSecretJsonBody(clientSecretId: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   def validRedirectUrisUpdatedJsonBody(oldRedirectUri: String, newRedirectUri: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -59,7 +58,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"newRedirectUris": "$newRedirectUri"}""".stripMargin
 
   def validApiSubscriptionJsonBody(apiContext: String, apiVersion: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -67,7 +66,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"version": "$apiVersion"}""".stripMargin
 
   def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },

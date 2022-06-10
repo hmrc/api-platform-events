@@ -71,26 +71,7 @@ trait Codecs {
     }
   }
 
-  def allCodecs[P](
-    format: OFormat[P],
-    legacyNumbers: Boolean = false
-  )(implicit tt: TypeTag[P]): Seq[Codec[_]] = {
-
-    val clazz: ClassSymbol =  tt.tpe.typeSymbol.asClass
-    require(clazz.isSealed)
-    require(clazz.isTrait)
-    
-    val classSymbols = clazz.knownDirectSubclasses.collect {
-      case c : ClassSymbol => c
-    }
-    
-    val mirror = tt.mirror
-    classSymbols.toSeq.map { cs =>
-      playUnionFormatCodec(format, legacyNumbers)(mirror.runtimeClass(cs))
-    }
-  }
-
-  def playUnionFormatCodec[S <: P, P](
+  def forcedPlayFormatCodec[S <: P, P](
       format: OFormat[P],
       legacyNumbers: Boolean = false
   )(implicit clazz: Class[_]): Codec[S] = new Codec[S] {
@@ -101,7 +82,6 @@ trait Codecs {
     }
 
     override def encode(writer: BsonWriter, value: S, encoderContext: EncoderContext): Unit = {
-      // println(s"Saving ${clazz.getSimpleName} : $value using ${format.getClass().getSimpleName()}")
       val bs: BsonValue = jsonToBson(legacyNumbers)(format.writes(value))
       bsonValueCodec.encode(writer, bs, encoderContext)
     }
@@ -117,6 +97,25 @@ trait Codecs {
         case JsSuccess(v, _) => v.asInstanceOf[S]
         case JsError(errors) => sys.error(s"Failed to parse json as ${clazz.getSimpleName()} '$json': $errors")
       }
+    }
+  }
+  
+  def unionCodecs[P](
+    format: OFormat[P],
+    legacyNumbers: Boolean = false
+  )(implicit tt: TypeTag[P]): Seq[Codec[_]] = {
+
+    val clazz: ClassSymbol =  tt.tpe.typeSymbol.asClass
+    require(clazz.isSealed)
+    require(clazz.isTrait)
+    
+    val classSymbols = clazz.knownDirectSubclasses.collect {
+      case c : ClassSymbol => c
+    }
+    
+    val mirror = tt.mirror
+    classSymbols.toSeq.map { cs =>
+      forcedPlayFormatCodec(format, legacyNumbers)(mirror.runtimeClass(cs))
     }
   }
 

@@ -44,7 +44,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
             .name("id_index")
             .unique(true)
             .background(false)),
-        IndexModel(ascending("eventType2"),
+        IndexModel(ascending("eventType"),
           IndexOptions()
             .name("eventType_index")
             .unique(false)
@@ -60,7 +60,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
   def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType): Future[Seq[ApplicationEvent]] = {
       collection.aggregate(
         Seq(
-          filter(equal("eventType2", eventType.entryName)),
+          filter(equal("eventType", eventType.entryName)),
           lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
           filter(size("matched", 0))
         )

@@ -110,12 +110,13 @@ def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.jso
     if (result) {
       Created
     } else {
+       logger.error("An unexpected error occurred: false returned from create operation")
       InternalServerError
     }
   }
 
   private def recovery: PartialFunction[Throwable, Result] = {
-    case NonFatal(e) => logger.info("An unexpected error occurred:", e)
+    case NonFatal(e) => logger.error("An unexpected error occurred:", e)
       InternalServerError
   }
 }
