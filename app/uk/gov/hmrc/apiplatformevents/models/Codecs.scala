@@ -118,7 +118,7 @@ trait Codecs {
       forcedPlayFormatCodec(format, legacyNumbers)(mirror.runtimeClass(cs))
     }
   }
-
+  // $COVERAGE-OFF$
   def toBson[A: Writes](a: A, legacyNumbers: Boolean = false): BsonValue =
     jsonToBson(legacyNumbers)(Json.toJson(a))
 
@@ -222,5 +222,5 @@ trait Codecs {
     def fromBson[T: Reads]: Seq[T] = documents.map(document => outer.fromBson(document.toBsonDocument))
   }
 }
-
+// $COVERAGE-ON$
 object Codecs extends Codecs

@@ -17,13 +17,10 @@
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformevents.models.MongoFormatters.PpnsCallBackUriUpdatedEventFormats
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_UPDATED
-import uk.gov.hmrc.apiplatformevents.models.{Notification, PpnsCallBackUriUpdatedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, Notification, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
-
 import uk.gov.hmrc.apiplatformevents.scheduler.{Locking, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
@@ -31,8 +28,7 @@ import uk.gov.hmrc.mongo.lock.MongoLockRepository
 
 import java.time.{Clock, LocalDateTime}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration
+import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
 
 class SendEventNotificationsNewJob @Inject()(appConfig: AppConfig,
