@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
-import com.google.inject.AbstractModule
-import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsNewJob
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
+import uk.gov.hmrc.apiplatformevents.scheduler.jobs.{SendEventNotificationsJob, SendEventNotificationsService}
 
-class SchedulerModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[SendEventNotificationsNewJob]).asEagerSingleton()
-  }
+class SchedulerModule  extends Module {
+
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
+    bind[SendEventNotificationsService].toSelf.eagerly(),
+    bind[SendEventNotificationsJob].toSelf.eagerly()
+  )
 }
-
