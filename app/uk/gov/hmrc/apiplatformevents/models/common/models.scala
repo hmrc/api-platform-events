@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformevents.models.common
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
-import java.time.LocalDateTime
 import java.util.UUID
 import scala.collection.immutable
 

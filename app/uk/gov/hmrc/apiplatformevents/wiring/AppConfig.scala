@@ -18,26 +18,20 @@ package uk.gov.hmrc.apiplatformevents.wiring
 
 import com.google.inject.ImplementedBy
 import play.api.Configuration
-
-import javax.inject.Inject
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import scala.concurrent.duration
+import javax.inject.Inject
 
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
+  val config: Configuration
   val appName: String
   val thirdPartyApplicationUrl: String
   val emailUrl: String
-  def mongoLockTimeoutDuration(job: Option[String] = None): duration.Duration
 }
 
-class AppConfigImpl @Inject()(config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
+class AppConfigImpl @Inject()(val config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
 
-  def mongoLockTimeoutDuration(job: Option[String] = None): duration.Duration = {
-    val jobName = if (job.isDefined) s"${job.get}." else ""
-    duration.Duration(config.get[String](s"schedules.${jobName}mongoLockTimeout"))
-  }
   val appName: String = servicesConfig.getString("appName")
   val thirdPartyApplicationUrl: String = servicesConfig.baseUrl("third-party-application")
   val emailUrl: String = servicesConfig.baseUrl("email")

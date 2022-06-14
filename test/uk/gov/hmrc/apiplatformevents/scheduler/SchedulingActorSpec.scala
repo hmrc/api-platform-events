@@ -16,9 +16,21 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-import scala.concurrent.{Future, ExecutionContext => ExC}
+
+import akka.actor.Props
+import org.scalatestplus.play.PlaySpec
 
 
-trait ScheduledService[R] {
-  def invoke(implicit ec : ExC) : Future[R]
+class SchedulingActorSpec extends PlaySpec {
+  class Setup {
+    val schedulingActorCompanionObject = SchedulingActor
+  }
+
+  "props" should {
+    "return the correct type of props" in new Setup {
+      val expectedType = Props[SchedulingActor]
+      val result = schedulingActorCompanionObject.props
+      result mustBe expectedType
+    }
+  }
 }

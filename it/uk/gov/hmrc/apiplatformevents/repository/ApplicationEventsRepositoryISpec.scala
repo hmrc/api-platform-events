@@ -25,8 +25,9 @@ import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
 import org.scalatest.BeforeAndAfterEach
+import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 
-class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
+class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ApplicationEventTestData {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -45,60 +46,6 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
     await(repo.ensureIndexes)
 
   }
-
-  val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    teamMemberEmail = "jkhkhk",
-    teamMemberRole = "ADMIN")
-
-  val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    teamMemberEmail = "jkhkhk",
-    teamMemberRole = "ADMIN")
-
-  val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    clientSecretId = "jkhkhk")
-
-  val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    clientSecretId = "jkhkhk")
-
-  val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    oldRedirectUris = "oldru",
-    newRedirectUris = "newru")
-
-  val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    context = "apicontext",
-    version = "1.0")
-
-  val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
-    id = EventId.random,
-    applicationId = "John Smith",
-    eventDateTime = LocalDateTime.now(),
-    Actor("iam@admin.com", ActorType.GATEKEEPER),
-    context = "apicontext",
-    version = "1.0")
 
 
   "createEntity" should {
