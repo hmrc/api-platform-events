@@ -22,11 +22,7 @@ import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.json.Union
 
-import java.time.LocalDateTime
-
-object MongoFormatters {
-
-  implicit val formatLocalDateTimes: Format[LocalDateTime] = MongoJavatimeFormats.localDateTimeFormat
+object MongoFormatters extends MongoJavatimeFormats.Implicits {
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
