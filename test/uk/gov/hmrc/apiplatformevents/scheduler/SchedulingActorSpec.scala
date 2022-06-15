@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.services
+package uk.gov.hmrc.apiplatformevents.scheduler
 
-import com.google.inject.Singleton
-import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
-import scala.concurrent.Future
+import akka.actor.Props
+import org.scalatestplus.play.PlaySpec
 
-@Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
-  def captureEvent[A <: ApplicationEvent](event : A): Future[Boolean] ={
-    repo.createEntity(event)
+
+class SchedulingActorSpec extends PlaySpec {
+  class Setup {
+    val schedulingActorCompanionObject = SchedulingActor
+  }
+
+  "props" should {
+    "return the correct type of props" in new Setup {
+      val expectedType = Props[SchedulingActor]
+      val result = schedulingActorCompanionObject.props
+      result mustBe expectedType
+    }
   }
 }

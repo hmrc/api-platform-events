@@ -15,20 +15,20 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
-import org.joda.time.DateTime.now
-import org.joda.time.DateTimeZone.UTC
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import reactivemongo.api.indexes.Index
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
-import uk.gov.hmrc.apiplatformevents.support.MongoApp
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
+class NotificationsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with DefaultPlayMongoRepositorySupport[Notification] {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -38,31 +38,22 @@ class NotificationsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  def repo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
+  protected def repository: PlayMongoRepository[Notification]= new NotificationsRepository(mongoComponent)
+  val repo: NotificationsRepository = repository.asInstanceOf[NotificationsRepository]
 
   override def beforeEach() {
     super.beforeEach()
     await(repo.ensureIndexes)
   }
 
-  def getIndex(indexName: String): Option[Index] ={
-    await(repo.collection.indexesManager.list().map(_.find(_.eventualName.equalsIgnoreCase(indexName))))
-  }
-
-  "Indexes" should {
-    "create unique event ID index"in {
-      val Some(index) = getIndex("event_id_index")
-      index.unique shouldBe true
-    }
-  }
 
   "createEntity" should {
     "create an entity" in {
-      val notification = Notification(EventId.random, now(UTC), SENT)
+      val notification = Notification(EventId.random, LocalDateTime.now, SENT)
 
       await(repo.createEntity(notification))
 
-      await(repo.find()) should contain only notification
+      await(repo.collection.find().toFuture()) should contain only notification
     }
   }
 }

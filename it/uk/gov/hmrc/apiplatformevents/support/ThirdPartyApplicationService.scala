@@ -2,6 +2,7 @@ package uk.gov.hmrc.apiplatformevents.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Collaborator, Role}
 
 trait ThirdPartyApplicationService {
   private def applicationUrl(appId: String) = s"/application/$appId"
@@ -15,4 +16,6 @@ trait ThirdPartyApplicationService {
       )
     )
   }
+
+  val appResponseWithAdmins = ApplicationResponse("app1", Set(Collaborator("some@one.com",Role.ADMINISTRATOR)))
 }

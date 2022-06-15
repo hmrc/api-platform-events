@@ -13,7 +13,7 @@ object ScoverageSettings {
       """GraphiteStartUp""" ,
       """.*\.Reverse[^.]*""",
     ).mkString(";"),
-    ScoverageKeys.coverageMinimum := 85,
+    ScoverageKeys.coverageMinimum := 82,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )

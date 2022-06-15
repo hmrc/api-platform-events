@@ -16,26 +16,14 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
+import uk.gov.hmrc.apiplatformevents.scheduler.jobs.{SendEventNotificationsJob, SendEventNotificationsService}
 
-class AppConfigSpec extends AsyncHmrcSpec {
+class SchedulerModule  extends Module {
 
-  private val mockServiceConfig = mock[ServicesConfig]
-  private val mockConfiguration = mock[Configuration]
-  private val appName = "TestAppName"
-
-  trait Setup {
-    when(mockServiceConfig.getString("appName")).thenReturn(appName)
-    val objInTest = new AppConfigImpl(mockConfiguration, mockServiceConfig)
-  }
-
-  "appconfig" should {
-
-    "returns value from service config when called" in new Setup {
-      objInTest.appName shouldBe appName
-    }
-  }
-
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
+    bind[SendEventNotificationsService].toSelf.eagerly(),
+    bind[SendEventNotificationsJob].toSelf.eagerly()
+  )
 }

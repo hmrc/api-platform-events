@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.services
+package uk.gov.hmrc.apiplatformevents.scheduler
 
-import com.google.inject.Singleton
-import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
+import scala.concurrent.{Future, ExecutionContext => ExC}
 
-import scala.concurrent.Future
 
-@Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
-  def captureEvent[A <: ApplicationEvent](event : A): Future[Boolean] ={
-    repo.createEntity(event)
-  }
+trait ScheduledService[R] {
+  def invoke(implicit ec : ExC) : Future[R]
 }

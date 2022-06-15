@@ -12,6 +12,11 @@ abstract class ServerBaseISpec
    override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
-        "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
+        "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}",
+        "schedules.SendEventNotificationsJob.enabled" -> false,
+        "services.third-party-application.host" -> wireMockHost,
+        "services.third-party-application.port" -> wireMockPort,
+        "services.email.host" -> wireMockHost,
+        "services.email.port" -> wireMockPort
       )
 }

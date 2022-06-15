@@ -1,9 +1,5 @@
 package uk.gov.hmrc.apiplatformevents.connectors
 
-import org.joda.time.DateTime
-import org.joda.time.DateTime.now
-import org.joda.time.DateTimeZone.UTC
-import org.joda.time.format.DateTimeFormat
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -11,6 +7,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.support.{EmailService, MetricsTestSupport, WireMockSupport}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with EmailService {
 
@@ -32,14 +31,15 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
 
   "sendPpnsCallbackUrlChangedNotification" should {
     val applicationName: String = "foobar app"
-    val dateTimeOfChange: DateTime = now(UTC)
+    val dateTimeOfChange: LocalDateTime = LocalDateTime.now()
     val recipients: Set[String] = Set("john.doe@example.com")
 
     val expectedRequestBody = SendEmailRequest(recipients,
       "ppnsCallbackUrlChangedNotification",
       Map("applicationName" -> applicationName,
-        "dateOfChange" -> dateTimeOfChange.toString(DateTimeFormat.forPattern("dd MMMM yyyy")),
-        "timeOfChange" -> dateTimeOfChange.toString(DateTimeFormat.forPattern("HH:mm"))))
+        "dateOfChange" -> DateTimeFormatter.ofPattern("dd MMMM yyyy").format(dateTimeOfChange),
+        "timeOfChange" -> DateTimeFormatter.ofPattern("HH:mm").format(dateTimeOfChange))
+    )
 
     "send the notification using the email service" in new SetUp() {
       primeEmailEndpoint(OK)

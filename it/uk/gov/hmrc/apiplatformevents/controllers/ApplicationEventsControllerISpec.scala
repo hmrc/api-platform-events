@@ -1,50 +1,41 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
-import java.{util => ju}
-
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventId}
+import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
-import uk.gov.hmrc.mongo.MongoSpecSupport
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.global
+import java.util.UUID
+import java.{util => ju}
 import scala.concurrent.Future
 
-
-class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSupport with AuditService with BeforeAndAfterEach {
+class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach {
 
   this: Suite with ServerProvider =>
+
+  def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     primeAuditService()
-    dropMongoDb()(global)
+    await(repo.collection.drop().toFuture())
   }
-
-  def dropMongoDb()(implicit ec: ExecutionContext): Unit = {
-    await(mongo().drop())
-  }
-
-  def repo: ApplicationEventsRepository =
-    app.injector.instanceOf[ApplicationEventsRepository]
 
   val url = s"http://localhost:$port/application-events"
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val eventId = EventId.random.value
-  val applicationId = ju.UUID.randomUUID.toString
+  val eventId: UUID = EventId.random.value
+  val applicationId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorTypeGK = "GATEKEEPER"
-  val eventDateTimeString = "2014-01-01T13:13:34.441Z"
+  val eventDateTimeString = "2014-01-01T13:13:34.441"
 
   def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -52,14 +43,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
          |"teamMemberRole": "$teamMemberRole"}""".stripMargin
 
   def validClientSecretJsonBody(clientSecretId: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   def validRedirectUrisUpdatedJsonBody(oldRedirectUri: String, newRedirectUri: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -67,7 +58,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
          |"newRedirectUris": "$newRedirectUri"}""".stripMargin
 
   def validApiSubscriptionJsonBody(apiContext: String, apiVersion: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -75,7 +66,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
          |"version": "$apiVersion"}""".stripMargin
 
   def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
-    raw"""{"id": "$eventId",
+    raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
@@ -97,9 +88,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
       .post(body)
   }
 
-  def checkCommonEventValues[A <: ApplicationEvent](event: A) {
+  def checkCommonEventValues[A <: ApplicationEvent](event: A): Unit = {
     event.applicationId shouldBe applicationId
-    event.eventDateTime.toString() shouldBe eventDateTimeString
+    event.eventDateTime.toString shouldBe eventDateTimeString
     event.actor.id shouldBe actorId
     event.actor.actorType.toString shouldBe actorTypeGK
   }
@@ -112,7 +103,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
         val adminRole = "ADMIN"
 
         testSuccessScenario("/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
-        val results = await(repo.findAll()(global))
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[TeamMemberAddedEvent]
 
@@ -133,7 +124,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
 
         testSuccessScenario("/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
 
-        val results = await(repo.findAll()(global))
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[TeamMemberRemovedEvent]
 
@@ -154,7 +145,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
         testSuccessScenario("/clientSecretAdded", validClientSecretJsonBody(clientSecretId))
 
 
-        val results = await(repo.findAll()(global))
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ClientSecretAddedEvent]
 
@@ -174,7 +165,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
 
         testSuccessScenario("/clientSecretRemoved", validClientSecretJsonBody(clientSecretId))
 
-        val results = await(repo.findAll()(global))
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ClientSecretRemovedEvent]
 
@@ -194,7 +185,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
 
         testSuccessScenario("/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody(oldRedirectUri, newRedirectUri))
 
-        val results = await(repo.findAll()(global))
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
 
@@ -214,7 +205,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
         val apiVersion = "1.0"
 
         testSuccessScenario("/apiSubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results = await(repo.findAll()(global))
+        val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ApiSubscribedEvent]
 
@@ -234,7 +225,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
         val apiVersion = "1.0"
 
         testSuccessScenario("/apiUnsubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results = await(repo.findAll()(global))
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ApiUnsubscribedEvent]
 
@@ -257,7 +248,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with MongoSpecSup
 
         testSuccessScenario("/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
 
-        val results = await(repo.findAll()(global))
+        val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
 

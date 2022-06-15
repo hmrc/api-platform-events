@@ -16,11 +16,9 @@
 
 package uk.gov.hmrc.apiplatformevents.models.common
 
-import java.util.UUID
-
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import org.joda.time.DateTime
 
+import java.util.UUID
 import scala.collection.immutable
 
 
@@ -62,10 +60,3 @@ object EventId {
   def random: EventId = EventId(UUID.randomUUID())
 }
 
-trait ApplicationEvent{
-  val id: EventId
-  val applicationId: String
-  val eventDateTime: DateTime
-  val eventType: EventType
-  val actor: Actor
-}

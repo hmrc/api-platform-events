@@ -18,9 +18,8 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import java.util.UUID
 
-import org.joda.time.DateTime
+import org.mongodb.scala.MongoException
 import org.scalatest.concurrent.Eventually
-import reactivemongo.core.errors.{GenericDriverException, ReactiveMongoException}
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
@@ -30,6 +29,8 @@ import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
+import java.time.LocalDateTime
+
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
@@ -37,7 +38,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
-    eventDateTime= DateTime.now,
+    eventDateTime= LocalDateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
@@ -52,7 +53,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
     def primeService(repoResult: Boolean, repoThrowsException: Boolean) = {
       if (repoThrowsException) {
         when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
-          .thenReturn(Future.failed(ReactiveMongoException("some mongo error")))
+          .thenReturn(Future.failed(new MongoException("some mongo error")))
       } else {
         when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
           .thenReturn(Future.successful(repoResult))
@@ -76,11 +77,11 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
     "handle error" in new Setup {
       primeService(repoResult = false, repoThrowsException = true)
 
-      val exception: GenericDriverException = intercept[GenericDriverException] {
+      val exception: MongoException = intercept[MongoException] {
         await(inTest.captureEvent(validAddTeamMemberModel))
       }
 
-      exception.message shouldBe "some mongo error"
+      exception.getMessage shouldBe "some mongo error"
     }
   }
 }

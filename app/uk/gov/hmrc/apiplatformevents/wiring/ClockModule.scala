@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.scheduling
+package uk.gov.hmrc.apiplatformevents.wiring
 
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.{ExecutionContext, Future}
+import com.google.inject.AbstractModule
 
-trait ScheduledJob {
-  def name: String
-  def execute(implicit ec: ExecutionContext): Future[Result]
-  def isRunning: Future[Boolean]
+import java.time.Clock
 
-  case class Result(message: String)
-
-  def configKey: String = name
-
-  def initialDelay: FiniteDuration
-
-  def interval: FiniteDuration
-
-  override def toString() = s"$name after $initialDelay every $interval"
+class ClockModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[Clock]).toInstance(Clock.systemUTC())
+  }
 }
+
