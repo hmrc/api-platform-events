@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
 import uk.gov.hmrc.apiplatformevents.models.common.EventType
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,7 +51,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
       ),
       extraCodecs  = mongoCodecs
 
-    ) with MongoJavatimeFormats.Implicits {
+    ) {
 
   def createEntity(event: ApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
