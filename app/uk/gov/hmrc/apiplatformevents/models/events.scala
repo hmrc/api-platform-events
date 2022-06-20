@@ -38,7 +38,6 @@ case class TeamMemberAddedEvent(override val id: EventId,
   override val eventType: EventType = EventType.TEAM_MEMBER_ADDED
 }
 
-
 case class TeamMemberRemovedEvent(override val id: EventId,
                                   override val applicationId: String,
                                   override val eventDateTime: LocalDateTime,
@@ -55,7 +54,6 @@ case class ClientSecretAddedEvent(override val id: EventId,
                                   clientSecretId: String) extends OldApplicationEvent {
   override val eventType: EventType = EventType.CLIENT_SECRET_ADDED
 }
-
 
 case class ClientSecretRemovedEvent(override val id: EventId,
                                     override val applicationId: String,
@@ -86,7 +84,6 @@ case class RedirectUrisUpdatedEvent(override val id: EventId,
   override val eventType: EventType = EventType.REDIRECT_URIS_UPDATED
 }
 
-
 case class ApiSubscribedEvent(override val id: EventId,
                               override val applicationId: String,
                               override val eventDateTime: LocalDateTime,
@@ -95,7 +92,6 @@ case class ApiSubscribedEvent(override val id: EventId,
                               version: String) extends OldApplicationEvent {
   override val eventType: EventType = EventType.API_SUBSCRIBED
 }
-
 
 case class ApiUnsubscribedEvent(override val id: EventId,
                                 override val applicationId: String,
