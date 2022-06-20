@@ -21,7 +21,7 @@ import java.util.UUID
 import org.mongodb.scala.MongoException
 import org.scalatest.concurrent.Eventually
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
+import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, OldActorType, EventId}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
@@ -39,7 +39,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
     eventDateTime= LocalDateTime.now,
-    actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
+    actor = OldActor("iam@admin.com", OldActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 

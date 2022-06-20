@@ -18,14 +18,14 @@ package uk.gov.hmrc.apiplatformevents.models
 
 
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, EventId, EventType}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.json.Union
 
 object MongoFormatters extends MongoJavatimeFormats.Implicits {
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
-  implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
+  implicit val actorFormat: OFormat[OldActor] = Json.format[OldActor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
   implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
@@ -57,7 +57,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
 object JsonRequestFormatters {
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
-  implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
+  implicit val actorFormat: OFormat[OldActor] = Json.format[OldActor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
   implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
