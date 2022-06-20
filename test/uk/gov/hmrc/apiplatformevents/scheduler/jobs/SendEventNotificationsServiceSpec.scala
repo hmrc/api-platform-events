@@ -27,7 +27,7 @@ import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
-import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, OldActorType, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, OldActorType, EventId, OldEventType}
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
@@ -110,12 +110,12 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     }
 
     def primeApplicationEventsRepositorySuccess(events: Seq[OldApplicationEvent]): Unit ={
-      when(applicationEventsRepository.fetchEventsToNotify(EventType.PPNS_CALLBACK_URI_UPDATED))
+      when(applicationEventsRepository.fetchEventsToNotify(OldEventType.PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(Future.successful(events))
     }
 
     def primeApplicationEventsRepositoryFailure(): Unit ={
-      when(applicationEventsRepository.fetchEventsToNotify(EventType.PPNS_CALLBACK_URI_UPDATED))
+      when(applicationEventsRepository.fetchEventsToNotify(OldEventType.PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(Future.failed(new MongoException("Something went wrong")))
     }
   }

@@ -19,7 +19,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
+import uk.gov.hmrc.apiplatformevents.models.common.OldEventType.TEAM_MEMBER_ADDED
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 

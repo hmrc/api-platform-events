@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.models
 
 
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, EventId, OldEventType}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.json.Union
 
@@ -37,15 +37,15 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   
   implicit val formatApplicationEvent: OFormat[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
-    .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
-    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
-    .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
-    .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
-    .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString())
-    .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
-    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
-    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
-    .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
+    .and[TeamMemberRemovedEvent](OldEventType.TEAM_MEMBER_REMOVED.toString)
+    .and[TeamMemberAddedEvent](OldEventType.TEAM_MEMBER_ADDED.toString)
+    .and[ClientSecretAddedEvent](OldEventType.CLIENT_SECRET_ADDED.toString)
+    .and[ClientSecretRemovedEvent](OldEventType.CLIENT_SECRET_REMOVED.toString)
+    .and[PpnsCallBackUriUpdatedEvent](OldEventType.PPNS_CALLBACK_URI_UPDATED.toString())
+    .and[RedirectUrisUpdatedEvent](OldEventType.REDIRECT_URIS_UPDATED.toString)
+    .and[ApiSubscribedEvent](OldEventType.API_SUBSCRIBED.toString)
+    .and[ApiUnsubscribedEvent](OldEventType.API_UNSUBSCRIBED.toString)
+    .and[ProductionAppNameChangedEvent](OldEventType.PROD_APP_NAME_CHANGED.toString)
     .format
 
   val mongoCodecs =
@@ -68,14 +68,14 @@ object JsonRequestFormatters {
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   implicit val formatApplicationEvent: Format[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
-    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
-    .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
-    .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
-    .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
-    .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
-    .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
-    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
-    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
-    .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
+    .and[TeamMemberAddedEvent](OldEventType.TEAM_MEMBER_ADDED.toString)
+    .and[TeamMemberRemovedEvent](OldEventType.TEAM_MEMBER_REMOVED.toString)
+    .and[ClientSecretAddedEvent](OldEventType.CLIENT_SECRET_ADDED.toString)
+    .and[ClientSecretRemovedEvent](OldEventType.CLIENT_SECRET_REMOVED.toString)
+    .and[RedirectUrisUpdatedEvent](OldEventType.REDIRECT_URIS_UPDATED.toString)
+    .and[PpnsCallBackUriUpdatedEvent](OldEventType.PPNS_CALLBACK_URI_UPDATED.toString)
+    .and[ApiSubscribedEvent](OldEventType.API_SUBSCRIBED.toString)
+    .and[ApiUnsubscribedEvent](OldEventType.API_UNSUBSCRIBED.toString)
+    .and[ProductionAppNameChangedEvent](OldEventType.PROD_APP_NAME_CHANGED.toString)
     .format
 }
