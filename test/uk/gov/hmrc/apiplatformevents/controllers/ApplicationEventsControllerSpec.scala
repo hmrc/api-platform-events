@@ -399,50 +399,50 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
   }
 
-  "ProductionAppNameChangedEvent" should {
-    val jsonBody =
-      raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "appid",
-           |"eventDateTime": "2014-01-01T13:13:34.441Z",
-           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-           |"oldAppName": "oldAppName",
-           |"newAppName": "newAppName",
-           |"requestingAdminName": "requestingAdminName"}""".stripMargin
-
-    "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
-        .thenReturn(Future.successful(true))
-
-      val result = doPost(productionAppNameChangedUri, validHeaders, jsonBody)
-      status(result) shouldBe CREATED
-    }
-
-    "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
-        .thenReturn(Future.successful(false))
-
-      val result = doPost(productionAppNameChangedUri, validHeaders, jsonBody)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return 400 when post request is invalid json" in {
-      val result = doPost(productionAppNameChangedUri, validHeaders, "Not JSON")
-      status(result) shouldBe BAD_REQUEST
-      verifyNoInteractions(mockApplicationsEventService)
-    }
-
-    "return 422 when content type header is missing" in {
-      val result = doPost(productionAppNameChangedUri, Map.empty, "{}")
-      status(result) shouldBe UNPROCESSABLE_ENTITY
-      verifyNoInteractions(mockApplicationsEventService)
-    }
-
-    "return 415 when content type isn't json" in {
-      val result = doPost(productionAppNameChangedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
-      verifyNoInteractions(mockApplicationsEventService)
-    }
-  }
+//  "ProductionAppNameChangedEvent" should {
+//    val jsonBody =
+//      raw"""{"id": "${EventId.random.value}",
+//           |"applicationId": "appid",
+//           |"eventDateTime": "2014-01-01T13:13:34.441Z",
+//           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
+//           |"oldAppName": "oldAppName",
+//           |"newAppName": "newAppName",
+//           |"requestingAdminName": "requestingAdminName"}""".stripMargin
+//
+//    "return 201 when post request is valid json" in {
+//      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
+//        .thenReturn(Future.successful(true))
+//
+//      val result = doPost(productionAppNameChangedUri, validHeaders, jsonBody)
+//      status(result) shouldBe CREATED
+//    }
+//
+//    "return 500 when post request is valid json but service fails" in {
+//      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
+//        .thenReturn(Future.successful(false))
+//
+//      val result = doPost(productionAppNameChangedUri, validHeaders, jsonBody)
+//      status(result) shouldBe INTERNAL_SERVER_ERROR
+//    }
+//
+//    "return 400 when post request is invalid json" in {
+//      val result = doPost(productionAppNameChangedUri, validHeaders, "Not JSON")
+//      status(result) shouldBe BAD_REQUEST
+//      verifyNoInteractions(mockApplicationsEventService)
+//    }
+//
+//    "return 422 when content type header is missing" in {
+//      val result = doPost(productionAppNameChangedUri, Map.empty, "{}")
+//      status(result) shouldBe UNPROCESSABLE_ENTITY
+//      verifyNoInteractions(mockApplicationsEventService)
+//    }
+//
+//    "return 415 when content type isn't json" in {
+//      val result = doPost(productionAppNameChangedUri, Map("Content-Type" -> "application/xml"), "{}")
+//      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
+//      verifyNoInteractions(mockApplicationsEventService)
+//    }
+//  }
 
   def doPost(uri: String, headers: Map[String, String], bodyValue: String): Future[Result] = {
     val maybeBody: Option[JsValue] = Try {

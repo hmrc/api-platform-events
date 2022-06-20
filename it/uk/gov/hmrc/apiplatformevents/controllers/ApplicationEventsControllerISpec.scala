@@ -274,29 +274,29 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
     }
 
-    "POST /productionAppNameChanged" should {
-      "respond with 201 when valid json is sent" in {
-        val oldAppName = "old name"
-        val newAppName = "new name"
-        val requestingAdminName = "mrs admin"
-
-        testSuccessScenario("/productionAppNameChanged", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminName))
-
-        val results =await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionAppNameChangedEvent]
-
-        checkCommonEventValues(event)
-        event.oldAppName shouldBe oldAppName
-        event.newAppName shouldBe newAppName
-        event.requestingAdminName shouldBe requestingAdminName
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/productionAppNameChanged")
-      }
-
-    }
+//    "POST /productionAppNameChanged" should {
+//      "respond with 201 when valid json is sent" in {
+//        val oldAppName = "old name"
+//        val newAppName = "new name"
+//        val requestingAdminName = "mrs admin"
+//
+//        testSuccessScenario("/productionAppNameChanged", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminName))
+//
+//        val results =await(repo.collection.find().toFuture())
+//        results.size shouldBe 1
+//        val event = results.head.asInstanceOf[ProductionAppNameChangedEvent]
+//
+//        checkCommonEventValues(event)
+//        event.oldAppName shouldBe oldAppName
+//        event.newAppName shouldBe newAppName
+//        event.requestingAdminName shouldBe requestingAdminName
+//      }
+//
+//      "handle error scenarios correctly" in {
+//        testErrorScenarios("/productionAppNameChanged")
+//      }
+//
+//    }
 
     def testSuccessScenario(uriToTest: String, bodyString: String): Unit = {
       val result = await(doPost(uriToTest, bodyString, "Content-Type" -> "application/json"))

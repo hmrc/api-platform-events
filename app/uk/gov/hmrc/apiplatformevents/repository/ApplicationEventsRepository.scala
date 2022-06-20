@@ -36,7 +36,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
     extends PlayMongoRepository[OldApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
-     domainFormat = MongoFormatters.formatApplicationEvent,
+     domainFormat = MongoFormatters.formatOldApplicationEvent,
       indexes = Seq(
         IndexModel(ascending("id"),
           IndexOptions()
@@ -49,7 +49,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
             .unique(false)
             .background(false))
       ),
-      extraCodecs  = mongoCodecs
+      extraCodecs  = mongoCodecsForOldAppEvents
 
     ) {
 

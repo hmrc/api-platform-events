@@ -84,10 +84,10 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
       await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
     }
 
-    "create an productionAppNameChangedEvent entity" in {
-      await(repo.createEntity(productionAppNameChangedEvent))
-      await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
-    }
+//    "create an productionAppNameChangedEvent entity" in {
+//      await(repo.createEntity(productionAppNameChangedEvent))
+//      await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
+//    }
   }
 
   "fetchEventsToNotify" should {

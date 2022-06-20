@@ -91,12 +91,6 @@ def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.jso
     }
   }
 
-  def productionAppNameChanged(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ProductionAppNameChangedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
   override protected def withJsonBody[T]
   (f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
     withJson(request.body)(f)

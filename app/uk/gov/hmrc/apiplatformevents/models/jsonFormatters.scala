@@ -18,14 +18,16 @@ package uk.gov.hmrc.apiplatformevents.models
 
 
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, EventId, OldEventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType, GatekeeperUserActor, OldActor, OldEventType}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.json.Union
 
 object MongoFormatters extends MongoJavatimeFormats.Implicits {
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
-  implicit val actorFormat: OFormat[OldActor] = Json.format[OldActor]
+  implicit val oldActorFormat: OFormat[OldActor] = Json.format[OldActor]
+  implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
+  implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
   implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
@@ -36,7 +38,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   
-  implicit val formatApplicationEvent: OFormat[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
+  implicit val formatOldApplicationEvent: OFormat[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
     .and[TeamMemberRemovedEvent](OldEventType.TEAM_MEMBER_REMOVED.toString)
     .and[TeamMemberAddedEvent](OldEventType.TEAM_MEMBER_ADDED.toString)
     .and[ClientSecretAddedEvent](OldEventType.CLIENT_SECRET_ADDED.toString)
@@ -45,11 +47,14 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[RedirectUrisUpdatedEvent](OldEventType.REDIRECT_URIS_UPDATED.toString)
     .and[ApiSubscribedEvent](OldEventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribedEvent](OldEventType.API_UNSUBSCRIBED.toString)
-    .and[ProductionAppNameChangedEvent](OldEventType.PROD_APP_NAME_CHANGED.toString)
     .format
 
-  val mongoCodecs =
-      Codecs.unionCodecs[OldApplicationEvent](formatApplicationEvent)
+  implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
+    .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
+    .format
+
+  val mongoCodecsForOldAppEvents = Codecs.unionCodecs[OldApplicationEvent](formatOldApplicationEvent)
+  val mongoCodecsForAppEvents = Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent)
 
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
@@ -57,7 +62,9 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
 object JsonRequestFormatters {
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
-  implicit val actorFormat: OFormat[OldActor] = Json.format[OldActor]
+  implicit val oldActorFormat: OFormat[OldActor] = Json.format[OldActor]
+  implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
+  implicit val actorFormat: OFormat[Actor] = Json.format[Actor]
   implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
   implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
@@ -67,7 +74,7 @@ object JsonRequestFormatters {
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
-  implicit val formatApplicationEvent: Format[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
+  implicit val formatOldApplicationEvent: Format[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
     .and[TeamMemberAddedEvent](OldEventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](OldEventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](OldEventType.CLIENT_SECRET_ADDED.toString)
@@ -76,6 +83,8 @@ object JsonRequestFormatters {
     .and[PpnsCallBackUriUpdatedEvent](OldEventType.PPNS_CALLBACK_URI_UPDATED.toString)
     .and[ApiSubscribedEvent](OldEventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribedEvent](OldEventType.API_UNSUBSCRIBED.toString)
-    .and[ProductionAppNameChangedEvent](OldEventType.PROD_APP_NAME_CHANGED.toString)
+    .format
+  implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
+    .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
     .format
 }

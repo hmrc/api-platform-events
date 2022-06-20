@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.data
 
 import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, PpnsCallBackUriUpdatedEvent, ProductionAppNameChangedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
-import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, OldActorType, EventId}
+import uk.gov.hmrc.apiplatformevents.models.common.{EventId, GatekeeperUserActor, OldActor, OldActorType}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -92,7 +92,7 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    actor = GatekeeperUserActor("iam@admin.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
     requestingAdminName = "mr admin")
