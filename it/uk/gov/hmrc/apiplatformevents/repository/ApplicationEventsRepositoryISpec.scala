@@ -95,7 +95,7 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
       await(repo.createEntity(teamMemberAddedModel))
       await(repo.createEntity(clientSecretAddedModel))
 
-      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+      val result: Seq[OldApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only teamMemberAddedModel
     }
@@ -108,7 +108,7 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
       await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
       await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, LocalDateTime.now(), SENT)))
 
-      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+      val result: Seq[OldApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
     }

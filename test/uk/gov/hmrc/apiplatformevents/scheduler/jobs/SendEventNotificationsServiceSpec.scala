@@ -109,7 +109,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
    when(notificationsRepository.createEntity(eqTo(expectedNotification))).thenReturn(successful(true))
     }
 
-    def primeApplicationEventsRepositorySuccess(events: Seq[ApplicationEvent]): Unit ={
+    def primeApplicationEventsRepositorySuccess(events: Seq[OldApplicationEvent]): Unit ={
       when(applicationEventsRepository.fetchEventsToNotify(EventType.PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(Future.successful(events))
     }

@@ -97,7 +97,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       .post(body)
   }
 
-  def checkCommonEventValues[A <: ApplicationEvent](event: A): Unit = {
+  def checkCommonEventValues[A <: OldApplicationEvent](event: A): Unit = {
     event.applicationId shouldBe applicationId
     event.eventDateTime.toString shouldBe eventDateTimeString
     event.actor.id shouldBe actorId

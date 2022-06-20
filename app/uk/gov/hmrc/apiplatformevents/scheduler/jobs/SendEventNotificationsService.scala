@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_UPDATED
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, Notification, PpnsCallBackUriUpdatedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{OldApplicationEvent, Notification, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockException, UnknownExceptionOccurred}
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
@@ -89,13 +89,13 @@ class SendEventNotificationsService @Inject()(appConfig: AppConfig,
     }
   }
 
-  private def processEvents(events: Seq[ApplicationEvent])(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
+  private def processEvents(events: Seq[OldApplicationEvent])(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
       Future.sequence{
         events.map(sendEventNotification)
       }
   }
 
-  private def sendEventNotification(event: ApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
+  private def sendEventNotification(event: OldApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
     logger.info(s"processing event: ${event.id}")
     event match {
          case ppnsEvent: PpnsCallBackUriUpdatedEvent =>

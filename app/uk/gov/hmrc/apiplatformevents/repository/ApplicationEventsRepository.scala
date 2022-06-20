@@ -22,7 +22,7 @@ import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
+import uk.gov.hmrc.apiplatformevents.models.{OldApplicationEvent, MongoFormatters}
 import uk.gov.hmrc.apiplatformevents.models.common.EventType
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
                                            (implicit ec: ExecutionContext)
-    extends PlayMongoRepository[ApplicationEvent](
+    extends PlayMongoRepository[OldApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
      domainFormat = MongoFormatters.formatApplicationEvent,
@@ -53,10 +53,10 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
 
     ) {
 
-  def createEntity(event: ApplicationEvent): Future[Boolean] =
+  def createEntity(event: OldApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType): Future[Seq[ApplicationEvent]] = {
+  def fetchEventsToNotify[A <: OldApplicationEvent](eventType: EventType): Future[Seq[OldApplicationEvent]] = {
       collection.aggregate(
         Seq(
           filter(equal("eventType", eventType.entryName)),
