@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, EventId, OldEventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType, OldActor, OldEventType}
 
 import java.time.LocalDateTime
 
@@ -102,12 +102,21 @@ case class ApiUnsubscribedEvent(override val id: EventId,
   override val eventType: OldEventType = OldEventType.API_UNSUBSCRIBED
 }
 
+sealed trait ApplicationEvent {
+  val id: EventId
+  val applicationId: String
+  val eventDateTime: LocalDateTime
+  val actor: Actor
+
+  def eventType: EventType
+}
+
 case class ProductionAppNameChangedEvent(override val id: EventId,
                                          override val applicationId: String,
                                          override val eventDateTime: LocalDateTime,
-                                         override val actor: OldActor,
+                                         override val actor: Actor,
                                          oldAppName: String,
                                          newAppName: String,
-                                         requestingAdminName: String) extends OldApplicationEvent {
-  override val eventType: OldEventType = OldEventType.PROD_APP_NAME_CHANGED
+                                         requestingAdminName: String) extends ApplicationEvent {
+  override val eventType: EventType = EventType.PROD_APP_NAME_CHANGED
 }
