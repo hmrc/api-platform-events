@@ -75,6 +75,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"oldCallbackUrl": "$oldCallbackUrl",
          |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
+  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminName: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
+         |"oldAppName": "$oldAppName",
+         |"newAppName": "$newAppName",
+         |"requestingAdminName": "$requestingAdminName"}""".stripMargin
+
   def doGet(path: String): Future[WSResponse] = {
     wsClient
       .url(s"$url$path")
@@ -261,6 +270,30 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
       "handle error scenarios correctly" in {
         testErrorScenarios("/ppnsCallbackUriUpdated")
+      }
+
+    }
+
+    "POST /productionAppNameChanged" should {
+      "respond with 201 when valid json is sent" in {
+        val oldAppName = "old name"
+        val newAppName = "new name"
+        val requestingAdminName = "mrs admin"
+
+        testSuccessScenario("/productionAppNameChanged", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminName))
+
+        val results =await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionAppNameChangedEvent]
+
+        checkCommonEventValues(event)
+        event.oldAppName shouldBe oldAppName
+        event.newAppName shouldBe newAppName
+        event.requestingAdminName shouldBe requestingAdminName
+      }
+
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/productionAppNameChanged")
       }
 
     }

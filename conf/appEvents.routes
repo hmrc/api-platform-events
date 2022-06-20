@@ -8,3 +8,4 @@ POST        /redirectUrisUpdated              @uk.gov.hmrc.apiplatformevents.con
 POST        /apiSubscribed                    @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.apiSubscribed
 POST        /apiUnsubscribed                  @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.apiUnsubscribed()
 POST        /ppnsCallbackUriUpdated           @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.ppnsCallbackUriUpdated()
+POST        /productionAppNameChanged         @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.productionAppNameChanged()

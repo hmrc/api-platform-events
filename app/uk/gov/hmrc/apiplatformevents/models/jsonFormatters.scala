@@ -33,6 +33,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val urisUpdatedEventFormats: OFormat[RedirectUrisUpdatedEvent] = Json.format[RedirectUrisUpdatedEvent]
   implicit val apiSubscribedEventFormats: OFormat[ApiSubscribedEvent] = Json.format[ApiSubscribedEvent]
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
+  implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
@@ -44,6 +45,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
+    .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
     .format
 
   val mongoCodecs =
@@ -63,6 +65,7 @@ object JsonRequestFormatters {
   implicit val urisUpdatedEventFormats: OFormat[RedirectUrisUpdatedEvent] = Json.format[RedirectUrisUpdatedEvent]
   implicit val apiSubscribedEventFormats: OFormat[ApiSubscribedEvent] = Json.format[ApiSubscribedEvent]
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
+  implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
@@ -73,5 +76,6 @@ object JsonRequestFormatters {
     .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
+    .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
     .format
 }

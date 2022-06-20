@@ -105,3 +105,13 @@ case class ApiUnsubscribedEvent(override val id: EventId,
                                 version: String) extends ApplicationEvent {
   override val eventType: EventType = EventType.API_UNSUBSCRIBED
 }
+
+case class ProductionAppNameChangedEvent(override val id: EventId,
+                                override val applicationId: String,
+                                override val eventDateTime: LocalDateTime,
+                                override val actor: Actor,
+                                oldAppName: String,
+                                newAppName: String,
+                                requestingAdminName: String) extends ApplicationEvent {
+  override val eventType: EventType = EventType.PROD_APP_NAME_CHANGED
+}

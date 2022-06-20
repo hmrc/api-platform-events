@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.data
 
-import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, PpnsCallBackUriUpdatedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, PpnsCallBackUriUpdatedEvent, ProductionAppNameChangedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
 
 import java.time.LocalDateTime
@@ -87,4 +87,13 @@ trait ApplicationEventTestData {
     boxName = "boxName",
     oldCallbackUrl = "some/url/",
     newCallbackUrl = "some/url/here")
+
+  val productionAppNameChangedEvent: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
+    id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
+    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    eventDateTime = LocalDateTime.now(),
+    Actor("iam@admin.com", ActorType.GATEKEEPER),
+    oldAppName = "old app name",
+    newAppName = "new app name",
+    requestingAdminName = "mr admin")
 }

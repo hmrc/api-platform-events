@@ -20,7 +20,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
+import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
@@ -82,6 +82,11 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
     "create an apiUnsubsribed entity" in {
       await(repo.createEntity(apiUnsubscribedModel))
       await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
+    }
+
+    "create an productionAppNameChangedEvent entity" in {
+      await(repo.createEntity(productionAppNameChangedEvent))
+      await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
     }
   }
 

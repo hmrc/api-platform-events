@@ -53,6 +53,7 @@ object EventType extends  Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
 
+  case object  PROD_APP_NAME_CHANGED extends EventType
 }
 
 case class EventId(value: UUID) extends AnyVal
