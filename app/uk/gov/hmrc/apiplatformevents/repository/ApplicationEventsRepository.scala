@@ -49,8 +49,8 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
             .unique(false)
             .background(false))
       ),
-      extraCodecs  = mongoCodecs
-
+      extraCodecs  = mongoCodecs,
+      replaceIndexes = true
     ) {
 
   def createEntity(event: ApplicationEvent): Future[Boolean] =
