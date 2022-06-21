@@ -35,7 +35,7 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
 
-  val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
+  val repo: OldApplicationEventsRepository = app.injector.instanceOf[OldApplicationEventsRepository]
   val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
 

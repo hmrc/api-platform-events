@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.data
 
 import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, PpnsCallBackUriUpdatedEvent, ProductionAppNameChangedEvent, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
-import uk.gov.hmrc.apiplatformevents.models.common.{EventId, GatekeeperUserActor, OldActor, OldActorType}
+import uk.gov.hmrc.apiplatformevents.models.common.{EventId, GatekeeperUserActor, OldActor, ActorType}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -28,7 +28,7 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("21dbf54a-aa62-4217-a5c6-17e085e42105")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
@@ -36,7 +36,7 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("45a39393-d3a8-4c1b-9817-f4b8828b1b65")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
@@ -44,21 +44,21 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("7a152fa7-45e2-4fcf-9ef3-0b62b49bdc23")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
     id = EventId(UUID.fromString("3afd75ae-6a42-425a-b650-7259c3ba72fa")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
     id = EventId(UUID.fromString("04c391dc-2a16-4e6a-b5c8-aa10db742e3f")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     oldRedirectUris = "oldru",
     newRedirectUris = "newru")
 
@@ -66,7 +66,7 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("5308887f-f6d8-49f5-b2b4-8280fa7a5e60")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
 
@@ -74,7 +74,7 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("7005e378-1ed3-46d9-b786-fc0202807cf6")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
     version = "1.0")
 
@@ -82,7 +82,7 @@ trait ApplicationEventTestData {
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
     applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
     eventDateTime = LocalDateTime.now(),
-    OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    OldActor("iam@admin.com", ActorType.GATEKEEPER),
     boxId = "boxId",
     boxName = "boxName",
     oldCallbackUrl = "some/url/",

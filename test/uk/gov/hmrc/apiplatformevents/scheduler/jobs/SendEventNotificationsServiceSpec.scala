@@ -27,9 +27,9 @@ import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
-import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, OldActorType, EventId, OldEventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, ActorType, EventId, OldEventType}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.{OldApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
@@ -56,7 +56,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     val mockAppConfig: AppConfig = mock[AppConfig]
     val mockConfiguration = mock[Configuration]
     val mockLockRepository: MongoLockRepository = mock[MongoLockRepository]
-    val applicationEventsRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
+    val applicationEventsRepository: OldApplicationEventsRepository = mock[OldApplicationEventsRepository]
     val notificationsRepository: NotificationsRepository = mock[NotificationsRepository]
     val emailConnector: EmailConnector = mock[EmailConnector]
     val thirdPartyApplicationConnector: ThirdPartyApplicationConnector = mock[ThirdPartyApplicationConnector]
@@ -79,7 +79,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     val mongoLockId = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event = PpnsCallBackUriUpdatedEvent(EventId.random, "appId", LocalDateTime.now(), OldActor("iam@admin.com", OldActorType.GATEKEEPER),
+    val event = PpnsCallBackUriUpdatedEvent(EventId.random, "appId", LocalDateTime.now(), OldActor("iam@admin.com", ActorType.GATEKEEPER),
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
   def primeLockRepository() = {

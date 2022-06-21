@@ -68,7 +68,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberAddedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[TeamMemberAddedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
@@ -77,7 +77,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberAddedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[TeamMemberAddedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
@@ -111,7 +111,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"teamMemberRole": "ADMIN"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberRemovedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[TeamMemberRemovedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(teamMemberRemovedUri, validHeaders, jsonBody)
@@ -120,7 +120,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberRemovedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[TeamMemberRemovedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(teamMemberRemovedUri, validHeaders, jsonBody)
@@ -154,7 +154,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[ClientSecretAddedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ClientSecretAddedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(clientSecretAddedUri, validHeaders, jsonBody)
@@ -162,7 +162,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[ClientSecretAddedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ClientSecretAddedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(clientSecretAddedUri, validHeaders, jsonBody)
@@ -194,7 +194,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"clientSecretId": "abababab"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[ClientSecretRemovedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ClientSecretRemovedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(clientSecretRemovedUri, validHeaders, jsonBody)
@@ -202,7 +202,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[ClientSecretRemovedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ClientSecretRemovedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(clientSecretRemovedUri, validHeaders, jsonBody)
@@ -236,7 +236,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"newRedirectUris": "newrdu"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[RedirectUrisUpdatedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[RedirectUrisUpdatedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(redirectUrisUpdatedUri, validHeaders, jsonBody)
@@ -244,7 +244,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[RedirectUrisUpdatedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[RedirectUrisUpdatedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(redirectUrisUpdatedUri, validHeaders, jsonBody)
@@ -278,7 +278,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[ApiSubscribedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ApiSubscribedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(apiSubscribedUri, validHeaders, jsonBody)
@@ -286,7 +286,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[ApiSubscribedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ApiSubscribedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(apiSubscribedUri, validHeaders, jsonBody)
@@ -320,7 +320,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"version": "1.0"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[ApiUnsubscribedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ApiUnsubscribedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(apiUnsubscribedUri, validHeaders, jsonBody)
@@ -328,7 +328,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[ApiUnsubscribedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[ApiUnsubscribedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(apiUnsubscribedUri, validHeaders, jsonBody)
@@ -365,7 +365,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"newCallbackUrl": "newUri"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[PpnsCallBackUriUpdatedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[PpnsCallBackUriUpdatedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody)
@@ -373,7 +373,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[PpnsCallBackUriUpdatedEvent]))
+      when(mockApplicationsEventService.captureOldEvent(*[PpnsCallBackUriUpdatedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody)

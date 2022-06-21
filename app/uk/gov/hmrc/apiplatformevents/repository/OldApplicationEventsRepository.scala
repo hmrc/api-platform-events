@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
+
 import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
+import uk.gov.hmrc.apiplatformevents.models.{OldApplicationEvent, MongoFormatters}
 import uk.gov.hmrc.apiplatformevents.models.common.OldEventType
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -30,12 +31,12 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
-                                           (implicit ec: ExecutionContext)
-    extends PlayMongoRepository[ApplicationEvent](
+class OldApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
+                                              (implicit ec: ExecutionContext)
+    extends PlayMongoRepository[OldApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
-     domainFormat = MongoFormatters.formatApplicationEvent,
+     domainFormat = MongoFormatters.formatOldApplicationEvent,
       indexes = Seq(
         IndexModel(ascending("id"),
           IndexOptions()
@@ -48,14 +49,14 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
             .unique(false)
             .background(false))
       ),
-      extraCodecs  = mongoCodecsForAppEvents
+      extraCodecs  = mongoCodecsForOldAppEvents
 
     ) {
 
-  def createEntity(event: ApplicationEvent): Future[Boolean] =
+  def createEntity(event: OldApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchEventsToNotify[A <: ApplicationEvent](eventType: OldEventType): Future[Seq[ApplicationEvent]] = {
+  def fetchEventsToNotify[A <: OldApplicationEvent](eventType: OldEventType): Future[Seq[OldApplicationEvent]] = {
       collection.aggregate(
         Seq(
           filter(equal("eventType", eventType.entryName)),

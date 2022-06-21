@@ -1,2 +1,4 @@
 # microservice specific routes
 ->          /application-events               appEvents.Routes
+
+POST        /application-event                @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.handleEvent()

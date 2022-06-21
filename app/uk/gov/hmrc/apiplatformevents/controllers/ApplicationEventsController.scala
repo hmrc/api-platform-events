@@ -42,52 +42,57 @@ class ApplicationEventsController @Inject()(
 ) extends BackendController(cc) with ApplicationLogger {
 
  
-
-def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[PpnsCallBackUriUpdatedEvent] { event =>
+  def handleEvent(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ApplicationEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
+    }
+  }
+
+  def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[PpnsCallBackUriUpdatedEvent] { event =>
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def teamMemberAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberAddedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def teamMemberRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberRemovedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def clientSecretAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretAddedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def clientSecretRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretRemovedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def redirectUrisUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[RedirectUrisUpdatedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def apiSubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ApiSubscribedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 
   def apiUnsubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ApiUnsubscribedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
+      service.captureOldEvent(event) map mapResult recover recovery
     }
   }
 

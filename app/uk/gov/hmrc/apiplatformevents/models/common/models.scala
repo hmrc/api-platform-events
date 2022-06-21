@@ -22,18 +22,18 @@ import java.util.UUID
 import scala.collection.immutable
 
 
-sealed trait OldActorType extends EnumEntry
+sealed trait ActorType extends EnumEntry
 
-object OldActorType extends Enum[OldActorType] with PlayJsonEnum[OldActorType] {
-  val values: immutable.IndexedSeq[OldActorType] = findValues
+object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
+  val values: immutable.IndexedSeq[ActorType] = findValues
 
-  case object COLLABORATOR extends OldActorType
-  case object GATEKEEPER extends  OldActorType
-  case object SCHEDULED_JOB extends OldActorType
-  case object UNKNOWN extends OldActorType
+  case object COLLABORATOR extends ActorType
+  case object GATEKEEPER extends  ActorType
+  case object SCHEDULED_JOB extends ActorType
+  case object UNKNOWN extends ActorType
 }
 
-case class OldActor(id: String, actorType: OldActorType)
+case class OldActor(id: String, actorType: ActorType)
 
 sealed trait OldEventType extends EnumEntry
 
@@ -59,9 +59,13 @@ object EventId {
   def random: EventId = EventId(UUID.randomUUID())
 }
 
-sealed trait Actor
+sealed trait Actor {
+  def actorType: ActorType
+}
 
-case class GatekeeperUserActor(email: String) extends Actor
+case class GatekeeperUserActor(email: String) extends Actor {
+  override val actorType: ActorType = ActorType.GATEKEEPER
+}
 
 sealed trait EventType extends EnumEntry
 

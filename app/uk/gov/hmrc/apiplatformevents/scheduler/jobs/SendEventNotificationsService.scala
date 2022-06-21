@@ -20,7 +20,7 @@ import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyAppli
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.common.OldEventType.PPNS_CALLBACK_URI_UPDATED
 import uk.gov.hmrc.apiplatformevents.models.{OldApplicationEvent, Notification, PpnsCallBackUriUpdatedEvent}
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.{OldApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockException, UnknownExceptionOccurred}
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
 
 class SendEventNotificationsService @Inject()(appConfig: AppConfig,
-                                              applicationEventsRepository: ApplicationEventsRepository,
+                                              applicationEventsRepository: OldApplicationEventsRepository,
                                               lockRepositoryProvider: MongoLockRepository,
                                               notificationsRepository: NotificationsRepository,
                                               emailConnector: EmailConnector,
