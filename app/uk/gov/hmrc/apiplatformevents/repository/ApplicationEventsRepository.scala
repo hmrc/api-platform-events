@@ -42,12 +42,12 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
           IndexOptions()
             .name("id_index")
             .unique(true)
-            .background(false)),
+            .background(true)),
         IndexModel(ascending("eventType"),
           IndexOptions()
             .name("eventType_index")
             .unique(false)
-            .background(false))
+            .background(true))
       ),
       extraCodecs  = mongoCodecs,
       replaceIndexes = true
