@@ -44,32 +44,32 @@ trait Codecs {
     * modified in unexpected ways.
     */
 
-  def playFormatCodec[A](
-    format: Format[A],
-    legacyNumbers: Boolean = false
-  )(implicit ct: ClassTag[A]): Codec[A] = new Codec[A] {
-
-    override def getEncoderClass: Class[A] =
-      ct.runtimeClass.asInstanceOf[Class[A]]
-
-    override def encode(writer: BsonWriter, value: A, encoderContext: EncoderContext): Unit = {
-      val bs: BsonValue = jsonToBson(legacyNumbers)(format.writes(value))
-      bsonValueCodec.encode(writer, bs, encoderContext)
-    }
-
-    override def decode(reader: BsonReader, decoderContext: DecoderContext): A = {
-      val bs: BsonValue =
-        bsonValueCodec
-          .decode(reader, decoderContext)
-
-      val json = bsonToJson(bs)
-
-      format.reads(json) match {
-        case JsSuccess(v, _) => v
-        case JsError(errors) => sys.error(s"Failed to parse json as ${ct.runtimeClass.getName} '$json': $errors")
-      }
-    }
-  }
+//  def playFormatCodec[A](
+//    format: Format[A],
+//    legacyNumbers: Boolean = false
+//  )(implicit ct: ClassTag[A]): Codec[A] = new Codec[A] {
+//
+//    override def getEncoderClass: Class[A] =
+//      ct.runtimeClass.asInstanceOf[Class[A]]
+//
+//    override def encode(writer: BsonWriter, value: A, encoderContext: EncoderContext): Unit = {
+//      val bs: BsonValue = jsonToBson(legacyNumbers)(format.writes(value))
+//      bsonValueCodec.encode(writer, bs, encoderContext)
+//    }
+//
+//    override def decode(reader: BsonReader, decoderContext: DecoderContext): A = {
+//      val bs: BsonValue =
+//        bsonValueCodec
+//          .decode(reader, decoderContext)
+//
+//      val json = bsonToJson(bs)
+//
+//      format.reads(json) match {
+//        case JsSuccess(v, _) => v
+//        case JsError(errors) => sys.error(s"Failed to parse json as ${ct.runtimeClass.getName} '$json': $errors")
+//      }
+//    }
+//  }
 
   def forcedPlayFormatCodec[S <: P, P](
       format: OFormat[P],
@@ -95,7 +95,7 @@ trait Codecs {
 
       format.reads(json) match {
         case JsSuccess(v, _) => v.asInstanceOf[S]
-        case JsError(errors) => sys.error(s"Failed to parse json as ${clazz.getSimpleName()} '$json': $errors")
+        case JsError(errors) => sys.error(s"Failed to parse json as ${clazz.getSimpleName} '$json': $errors")
       }
     }
   }
