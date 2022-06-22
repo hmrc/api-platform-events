@@ -4,8 +4,8 @@ import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.EventId
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, ApplicationEventsRepository}
+import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, GatekeeperUserActor}
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
 import java.util.UUID
@@ -33,7 +33,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val applicationId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorEmail = "actor@example.com"
-  val actorTypeGK = "GATEKEEPER"
+  val actorTypeGK = ActorType.GATEKEEPER
+  val actorUser = "gatekeeper"
   val eventDateTimeString = "2014-01-01T13:13:34.441"
 
   def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
@@ -82,7 +83,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_NAME_CHANGED",
-         |"actor": { "email": "$actorEmail", "actorType": "$actorTypeGK" },
+         |"actor": { "user": "$actorUser", "actorType": "$actorTypeGK" },
          |"oldAppName": "$oldAppName",
          |"newAppName": "$newAppName",
          |"requestingAdminName": "$requestingAdminName"}""".stripMargin
@@ -103,14 +104,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   def checkCommonEventValues(event: ApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
     event.eventDateTime.toString shouldBe eventDateTimeString
-    event.actor.id shouldBe actorId
-    event.actor.actorType.toString shouldBe actorTypeGK
-  }
-
-  def checkCommonEventValues(event: ApplicationEvent): Unit = {
-    event.applicationId shouldBe applicationId
-    event.eventDateTime.toString shouldBe eventDateTimeString
-    event.actor.actorType.toString shouldBe actorTypeGK
   }
 
   "ApplicationEventsController" when {
@@ -128,6 +121,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -149,6 +144,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -169,7 +166,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -189,6 +187,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -210,6 +210,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldRedirectUris shouldBe oldRedirectUri
         event.newRedirectUris shouldBe newRedirectUri
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -230,6 +232,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -250,6 +254,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -275,6 +281,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.oldCallbackUrl shouldBe oldCallbackUrl
         event.newCallbackUrl shouldBe newCallbackUrl
         event.boxName shouldBe boxName
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
@@ -299,6 +307,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.oldAppName shouldBe oldAppName
         event.newAppName shouldBe newAppName
         event.requestingAdminName shouldBe requestingAdminName
+
+        event.actor match {
+          case GatekeeperUserActor(name) => name shouldBe actorUser
+          case _ => fail("expected GatekeeperUserActor")
+        }
+
       }
 
       "handle error scenarios correctly" in {

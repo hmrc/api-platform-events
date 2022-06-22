@@ -42,7 +42,10 @@ object EventId {
 
 sealed trait Actor
 
-case class GatekeeperUserActor(email: String) extends Actor
+case class GatekeeperUserActor(user: String) extends Actor
+//case class CollaboratorActor(email: String) extends Actor
+//case class ScheduledJobActor(jobId: String) extends Actor
+//case class UnknownActor() extends Actor
 
 sealed trait EventType extends EnumEntry
 

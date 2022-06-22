@@ -15,12 +15,17 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
+import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
+import uk.gov.hmrc.apiplatformevents.models._
+import uk.gov.hmrc.apiplatformevents.models.common.EventId
+import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
+import java.time.LocalDateTime
 
 class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ApplicationEventTestData {
 
@@ -31,16 +36,78 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
       )
 
   val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
+  val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
   override def beforeEach() {
+    await(notificationsRepo.collection.drop().toFuture())
+    await(notificationsRepo.ensureIndexes)
     await(repo.collection.drop().toFuture())
     await(repo.ensureIndexes)
   }
 
   "createEntity" should {
-    "create a productionAppNameChangedEvent entity" in {
+    "create a teamMemberRemoved entity" in {
+      await(repo.createEntity(teamMemberRemovedModel))
+      await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
+    }
+
+    "create a teamMemberAdded entity" in {
+      await(repo.createEntity(teamMemberAddedModel))
+      await(repo.collection.find().toFuture()) should contain only teamMemberAddedModel
+    }
+
+    "create a clientSecretAdded entity" in {
+      await(repo.createEntity(clientSecretAddedModel))
+      await(repo.collection.find().toFuture()) should contain only clientSecretAddedModel
+    }
+
+    "create a clientSecretRemoved entity" in {
+      await(repo.createEntity(clientSecretRemovedModel))
+      await(repo.collection.find().toFuture()) should contain only clientSecretRemovedModel
+    }
+
+    "create a redirectUrisUpdated entity" in {
+      await(repo.createEntity(redirectUrisUpdatedModel))
+      await(repo.collection.find().toFuture()) should contain only redirectUrisUpdatedModel
+    }
+
+    "create an apiSubsribed entity" in {
+      await(repo.createEntity(apiSubscribedModel))
+      await(repo.collection.find().toFuture()) should contain only apiSubscribedModel
+    }
+
+    "create an apiUnsubsribed entity" in {
+      await(repo.createEntity(apiUnsubscribedModel))
+      await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
+    }
+
+    "create an productionAppNameChangedEvent entity" in {
       await(repo.createEntity(productionAppNameChangedEvent))
       await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
+    }
+  }
+
+  "fetchEventsToNotify" should {
+    "filter results by event type" in {
+      await(repo.createEntity(teamMemberAddedModel))
+      await(repo.createEntity(clientSecretAddedModel))
+
+      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+
+      result should contain only teamMemberAddedModel
+    }
+
+    "only return events that have not been notified yet" in {
+      await(repo.createEntity(teamMemberAddedModel))
+      val anotherTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
+      await(repo.createEntity(anotherTeamMemberAddedModel))
+      val alreadyNotifiedTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
+      await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
+      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, LocalDateTime.now(), SENT)))
+
+      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+
+      result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
     }
   }
 }

@@ -97,4 +97,4 @@ case class ProductionAppNameChangedEvent(id: EventId,
                                          actor: Actor,
                                          oldAppName: String,
                                          newAppName: String,
-                                         requestingAdminName: String) extends ApplicationEvent 
+                                         requestingAdminName: String) extends ApplicationEvent

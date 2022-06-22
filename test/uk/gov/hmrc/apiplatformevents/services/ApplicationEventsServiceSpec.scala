@@ -21,7 +21,7 @@ import org.mongodb.scala.MongoException
 import org.scalatest.concurrent.Eventually
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, GatekeeperUserActor, OldActor}
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, ApplicationEventsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
 
@@ -32,7 +32,6 @@ import java.time.LocalDateTime
 
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
-  val mockOldRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
@@ -60,10 +59,10 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
   trait Setup {
     def primeOldService(repoResult: Boolean, repoThrowsException: Boolean) = {
       if (repoThrowsException) {
-        when(mockOldRepository.createEntity(eqTo(validAddTeamMemberModel)))
+        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
           .thenReturn(Future.failed(new MongoException("some mongo error")))
       } else {
-        when(mockOldRepository.createEntity(eqTo(validAddTeamMemberModel)))
+        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
           .thenReturn(Future.successful(repoResult))
       }
     }
@@ -78,25 +77,25 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
       }
     }
 
-    val inTest = new ApplicationEventsService(mockOldRepository, mockRepository)
+    val inTest = new ApplicationEventsService(mockRepository)
   }
 
   "Capture old event" should {
     "send an event to the repository and return true when saved" in new Setup {
       primeOldService(repoResult = true, repoThrowsException = false)
-      await(inTest.captureOldEvent(validAddTeamMemberModel)) shouldBe true
+      await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe true
     }
 
     "fail and return false when repository capture event fails" in new Setup {
       primeOldService(repoResult = false, repoThrowsException = false)
-      await(inTest.captureOldEvent(validAddTeamMemberModel)) shouldBe false
+      await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe false
     }
 
     "handle error" in new Setup {
       primeOldService(repoResult = false, repoThrowsException = true)
 
       val exception: MongoException = intercept[MongoException] {
-        await(inTest.captureOldEvent(validAddTeamMemberModel))
+        await(inTest.captureEvent(validAddTeamMemberModel))
       }
 
       exception.getMessage shouldBe "some mongo error"
