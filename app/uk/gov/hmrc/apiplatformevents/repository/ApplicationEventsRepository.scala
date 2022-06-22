@@ -42,15 +42,15 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
           IndexOptions()
             .name("id_index")
             .unique(true)
-            .background(false)),
+            .background(true)),
         IndexModel(ascending("eventType"),
           IndexOptions()
             .name("eventType_index")
             .unique(false)
-            .background(false))
+            .background(true))
       ),
-      extraCodecs  = Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent)
-
+      extraCodecs  = Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent),
+      replaceIndexes = true
     ) {
 
   def createEntity(event: ApplicationEvent): Future[Boolean] =
