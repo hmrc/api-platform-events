@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
-import org.mongodb.scala.model.Aggregates._
-import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
-import uk.gov.hmrc.apiplatformevents.models.common.OldEventType
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -55,13 +52,4 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
   def createEntity(event: ApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchEventsToNotify[A <: ApplicationEvent](eventType: OldEventType): Future[Seq[ApplicationEvent]] = {
-      collection.aggregate(
-        Seq(
-          filter(equal("eventType", eventType.entryName)),
-          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
-          filter(size("matched", 0))
-        )
-      ).toFuture()
-  }
 }

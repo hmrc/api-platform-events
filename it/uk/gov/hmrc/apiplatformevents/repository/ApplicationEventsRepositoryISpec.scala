@@ -17,13 +17,8 @@ package uk.gov.hmrc.apiplatformevents.repository
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
-import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.OldEventType.TEAM_MEMBER_ADDED
-import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-import java.time.LocalDateTime
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 
@@ -35,82 +30,17 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
 
-  val repo: OldApplicationEventsRepository = app.injector.instanceOf[OldApplicationEventsRepository]
-  val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
-
+  val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach() {
-    await(notificationsRepo.collection.drop().toFuture())
-    await(notificationsRepo.ensureIndexes)
     await(repo.collection.drop().toFuture())
     await(repo.ensureIndexes)
-
   }
-
 
   "createEntity" should {
-    "create a teamMemberRemoved entity" in {
-      await(repo.createEntity(teamMemberRemovedModel))
-      await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
-    }
-
-    "create a teamMemberAdded entity" in {
-      await(repo.createEntity(teamMemberAddedModel))
-      await(repo.collection.find().toFuture()) should contain only teamMemberAddedModel
-    }
-
-    "create a clientSecretAdded entity" in {
-      await(repo.createEntity(clientSecretAddedModel))
-      await(repo.collection.find().toFuture()) should contain only clientSecretAddedModel
-    }
-
-    "create a clientSecretRemoved entity" in {
-      await(repo.createEntity(clientSecretRemovedModel))
-      await(repo.collection.find().toFuture()) should contain only clientSecretRemovedModel
-    }
-
-    "create a redirectUrisUpdated entity" in {
-      await(repo.createEntity(redirectUrisUpdatedModel))
-      await(repo.collection.find().toFuture()) should contain only redirectUrisUpdatedModel
-    }
-
-    "create an apiSubsribed entity" in {
-      await(repo.createEntity(apiSubscribedModel))
-      await(repo.collection.find().toFuture()) should contain only apiSubscribedModel
-    }
-
-    "create an apiUnsubsribed entity" in {
-      await(repo.createEntity(apiUnsubscribedModel))
-      await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
-    }
-
-//    "create an productionAppNameChangedEvent entity" in {
-//      await(repo.createEntity(productionAppNameChangedEvent))
-//      await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
-//    }
-  }
-
-  "fetchEventsToNotify" should {
-    "filter results by event type" in {
-      await(repo.createEntity(teamMemberAddedModel))
-      await(repo.createEntity(clientSecretAddedModel))
-
-      val result: Seq[OldApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
-
-      result should contain only teamMemberAddedModel
-    }
-
-    "only return events that have not been notified yet" in {
-      await(repo.createEntity(teamMemberAddedModel))
-      val anotherTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
-      await(repo.createEntity(anotherTeamMemberAddedModel))
-      val alreadyNotifiedTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
-      await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
-      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, LocalDateTime.now(), SENT)))
-
-      val result: Seq[OldApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
-
-      result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
+    "create a productionAppNameChangedEvent entity" in {
+      await(repo.createEntity(productionAppNameChangedEvent))
+      await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
     }
   }
 }
