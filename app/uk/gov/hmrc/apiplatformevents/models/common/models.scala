@@ -35,11 +35,6 @@ object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
 
 case class OldActor(id: String, actorType: ActorType)
 
-case class EventId(value: UUID) extends AnyVal
-object EventId {
-  def random: EventId = EventId(UUID.randomUUID())
-}
-
 sealed trait Actor
 
 case class GatekeeperUserActor(user: String) extends Actor
@@ -66,3 +61,9 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
 }
+
+case class EventId(value: UUID) extends AnyVal
+object EventId {
+  def random: EventId = EventId(UUID.randomUUID())
+}
+

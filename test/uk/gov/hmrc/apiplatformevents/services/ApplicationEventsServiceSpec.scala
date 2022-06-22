@@ -57,22 +57,12 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
       requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
-    def primeOldService(repoResult: Boolean, repoThrowsException: Boolean) = {
+    def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: ApplicationEvent) = {
       if (repoThrowsException) {
-        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
+        when(mockRepository.createEntity(eqTo(appEvent)))
           .thenReturn(Future.failed(new MongoException("some mongo error")))
       } else {
-        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
-          .thenReturn(Future.successful(repoResult))
-      }
-    }
-
-    def primeService(repoResult: Boolean, repoThrowsException: Boolean) = {
-      if (repoThrowsException) {
-        when(mockRepository.createEntity(eqTo(validProdAppNameChange)))
-          .thenReturn(Future.failed(new MongoException("some mongo error")))
-      } else {
-        when(mockRepository.createEntity(eqTo(validProdAppNameChange)))
+        when(mockRepository.createEntity(eqTo(appEvent)))
           .thenReturn(Future.successful(repoResult))
       }
     }
@@ -82,17 +72,17 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   "Capture old event" should {
     "send an event to the repository and return true when saved" in new Setup {
-      primeOldService(repoResult = true, repoThrowsException = false)
+      primeService(repoResult = true, repoThrowsException = false, validAddTeamMemberModel)
       await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe true
     }
 
     "fail and return false when repository capture event fails" in new Setup {
-      primeOldService(repoResult = false, repoThrowsException = false)
+      primeService(repoResult = false, repoThrowsException = false, validAddTeamMemberModel)
       await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe false
     }
 
     "handle error" in new Setup {
-      primeOldService(repoResult = false, repoThrowsException = true)
+      primeService(repoResult = false, repoThrowsException = true, validAddTeamMemberModel)
 
       val exception: MongoException = intercept[MongoException] {
         await(inTest.captureEvent(validAddTeamMemberModel))
@@ -104,17 +94,17 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   "Capture event" should {
     "send an event to the repository and return true when saved" in new Setup {
-      primeService(repoResult = true, repoThrowsException = false)
+      primeService(repoResult = true, repoThrowsException = false, validProdAppNameChange)
       await(inTest.captureEvent(validProdAppNameChange)) shouldBe true
     }
 
     "fail and return false when repository capture event fails" in new Setup {
-      primeService(repoResult = false, repoThrowsException = false)
+      primeService(repoResult = false, repoThrowsException = false, validProdAppNameChange)
       await(inTest.captureEvent(validProdAppNameChange)) shouldBe false
     }
 
     "handle error" in new Setup {
-      primeService(repoResult = false, repoThrowsException = true)
+      primeService(repoResult = false, repoThrowsException = true, validProdAppNameChange)
 
       val exception: MongoException = intercept[MongoException] {
         await(inTest.captureEvent(validProdAppNameChange))

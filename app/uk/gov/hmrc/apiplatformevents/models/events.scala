@@ -31,30 +31,26 @@ case class TeamMemberAddedEvent(id: EventId,
                                 eventDateTime: LocalDateTime,
                                 actor: OldActor,
                                 teamMemberEmail: String,
-                                teamMemberRole: String) extends ApplicationEvent {
-}
+                                teamMemberRole: String) extends ApplicationEvent
 
 case class TeamMemberRemovedEvent(id: EventId,
                                   applicationId: String,
                                   eventDateTime: LocalDateTime,
                                   actor: OldActor,
                                   teamMemberEmail: String,
-                                  teamMemberRole: String) extends ApplicationEvent {
-}
+                                  teamMemberRole: String) extends ApplicationEvent
 
 case class ClientSecretAddedEvent(id: EventId,
                                   applicationId: String,
                                   eventDateTime: LocalDateTime,
                                   actor: OldActor,
-                                  clientSecretId: String) extends ApplicationEvent {
-}
+                                  clientSecretId: String) extends ApplicationEvent
 
 case class ClientSecretRemovedEvent(id: EventId,
                                     applicationId: String,
                                     eventDateTime: LocalDateTime,
                                     actor: OldActor,
-                                    clientSecretId: String) extends ApplicationEvent {
-}
+                                    clientSecretId: String) extends ApplicationEvent
 
 
 case class PpnsCallBackUriUpdatedEvent(id: EventId,
@@ -64,32 +60,28 @@ case class PpnsCallBackUriUpdatedEvent(id: EventId,
                                        boxId: String,
                                        boxName: String,
                                        oldCallbackUrl: String,
-                                       newCallbackUrl: String) extends ApplicationEvent {
-}
+                                       newCallbackUrl: String) extends ApplicationEvent
 
 case class RedirectUrisUpdatedEvent(id: EventId,
                                     applicationId: String,
                                     eventDateTime: LocalDateTime,
                                     actor: OldActor,
                                     oldRedirectUris: String,
-                                    newRedirectUris: String) extends ApplicationEvent {
-}
+                                    newRedirectUris: String) extends ApplicationEvent
 
 case class ApiSubscribedEvent(id: EventId,
                               applicationId: String,
                               eventDateTime: LocalDateTime,
                               actor: OldActor,
                               context: String,
-                              version: String) extends ApplicationEvent {
-}
+                              version: String) extends ApplicationEvent
 
 case class ApiUnsubscribedEvent(id: EventId,
                                 applicationId: String,
                                 eventDateTime: LocalDateTime,
                                 actor: OldActor,
                                 context: String,
-                                version: String) extends ApplicationEvent {
-}
+                                version: String) extends ApplicationEvent
 
 case class ProductionAppNameChangedEvent(id: EventId,
                                          applicationId: String,

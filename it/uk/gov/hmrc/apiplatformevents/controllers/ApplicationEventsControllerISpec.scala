@@ -16,13 +16,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   this: Suite with ServerProvider =>
 
-  def oldRepo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
   def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     primeAuditService()
-    await(oldRepo.collection.drop().toFuture())
+    await(repo.collection.drop().toFuture())
   }
 
   val url = s"http://localhost:$port"
@@ -114,7 +113,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val adminRole = "ADMIN"
 
         testSuccessScenario("/application-events/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
-        val results = await(oldRepo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[TeamMemberAddedEvent]
 
@@ -137,7 +136,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         testSuccessScenario("/application-events/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
 
-        val results = await(oldRepo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[TeamMemberRemovedEvent]
 
@@ -160,7 +159,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         testSuccessScenario("/application-events/clientSecretAdded", validClientSecretJsonBody(clientSecretId))
 
 
-        val results = await(oldRepo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ClientSecretAddedEvent]
 
@@ -181,7 +180,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         testSuccessScenario("/application-events/clientSecretRemoved", validClientSecretJsonBody(clientSecretId))
 
-        val results = await(oldRepo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ClientSecretRemovedEvent]
 
@@ -203,7 +202,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         testSuccessScenario("/application-events/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody(oldRedirectUri, newRedirectUri))
 
-        val results = await(oldRepo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
 
@@ -225,7 +224,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val apiVersion = "1.0"
 
         testSuccessScenario("/application-events/apiSubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results =await(oldRepo.collection.find().toFuture())
+        val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ApiSubscribedEvent]
 
@@ -247,7 +246,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val apiVersion = "1.0"
 
         testSuccessScenario("/application-events/apiUnsubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results = await(oldRepo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ApiUnsubscribedEvent]
 
@@ -272,7 +271,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         testSuccessScenario("/application-events/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
 
-        val results =await(oldRepo.collection.find().toFuture())
+        val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
 
