@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatformevents.scheduled
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import com.google.inject.Singleton
+
 import javax.inject.Inject
 import org.joda.time.DateTime.now
 import org.joda.time.DateTimeZone.UTC
@@ -27,6 +28,7 @@ import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.ReactiveMongoFormatters.PpnsCallBackUriUpdatedEventFormats
+import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_UPDATED
 import uk.gov.hmrc.apiplatformevents.models.{Notification, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
@@ -34,6 +36,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.lock.{LockKeeper, LockRepository}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
+import java.util.UUID
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -70,11 +73,11 @@ class SendEventNotificationsJob @Inject()(
     (for {
       app <- thirdPartyApplicationConnector.getApplication(event.applicationId)
       _ <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, event.eventDateTime, app.adminEmails)
-      _ <- notificationsRepository.createEntity(Notification(event.id, now(UTC), SENT))
+      _ <-notificationsRepository.createEntity(Notification(event.id.getOrElse(EventId(UUID.randomUUID())), now(UTC), SENT))
     } yield ()) recoverWith {
       case NonFatal(e) =>
         logger.error(s"Failed to send email notification for event ID ${event.id}", e)
-        notificationsRepository.createEntity(Notification(event.id, now(UTC), FAILED)).map(_ => ())
+        notificationsRepository.createEntity(Notification(event.id.getOrElse(EventId(UUID.randomUUID())), now(UTC), FAILED)).map(_ => ())
     }
   }
 }

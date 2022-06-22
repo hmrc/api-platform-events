@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport 
     import scala.concurrent.ExecutionContext.Implicits.global
     val adminEmail = "jd@exmample.com"
     val application = ApplicationResponse("test app", Set(Collaborator(adminEmail, ADMINISTRATOR)))
-    val event = PpnsCallBackUriUpdatedEvent(EventId.random, "appId", now(UTC), Actor("iam@admin.com", ActorType.GATEKEEPER),
+    val event = PpnsCallBackUriUpdatedEvent(Some(EventId.random), "appId", now(UTC), Actor("iam@admin.com", ActorType.GATEKEEPER),
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
     "send email notifications for PPNS_CALLBACK_URI_UPDATED events" in new Setup {
@@ -105,7 +105,7 @@ class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport 
 
       verify(mockEmailConnector, times(1))
         .sendPpnsCallbackUrlChangedNotification(eqTo(application.name), eqTo(event.eventDateTime), eqTo(Set(adminEmail)))(*)
-      notificationCaptor.getValue.eventId shouldBe event.id
+      notificationCaptor.getValue.eventId shouldBe event.id.get
       notificationCaptor.getValue.status shouldBe SENT
       result.message shouldBe "SendEventNotificationsJob Job ran successfully."
     }
@@ -119,7 +119,7 @@ class SendEventNotificationsJobSpec extends AsyncHmrcSpec with MongoSpecSupport 
 
       val result: underTest.Result = await(underTest.execute)
 
-      notificationCaptor.getValue.eventId shouldBe event.id
+      notificationCaptor.getValue.eventId shouldBe event.id.get
       notificationCaptor.getValue.status shouldBe FAILED
       result.message shouldBe "SendEventNotificationsJob Job ran successfully."
     }

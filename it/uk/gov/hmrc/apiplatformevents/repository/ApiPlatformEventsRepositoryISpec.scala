@@ -52,7 +52,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
   }
 
   val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -60,7 +60,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
     teamMemberRole = "ADMIN")
 
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -68,21 +68,21 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
     teamMemberRole = "ADMIN")
 
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -90,7 +90,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
     newRedirectUris = "newru")
 
   val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -98,7 +98,7 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
     version = "1.0")
 
   val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = "John Smith",
     eventDateTime = now(UTC),
     Actor("iam@admin.com", ActorType.GATEKEEPER),
@@ -165,15 +165,32 @@ class ApiPlatformEventsRepositoryISpec extends AsyncHmrcSpec with MongoApp {
 
     "only return events that have not been notified yet" in {
       await(repo.createEntity(teamMemberAddedModel))
-      val anotherTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
+      val anotherTeamMemberAddedModel = teamMemberAddedModel.copy(id = Some(EventId.random))
       await(repo.createEntity(anotherTeamMemberAddedModel))
-      val alreadyNotifiedTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
+      val alreadyNotifiedTeamMemberAddedModel = teamMemberAddedModel.copy(id = Some(EventId.random))
       await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
-      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, now(UTC), SENT)))
+      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id.get, now(UTC), SENT)))
 
       val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED).runWith(Sink.seq))
 
       result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
+    }
+  }
+
+
+  "populateEventIds" should {
+    "add event IDs when missing" in {
+      await(repo.createEntity(teamMemberAddedModel))
+      val eventWithNoId = teamMemberAddedModel.copy(id = None)
+      await(repo.createEntity(eventWithNoId))
+
+      await(repo.populateEventIds())
+
+      val result: Seq[Option[EventId]] = await(repo.find()).map(_.id)
+      result should have size 2
+      result should contain (teamMemberAddedModel.id)
+      result should not contain None
+      result.head.get should not be result(1).get
     }
   }
 }

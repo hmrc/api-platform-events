@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package uk.gov.hmrc.apiplatformevents.repository
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
+
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsObject, Json, OFormat}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.akkastream.cursorProducer
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -29,7 +30,9 @@ import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationEvent, EventType}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: ReactiveMongoComponent)
@@ -60,5 +63,39 @@ class ApplicationEventsRepository @Inject()(mongoComponent: ReactiveMongoCompone
       builder.Match(Json.obj("notifications" -> Json.obj("$size" -> 0)))
     )
     collection.aggregateWith[A]()(_ => (pipeline.head, pipeline.tail)).documentSource()
+  }
+
+
+  def populateEventIds(): Future[Unit] = {
+    val query : JsObject = Json.obj("$or" -> Json.arr(
+                    Json.obj("id" -> Json.obj("$exists" -> false)),
+                    Json.obj("id" -> null)
+                  ))
+
+    def updateApplicationEvent(event: JsObject): Unit = {
+      val mongoId = (event \ "_id").as[BSONObjectID]
+      val queryForFindById = Json.obj("_id" -> mongoId)
+      val setIdOnEvent = Json.obj("$set" -> Json.obj("id" -> UUID.randomUUID()))
+      val f : Future[_] = findAndUpdate(query = queryForFindById , setIdOnEvent)
+      f.onComplete {
+        case Failure(e) => logger.error("Failed to update event" + e.getMessage)
+        case Success(_) => logger.info(s"Success - Id added to event with _id: $mongoId")
+      }
+    }
+
+    processAll(query, updateApplicationEvent)
+  }
+
+  private def processAll(query : JsObject,  function: JsObject => Unit): Future[Unit] = {
+    import akka.stream.scaladsl.{Sink, Source}
+    import reactivemongo.akkastream.{State, cursorProducer}
+
+    val sourceOfEvents: Source[JsObject, Future[State]] =
+      collection
+        .find(query, Option.empty[JsObject])
+        .cursor[JsObject]()
+        .documentSource()
+
+    sourceOfEvents.runWith(Sink.foreach(function)).map(_ => ())
   }
 }

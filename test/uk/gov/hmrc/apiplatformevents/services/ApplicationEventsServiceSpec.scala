@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
-    id = EventId.random,
+    id = Some(EventId.random),
     applicationId = UUID.randomUUID().toString,
     eventDateTime= DateTime.now,
     actor = Actor("iam@admin.com", ActorType.GATEKEEPER),

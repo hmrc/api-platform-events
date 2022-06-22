@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ object EventId {
 }
 
 trait ApplicationEvent{
-  val id: EventId
+  val id: Option[EventId]
   val applicationId: String
   val eventDateTime: DateTime
   val eventType: EventType

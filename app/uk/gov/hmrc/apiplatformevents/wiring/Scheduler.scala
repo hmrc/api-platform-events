@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 package uk.gov.hmrc.apiplatformevents.wiring
 
 import com.google.inject.AbstractModule
+
 import javax.inject.{Inject, Singleton}
 import play.api.Application
 import play.api.inject.ApplicationLifecycle
-import uk.gov.hmrc.apiplatformevents.scheduled.SendEventNotificationsJob
+import uk.gov.hmrc.apiplatformevents.scheduled.{PopulateEventIdsJob, SendEventNotificationsJob}
 import uk.gov.hmrc.apiplatformevents.scheduling.{RunningOfScheduledJobs, ScheduledJob}
 
 import scala.concurrent.ExecutionContext
@@ -34,7 +35,8 @@ class SchedulerModule extends AbstractModule {
 @Singleton
 class Scheduler @Inject()(override val applicationLifecycle: ApplicationLifecycle,
                           override val application: Application,
+                          populateEventIdsJob: PopulateEventIdsJob,
                           sendEventNotificationsJob: SendEventNotificationsJob)
                          (implicit val ec: ExecutionContext) extends RunningOfScheduledJobs {
-  override lazy val scheduledJobs: Seq[ScheduledJob] = Seq(sendEventNotificationsJob).filter(_.isEnabled)
+  override lazy val scheduledJobs: Seq[ScheduledJob] = Seq(sendEventNotificationsJob, populateEventIdsJob).filter(_.isEnabled)
 }
