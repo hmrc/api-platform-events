@@ -5,7 +5,7 @@ import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, OldApplicationEventsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, ApplicationEventsRepository}
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
 import java.util.UUID
@@ -16,7 +16,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   this: Suite with ServerProvider =>
 
-  def oldRepo: OldApplicationEventsRepository = app.injector.instanceOf[OldApplicationEventsRepository]
+  def oldRepo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
   def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach(): Unit = {
@@ -100,7 +100,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       .post(body)
   }
 
-  def checkCommonEventValues(event: OldApplicationEvent): Unit = {
+  def checkCommonEventValues(event: ApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
     event.eventDateTime.toString shouldBe eventDateTimeString
     event.actor.id shouldBe actorId

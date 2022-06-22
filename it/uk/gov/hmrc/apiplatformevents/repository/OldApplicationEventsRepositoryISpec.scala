@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
 
-class OldApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ApplicationEventTestData {
+class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ApplicationEventTestData {
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -35,7 +35,7 @@ class OldApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneApp
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
 
-  val repo: OldApplicationEventsRepository = app.injector.instanceOf[OldApplicationEventsRepository]
+  val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
   val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
   override def beforeEach() {
@@ -92,7 +92,7 @@ class OldApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneApp
       await(repo.createEntity(teamMemberAddedModel))
       await(repo.createEntity(clientSecretAddedModel))
 
-      val result: Seq[OldApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only teamMemberAddedModel
     }
@@ -105,7 +105,7 @@ class OldApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneApp
       await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
       await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, LocalDateTime.now(), SENT)))
 
-      val result: Seq[OldApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
     }

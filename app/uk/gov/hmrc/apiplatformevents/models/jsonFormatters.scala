@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.models
 
 
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId, EventType, GatekeeperUserActor, OldActor, OldEventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId, EventType, GatekeeperUserActor, OldActor}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.json.Union
 
@@ -35,19 +35,6 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val apiSubscribedEventFormats: OFormat[ApiSubscribedEvent] = Json.format[ApiSubscribedEvent]
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
-  
-  implicit val formatOldApplicationEvent: OFormat[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
-    .and[TeamMemberRemovedEvent](OldEventType.TEAM_MEMBER_REMOVED.toString)
-    .and[TeamMemberAddedEvent](OldEventType.TEAM_MEMBER_ADDED.toString)
-    .and[ClientSecretAddedEvent](OldEventType.CLIENT_SECRET_ADDED.toString)
-    .and[ClientSecretRemovedEvent](OldEventType.CLIENT_SECRET_REMOVED.toString)
-    .and[PpnsCallBackUriUpdatedEvent](OldEventType.PPNS_CALLBACK_URI_UPDATED.toString())
-    .and[RedirectUrisUpdatedEvent](OldEventType.REDIRECT_URIS_UPDATED.toString)
-    .and[ApiSubscribedEvent](OldEventType.API_SUBSCRIBED.toString)
-    .and[ApiUnsubscribedEvent](OldEventType.API_UNSUBSCRIBED.toString)
-    .format
-
-  val mongoCodecsForOldAppEvents = Codecs.unionCodecs[OldApplicationEvent](formatOldApplicationEvent)
 
   implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
   implicit val formatActor: OFormat[Actor] = Union.from[Actor]("actorType")
@@ -58,9 +45,15 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
+    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
+    .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
+    .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
+    .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
+    .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
+    .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
+    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
+    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
-
-  val mongoCodecsForAppEvents = Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent)
 
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
@@ -79,17 +72,6 @@ object JsonRequestFormatters {
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
 
-  implicit val formatOldApplicationEvent: Format[OldApplicationEvent] = Union.from[OldApplicationEvent]("eventType")
-    .and[TeamMemberAddedEvent](OldEventType.TEAM_MEMBER_ADDED.toString)
-    .and[TeamMemberRemovedEvent](OldEventType.TEAM_MEMBER_REMOVED.toString)
-    .and[ClientSecretAddedEvent](OldEventType.CLIENT_SECRET_ADDED.toString)
-    .and[ClientSecretRemovedEvent](OldEventType.CLIENT_SECRET_REMOVED.toString)
-    .and[RedirectUrisUpdatedEvent](OldEventType.REDIRECT_URIS_UPDATED.toString)
-    .and[PpnsCallBackUriUpdatedEvent](OldEventType.PPNS_CALLBACK_URI_UPDATED.toString)
-    .and[ApiSubscribedEvent](OldEventType.API_SUBSCRIBED.toString)
-    .and[ApiUnsubscribedEvent](OldEventType.API_UNSUBSCRIBED.toString)
-    .format
-
   implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
   implicit val formatActor: OFormat[Actor] = Union.from[Actor]("actorType")
     .and[GatekeeperUserActor](ActorType.GATEKEEPER.toString)
@@ -97,7 +79,15 @@ object JsonRequestFormatters {
 
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
 
-  implicit val formatApplicationEvent: Format[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
+  implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
+    .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
+    .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
+    .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
+    .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
+    .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
+    .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
+    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
+    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
 }

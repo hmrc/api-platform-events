@@ -19,17 +19,14 @@ package uk.gov.hmrc.apiplatformevents.services
 import com.google.inject.Singleton
 
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, OldApplicationEvent}
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, OldApplicationEventsRepository}
+import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.Future
 
 @Singleton
-class ApplicationEventsService @Inject()(oldRepo: OldApplicationEventsRepository, repo: ApplicationEventsRepository) {
+class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
   def captureEvent[A <: ApplicationEvent](event : A): Future[Boolean] ={
     repo.createEntity(event)
-  }
-  def captureOldEvent[A <: OldApplicationEvent](event : A): Future[Boolean] ={
-    oldRepo.createEntity(event)
   }
 }

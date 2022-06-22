@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
 import uk.gov.hmrc.apiplatformevents.models.common.{OldActor, ActorType, EventId, OldEventType}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.repository.{OldApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
@@ -56,7 +56,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     val mockAppConfig: AppConfig = mock[AppConfig]
     val mockConfiguration = mock[Configuration]
     val mockLockRepository: MongoLockRepository = mock[MongoLockRepository]
-    val applicationEventsRepository: OldApplicationEventsRepository = mock[OldApplicationEventsRepository]
+    val applicationEventsRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
     val notificationsRepository: NotificationsRepository = mock[NotificationsRepository]
     val emailConnector: EmailConnector = mock[EmailConnector]
     val thirdPartyApplicationConnector: ThirdPartyApplicationConnector = mock[ThirdPartyApplicationConnector]
@@ -109,7 +109,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
    when(notificationsRepository.createEntity(eqTo(expectedNotification))).thenReturn(successful(true))
     }
 
-    def primeApplicationEventsRepositorySuccess(events: Seq[OldApplicationEvent]): Unit ={
+    def primeApplicationEventsRepositorySuccess(events: Seq[ApplicationEvent]): Unit ={
       when(applicationEventsRepository.fetchEventsToNotify(OldEventType.PPNS_CALLBACK_URI_UPDATED))
         .thenReturn(Future.successful(events))
     }

@@ -35,37 +35,14 @@ object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
 
 case class OldActor(id: String, actorType: ActorType)
 
-sealed trait OldEventType extends EnumEntry
-
-object OldEventType extends  Enum[OldEventType] with PlayJsonEnum[OldEventType]  {
-  val values: immutable.IndexedSeq[OldEventType] = findValues
-
-  case object  API_SUBSCRIBED extends OldEventType
-  case object  API_UNSUBSCRIBED extends OldEventType
-
-  case object  CLIENT_SECRET_ADDED extends OldEventType
-  case object  CLIENT_SECRET_REMOVED extends OldEventType
-
-  case object  PPNS_CALLBACK_URI_UPDATED extends OldEventType
-
-  case object  REDIRECT_URIS_UPDATED extends OldEventType
-
-  case object  TEAM_MEMBER_ADDED extends OldEventType
-  case object  TEAM_MEMBER_REMOVED extends OldEventType
-}
-
 case class EventId(value: UUID) extends AnyVal
 object EventId {
   def random: EventId = EventId(UUID.randomUUID())
 }
 
-sealed trait Actor {
-  def actorType: ActorType
-}
+sealed trait Actor
 
-case class GatekeeperUserActor(email: String) extends Actor {
-  override val actorType: ActorType = ActorType.GATEKEEPER
-}
+case class GatekeeperUserActor(email: String) extends Actor
 
 sealed trait EventType extends EnumEntry
 
@@ -73,4 +50,16 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   val values: immutable.IndexedSeq[EventType] = findValues
 
   case object PROD_APP_NAME_CHANGED extends EventType
+  case object  API_SUBSCRIBED extends EventType
+  case object  API_UNSUBSCRIBED extends EventType
+
+  case object  CLIENT_SECRET_ADDED extends EventType
+  case object  CLIENT_SECRET_REMOVED extends EventType
+
+  case object  PPNS_CALLBACK_URI_UPDATED extends EventType
+
+  case object  REDIRECT_URIS_UPDATED extends EventType
+
+  case object  TEAM_MEMBER_ADDED extends EventType
+  case object  TEAM_MEMBER_REMOVED extends EventType
 }

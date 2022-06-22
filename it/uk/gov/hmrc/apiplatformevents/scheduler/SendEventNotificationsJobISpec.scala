@@ -4,7 +4,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.models.{Notification, NotificationStatus}
-import uk.gov.hmrc.apiplatformevents.repository.{OldApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsService
 import uk.gov.hmrc.apiplatformevents.support.{EmailService, MongoHelpers, ServerBaseISpec, ThirdPartyApplicationService}
 import uk.gov.hmrc.mongo.lock.MongoLockRepository
@@ -30,7 +30,7 @@ class SendEventNotificationsJobISpec extends ServerBaseISpec with MongoHelpers
   class Setup {
     val sendNotificationsJob: SendEventNotificationsService = app.injector.instanceOf[SendEventNotificationsService]
     val notificationsRepository: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
-    val applicationEventsRepository: OldApplicationEventsRepository = app.injector.instanceOf[OldApplicationEventsRepository]
+    val applicationEventsRepository: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
     val lockRepo: MongoLockRepository = app.injector.instanceOf[MongoLockRepository]
     removeAll(applicationEventsRepository)
     count(applicationEventsRepository) shouldBe 0

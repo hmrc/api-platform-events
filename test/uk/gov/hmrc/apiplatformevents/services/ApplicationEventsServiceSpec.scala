@@ -21,7 +21,7 @@ import org.mongodb.scala.MongoException
 import org.scalatest.concurrent.Eventually
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, GatekeeperUserActor, OldActor}
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, OldApplicationEventsRepository}
+import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, ApplicationEventsRepository}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
 
@@ -32,7 +32,7 @@ import java.time.LocalDateTime
 
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
-  val mockOldRepository: OldApplicationEventsRepository = mock[OldApplicationEventsRepository]
+  val mockOldRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(

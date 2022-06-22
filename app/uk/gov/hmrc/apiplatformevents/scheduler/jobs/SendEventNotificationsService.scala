@@ -18,9 +18,9 @@ package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.models.common.OldEventType.PPNS_CALLBACK_URI_UPDATED
-import uk.gov.hmrc.apiplatformevents.models.{OldApplicationEvent, Notification, PpnsCallBackUriUpdatedEvent}
-import uk.gov.hmrc.apiplatformevents.repository.{OldApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.models.common.EventType.PPNS_CALLBACK_URI_UPDATED
+import uk.gov.hmrc.apiplatformevents.models.{Notification, PpnsCallBackUriUpdatedEvent}
+import uk.gov.hmrc.apiplatformevents.repository._
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockException, UnknownExceptionOccurred}
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
@@ -32,9 +32,10 @@ import java.time.{Clock, LocalDateTime}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
+import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
 
 class SendEventNotificationsService @Inject()(appConfig: AppConfig,
-                                              applicationEventsRepository: OldApplicationEventsRepository,
+                                              applicationEventsRepository: ApplicationEventsRepository,
                                               lockRepositoryProvider: MongoLockRepository,
                                               notificationsRepository: NotificationsRepository,
                                               emailConnector: EmailConnector,
@@ -89,13 +90,13 @@ class SendEventNotificationsService @Inject()(appConfig: AppConfig,
     }
   }
 
-  private def processEvents(events: Seq[OldApplicationEvent])(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
+  private def processEvents(events: Seq[ApplicationEvent])(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
       Future.sequence{
         events.map(sendEventNotification)
       }
   }
 
-  private def sendEventNotification(event: OldApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
+  private def sendEventNotification(event: ApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
     logger.info(s"processing event: ${event.id}")
     event match {
          case ppnsEvent: PpnsCallBackUriUpdatedEvent =>
@@ -108,7 +109,7 @@ class SendEventNotificationsService @Inject()(appConfig: AppConfig,
                                           logger.error(s"Failed to send email notification for event ID ${ppnsEvent.id}", e)
                                           notificationsRepository.createEntity(Notification(ppnsEvent.id, LocalDateTime.now(clock), FAILED)).map(_ => ())
                                       }
-         case _ => Future.successful(logger.error(s"Event not of correct type to send notification ${event.eventType}"))
+         case _ => Future.successful(logger.error(s"Event not of correct type to send notification ${event.getClass()}"))
     }
 
   }
