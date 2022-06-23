@@ -41,6 +41,7 @@ import uk.gov.hmrc.lock.LockRepository
 import uk.gov.hmrc.mongo.{MongoConnector, MongoSpecSupport}
 
 import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.duration.{FiniteDuration, HOURS, SECONDS}
 import scala.concurrent.{ExecutionContext, Future}
 
 class PopulateEventIdsJobSpec extends AsyncHmrcSpec  with MongoSpecSupport {
@@ -51,6 +52,7 @@ class PopulateEventIdsJobSpec extends AsyncHmrcSpec  with MongoSpecSupport {
     private val reactiveMongoComponent = new ReactiveMongoComponent {
       override def mongoConnector: MongoConnector = mongoConnectorForTest
     }
+    val populateEventIdsJobConfig: PopulateEventIdsJobConfig = PopulateEventIdsJobConfig(FiniteDuration(60, SECONDS), FiniteDuration(24, HOURS), enabled = true, 1)
     val mockLockKeeper: PopulateEventIdsJobLockKeeper = new PopulateEventIdsJobLockKeeper(reactiveMongoComponent) {
       override def lockId: String = "testLock"
       override def repo: LockRepository = mock[LockRepository]
@@ -63,6 +65,7 @@ class PopulateEventIdsJobSpec extends AsyncHmrcSpec  with MongoSpecSupport {
     val mockApplicationEventsRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
     val underTest = new PopulateEventIdsJob(
       mockLockKeeper,
+      populateEventIdsJobConfig,
       mockApplicationEventsRepository
     )
   }

@@ -32,18 +32,15 @@ package uk.gov.hmrc.apiplatformevents.scheduled
  * limitations under the License.
  */
 
-
-import java.util.concurrent.TimeUnit.{HOURS, SECONDS}
 import com.google.inject.Singleton
 
 import javax.inject.Inject
 import org.joda.time.Duration
-import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.lock.{LockKeeper, LockRepository}
 
-import scala.concurrent.duration.{FiniteDuration, MINUTES}
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
