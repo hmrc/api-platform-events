@@ -408,7 +408,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"actor":{"user": "gk user", "actorType": "GATEKEEPER"},
            |"oldAppName": "oldAppName",
            |"newAppName": "newAppName",
-           |"requestingAdminName": "requestingAdminName"}""".stripMargin
+           |"requestingAdminEmail": "admin@example.com"}""".stripMargin
 
     "return 201 when post request is valid json" in {
       when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))

@@ -95,5 +95,5 @@ trait ApplicationEventTestData {
     actor = GatekeeperUserActor("iam@admin.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
-    requestingAdminName = "mr admin")
+    requestingAdminEmail = "admin@example.com")
 }

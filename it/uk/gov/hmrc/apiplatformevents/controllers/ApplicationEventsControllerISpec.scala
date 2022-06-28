@@ -77,7 +77,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"oldCallbackUrl": "$oldCallbackUrl",
          |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
-  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminName: String): String =
+  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
@@ -85,7 +85,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"actor": { "user": "$actorUser", "actorType": "$actorTypeGK" },
          |"oldAppName": "$oldAppName",
          |"newAppName": "$newAppName",
-         |"requestingAdminName": "$requestingAdminName"}""".stripMargin
+         |"requestingAdminEmail": "$requestingAdminEmail"}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -294,9 +294,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       "respond with 201 when valid json is sent" in {
         val oldAppName = "old name"
         val newAppName = "new name"
-        val requestingAdminName = "mrs admin"
+        val requestingAdminEmail = "admin@example.com"
 
-        testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminName))
+        testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminEmail))
 
         val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
@@ -305,7 +305,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldAppName shouldBe oldAppName
         event.newAppName shouldBe newAppName
-        event.requestingAdminName shouldBe requestingAdminName
+        event.requestingAdminEmail shouldBe requestingAdminEmail
 
         event.actor match {
           case GatekeeperUserActor(name) => name shouldBe actorUser

@@ -49,7 +49,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
     actor = GatekeeperUserActor("gk@example.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
-    requestingAdminName = "mr admin")
+    requestingAdminEmail = "admin@example.com")
 
   implicit val hc: HeaderCarrier =
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
