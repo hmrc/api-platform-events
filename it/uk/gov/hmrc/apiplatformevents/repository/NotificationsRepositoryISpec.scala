@@ -15,22 +15,21 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.models.common.EventId
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NotificationsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with DefaultPlayMongoRepositorySupport[Notification] {
+class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongoRepositorySupport[Notification] {
 
-  protected def appBuilder: GuiceApplicationBuilder =
+  override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
