@@ -108,7 +108,7 @@ class SendEventNotificationsService @Inject()(appConfig: AppConfig,
                                           logger.error(s"Failed to send email notification for event ID ${ppnsEvent.id}", e)
                                           notificationsRepository.createEntity(Notification(ppnsEvent.id, LocalDateTime.now(clock), FAILED)).map(_ => ())
                                       }
-         case _ => Future.successful(logger.error(s"Event not of correct type to send notification ${event.eventType}"))
+         case _ => Future.successful(logger.error(s"Event not of correct type to send notification ${event.getClass.getSimpleName}"))
     }
 
   }

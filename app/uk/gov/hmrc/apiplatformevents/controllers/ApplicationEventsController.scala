@@ -42,8 +42,13 @@ class ApplicationEventsController @Inject()(
 ) extends BackendController(cc) with ApplicationLogger {
 
  
+  def handleEvent(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+    withJsonBody[ApplicationEvent] { event =>
+      service.captureEvent(event) map mapResult recover recovery
+    }
+  }
 
-def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+  def ppnsCallbackUriUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[PpnsCallBackUriUpdatedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }

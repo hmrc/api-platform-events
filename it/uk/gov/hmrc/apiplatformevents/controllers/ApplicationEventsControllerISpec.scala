@@ -4,7 +4,7 @@ import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.EventId
+import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, GatekeeperUserActor}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
@@ -24,14 +24,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
     await(repo.collection.drop().toFuture())
   }
 
-  val url = s"http://localhost:$port/application-events"
+  val url = s"http://localhost:$port"
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val eventId: UUID = EventId.random.value
   val applicationId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
-  val actorTypeGK = "GATEKEEPER"
+  val actorEmail = "actor@example.com"
+  val actorTypeGK = ActorType.GATEKEEPER
+  val actorUser = "gatekeeper"
   val eventDateTimeString = "2014-01-01T13:13:34.441"
 
   def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
@@ -75,6 +77,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"oldCallbackUrl": "$oldCallbackUrl",
          |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
+  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "PROD_APP_NAME_CHANGED",
+         |"actor": { "user": "$actorUser", "actorType": "$actorTypeGK" },
+         |"oldAppName": "$oldAppName",
+         |"newAppName": "$newAppName",
+         |"requestingAdminEmail": "$requestingAdminEmail"}""".stripMargin
+
   def doGet(path: String): Future[WSResponse] = {
     wsClient
       .url(s"$url$path")
@@ -88,11 +100,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       .post(body)
   }
 
-  def checkCommonEventValues[A <: ApplicationEvent](event: A): Unit = {
+  def checkCommonEventValues(event: ApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
     event.eventDateTime.toString shouldBe eventDateTimeString
-    event.actor.id shouldBe actorId
-    event.actor.actorType.toString shouldBe actorTypeGK
   }
 
   "ApplicationEventsController" when {
@@ -102,7 +112,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val teamMemberEmail = "bob@bob.com"
         val adminRole = "ADMIN"
 
-        testSuccessScenario("/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
+        testSuccessScenario("/application-events/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[TeamMemberAddedEvent]
@@ -110,10 +120,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/teamMemberAdded")
+        testErrorScenarios("/application-events/teamMemberAdded")
       }
     }
 
@@ -122,7 +134,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val teamMemberEmail = "bob@bob.com"
         val adminRole = "ADMIN"
 
-        testSuccessScenario("/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
+        testSuccessScenario("/application-events/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
@@ -131,10 +143,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/teamMemberRemoved")
+        testErrorScenarios("/application-events/teamMemberRemoved")
       }
     }
 
@@ -142,7 +156,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       "respond with 201 when valid json is sent" in {
         val clientSecretId = ju.UUID.randomUUID().toString
 
-        testSuccessScenario("/clientSecretAdded", validClientSecretJsonBody(clientSecretId))
+        testSuccessScenario("/application-events/clientSecretAdded", validClientSecretJsonBody(clientSecretId))
 
 
         val results = await(repo.collection.find().toFuture())
@@ -151,11 +165,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/clientSecretAdded")
+        testErrorScenarios("/application-events/clientSecretAdded")
       }
     }
 
@@ -163,7 +178,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       "respond with 201 when valid json is sent" in {
         val clientSecretId = ju.UUID.randomUUID().toString
 
-        testSuccessScenario("/clientSecretRemoved", validClientSecretJsonBody(clientSecretId))
+        testSuccessScenario("/application-events/clientSecretRemoved", validClientSecretJsonBody(clientSecretId))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
@@ -171,10 +186,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/clientSecretRemoved")
+        testErrorScenarios("/application-events/clientSecretRemoved")
       }
     }
 
@@ -183,7 +200,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val oldRedirectUri = "oldrdu"
         val newRedirectUri = "newrdu"
 
-        testSuccessScenario("/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody(oldRedirectUri, newRedirectUri))
+        testSuccessScenario("/application-events/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody(oldRedirectUri, newRedirectUri))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
@@ -192,10 +209,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldRedirectUris shouldBe oldRedirectUri
         event.newRedirectUris shouldBe newRedirectUri
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/redirectUrisUpdated")
+        testErrorScenarios("/application-events/redirectUrisUpdated")
       }
     }
 
@@ -204,7 +223,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val apiContext = "apicontext"
         val apiVersion = "1.0"
 
-        testSuccessScenario("/apiSubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
+        testSuccessScenario("/application-events/apiSubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
         val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ApiSubscribedEvent]
@@ -212,10 +231,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/apiSubscribed")
+        testErrorScenarios("/application-events/apiSubscribed")
       }
     }
 
@@ -224,7 +245,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val apiContext = "apicontext"
         val apiVersion = "1.0"
 
-        testSuccessScenario("/apiUnsubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
+        testSuccessScenario("/application-events/apiUnsubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ApiUnsubscribedEvent]
@@ -232,10 +253,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/apiUnsubscribed")
+        testErrorScenarios("/application-events/apiUnsubscribed")
       }
     }
 
@@ -246,7 +269,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val oldCallbackUrl = "https://foo.bar/baz"
         val newCallbackUrl = "https://foo.bar/bazbazbaz"
 
-        testSuccessScenario("/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
+        testSuccessScenario("/application-events/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
 
         val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
@@ -257,10 +280,42 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.oldCallbackUrl shouldBe oldCallbackUrl
         event.newCallbackUrl shouldBe newCallbackUrl
         event.boxName shouldBe boxName
+        event.actor.actorType shouldBe actorTypeGK
+        event.actor.id shouldBe actorId
       }
 
       "handle error scenarios correctly" in {
-        testErrorScenarios("/ppnsCallbackUriUpdated")
+        testErrorScenarios("/application-events/ppnsCallbackUriUpdated")
+      }
+
+    }
+
+    "POST /application-event" should {
+      "respond with 201 when valid json is sent" in {
+        val oldAppName = "old name"
+        val newAppName = "new name"
+        val requestingAdminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminEmail))
+
+        val results =await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionAppNameChangedEvent]
+
+        checkCommonEventValues(event)
+        event.oldAppName shouldBe oldAppName
+        event.newAppName shouldBe newAppName
+        event.requestingAdminEmail shouldBe requestingAdminEmail
+
+        event.actor match {
+          case GatekeeperUserActor(name) => name shouldBe actorUser
+          case _ => fail("expected GatekeeperUserActor")
+        }
+
+      }
+
+      "handle error scenarios correctly" in {
+        testErrorScenarios("/application-event")
       }
 
     }

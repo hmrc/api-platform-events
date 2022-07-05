@@ -15,21 +15,20 @@
  */
 package uk.gov.hmrc.apiplatformevents.repository
 
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
+import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
+import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 
-class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with ApplicationEventTestData {
+class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
 
-  protected def appBuilder: GuiceApplicationBuilder =
+  override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
@@ -38,15 +37,12 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
   val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
   val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
-
   override def beforeEach() {
     await(notificationsRepo.collection.drop().toFuture())
     await(notificationsRepo.ensureIndexes)
     await(repo.collection.drop().toFuture())
     await(repo.ensureIndexes)
-
   }
-
 
   "createEntity" should {
     "create a teamMemberRemoved entity" in {
@@ -82,6 +78,11 @@ class ApplicationEventsRepositoryISpec extends AsyncHmrcSpec with GuiceOneAppPer
     "create an apiUnsubsribed entity" in {
       await(repo.createEntity(apiUnsubscribedModel))
       await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
+    }
+
+    "create an productionAppNameChangedEvent entity" in {
+      await(repo.createEntity(productionAppNameChangedEvent))
+      await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
     }
   }
 

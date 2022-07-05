@@ -16,92 +16,77 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, OldActor}
 
 import java.time.LocalDateTime
 
 sealed trait ApplicationEvent {
-  val id: EventId
-  val applicationId: String
-  val eventDateTime: LocalDateTime
-  val actor: Actor
-  
-  def eventType: EventType
+  def id: EventId
+  def applicationId: String
+  def eventDateTime: LocalDateTime
 }
 
-case class TeamMemberAddedEvent(override val id: EventId,
-                                override val applicationId: String,
-                                override val eventDateTime: LocalDateTime,
-                                override val actor: Actor,
+case class TeamMemberAddedEvent(id: EventId,
+                                applicationId: String,
+                                eventDateTime: LocalDateTime,
+                                actor: OldActor,
                                 teamMemberEmail: String,
-                                teamMemberRole: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.TEAM_MEMBER_ADDED
-}
+                                teamMemberRole: String) extends ApplicationEvent
 
-
-case class TeamMemberRemovedEvent(override val id: EventId,
-                                  override val applicationId: String,
-                                  override val eventDateTime: LocalDateTime,
-                                  override val actor: Actor,
+case class TeamMemberRemovedEvent(id: EventId,
+                                  applicationId: String,
+                                  eventDateTime: LocalDateTime,
+                                  actor: OldActor,
                                   teamMemberEmail: String,
-                                  teamMemberRole: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.TEAM_MEMBER_REMOVED
-}
+                                  teamMemberRole: String) extends ApplicationEvent
 
-case class ClientSecretAddedEvent(override val id: EventId,
-                                  override val applicationId: String,
-                                  override val eventDateTime: LocalDateTime,
-                                  override val actor: Actor,
-                                  clientSecretId: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.CLIENT_SECRET_ADDED
-}
+case class ClientSecretAddedEvent(id: EventId,
+                                  applicationId: String,
+                                  eventDateTime: LocalDateTime,
+                                  actor: OldActor,
+                                  clientSecretId: String) extends ApplicationEvent
 
-
-case class ClientSecretRemovedEvent(override val id: EventId,
-                                    override val applicationId: String,
-                                    override val eventDateTime: LocalDateTime,
-                                    override val actor: Actor,
-                                    clientSecretId: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.CLIENT_SECRET_REMOVED
-}
+case class ClientSecretRemovedEvent(id: EventId,
+                                    applicationId: String,
+                                    eventDateTime: LocalDateTime,
+                                    actor: OldActor,
+                                    clientSecretId: String) extends ApplicationEvent
 
 
-case class PpnsCallBackUriUpdatedEvent(override val id: EventId,
-                                       override val applicationId: String,
-                                       override val eventDateTime: LocalDateTime,
-                                       override val actor: Actor,
+case class PpnsCallBackUriUpdatedEvent(id: EventId,
+                                       applicationId: String,
+                                       eventDateTime: LocalDateTime,
+                                       actor: OldActor,
                                        boxId: String,
                                        boxName: String,
                                        oldCallbackUrl: String,
-                                       newCallbackUrl: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.PPNS_CALLBACK_URI_UPDATED
-}
+                                       newCallbackUrl: String) extends ApplicationEvent
 
-case class RedirectUrisUpdatedEvent(override val id: EventId,
-                                    override val applicationId: String,
-                                    override val eventDateTime: LocalDateTime,
-                                    override val actor: Actor,
+case class RedirectUrisUpdatedEvent(id: EventId,
+                                    applicationId: String,
+                                    eventDateTime: LocalDateTime,
+                                    actor: OldActor,
                                     oldRedirectUris: String,
-                                    newRedirectUris: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.REDIRECT_URIS_UPDATED
-}
+                                    newRedirectUris: String) extends ApplicationEvent
 
-
-case class ApiSubscribedEvent(override val id: EventId,
-                              override val applicationId: String,
-                              override val eventDateTime: LocalDateTime,
-                              override val actor: Actor,
+case class ApiSubscribedEvent(id: EventId,
+                              applicationId: String,
+                              eventDateTime: LocalDateTime,
+                              actor: OldActor,
                               context: String,
-                              version: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.API_SUBSCRIBED
-}
+                              version: String) extends ApplicationEvent
 
-
-case class ApiUnsubscribedEvent(override val id: EventId,
-                                override val applicationId: String,
-                                override val eventDateTime: LocalDateTime,
-                                override val actor: Actor,
+case class ApiUnsubscribedEvent(id: EventId,
+                                applicationId: String,
+                                eventDateTime: LocalDateTime,
+                                actor: OldActor,
                                 context: String,
-                                version: String) extends ApplicationEvent {
-  override val eventType: EventType = EventType.API_UNSUBSCRIBED
-}
+                                version: String) extends ApplicationEvent
+
+case class ProductionAppNameChangedEvent(id: EventId,
+                                         applicationId: String,
+                                         eventDateTime: LocalDateTime,
+                                         actor: Actor,
+                                         oldAppName: String,
+                                         newAppName: String,
+                                         requestingAdminEmail: String) extends ApplicationEvent

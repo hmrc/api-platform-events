@@ -27,7 +27,7 @@ import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId, EventType}
+import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, EventType, OldActor}
 import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
@@ -79,7 +79,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     val mongoLockId = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event = PpnsCallBackUriUpdatedEvent(EventId.random, "appId", LocalDateTime.now(), Actor("iam@admin.com", ActorType.GATEKEEPER),
+    val event = PpnsCallBackUriUpdatedEvent(EventId.random, "appId", LocalDateTime.now(), OldActor("iam@admin.com", ActorType.GATEKEEPER),
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
   def primeLockRepository() = {

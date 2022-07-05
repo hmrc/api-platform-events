@@ -17,11 +17,10 @@
 package uk.gov.hmrc.apiplatformevents.services
 
 import java.util.UUID
-
 import org.mongodb.scala.MongoException
 import org.scalatest.concurrent.Eventually
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, EventId}
+import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, GatekeeperUserActor, OldActor}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
@@ -39,10 +38,18 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
     eventDateTime= LocalDateTime.now,
-    actor = Actor("iam@admin.com", ActorType.GATEKEEPER),
+    actor = OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
     teamMemberRole = "ADMIN")
 
+  val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime= LocalDateTime.now,
+    actor = GatekeeperUserActor("gk@example.com"),
+    oldAppName = "old app name",
+    newAppName = "new app name",
+    requestingAdminEmail = "admin@example.com")
 
   implicit val hc: HeaderCarrier =
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
@@ -50,12 +57,12 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
       requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
-    def primeService(repoResult: Boolean, repoThrowsException: Boolean) = {
+    def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: ApplicationEvent) = {
       if (repoThrowsException) {
-        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
+        when(mockRepository.createEntity(eqTo(appEvent)))
           .thenReturn(Future.failed(new MongoException("some mongo error")))
       } else {
-        when(mockRepository.createEntity(eqTo(validAddTeamMemberModel)))
+        when(mockRepository.createEntity(eqTo(appEvent)))
           .thenReturn(Future.successful(repoResult))
       }
     }
@@ -63,22 +70,44 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
     val inTest = new ApplicationEventsService(mockRepository)
   }
 
-  "Capture event" should {
+  "Capture old event" should {
     "send an event to the repository and return true when saved" in new Setup {
-      primeService(repoResult = true, repoThrowsException = false)
+      primeService(repoResult = true, repoThrowsException = false, validAddTeamMemberModel)
       await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe true
     }
 
     "fail and return false when repository capture event fails" in new Setup {
-      primeService(repoResult = false, repoThrowsException = false)
+      primeService(repoResult = false, repoThrowsException = false, validAddTeamMemberModel)
       await(inTest.captureEvent(validAddTeamMemberModel)) shouldBe false
     }
 
     "handle error" in new Setup {
-      primeService(repoResult = false, repoThrowsException = true)
+      primeService(repoResult = false, repoThrowsException = true, validAddTeamMemberModel)
 
       val exception: MongoException = intercept[MongoException] {
         await(inTest.captureEvent(validAddTeamMemberModel))
+      }
+
+      exception.getMessage shouldBe "some mongo error"
+    }
+  }
+
+  "Capture event" should {
+    "send an event to the repository and return true when saved" in new Setup {
+      primeService(repoResult = true, repoThrowsException = false, validProdAppNameChange)
+      await(inTest.captureEvent(validProdAppNameChange)) shouldBe true
+    }
+
+    "fail and return false when repository capture event fails" in new Setup {
+      primeService(repoResult = false, repoThrowsException = false, validProdAppNameChange)
+      await(inTest.captureEvent(validProdAppNameChange)) shouldBe false
+    }
+
+    "handle error" in new Setup {
+      primeService(repoResult = false, repoThrowsException = true, validProdAppNameChange)
+
+      val exception: MongoException = intercept[MongoException] {
+        await(inTest.captureEvent(validProdAppNameChange))
       }
 
       exception.getMessage shouldBe "some mongo error"

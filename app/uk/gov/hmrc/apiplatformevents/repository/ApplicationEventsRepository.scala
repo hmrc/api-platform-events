@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
-
 import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
@@ -29,6 +28,7 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatformevents.models.Codecs
 
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
@@ -49,7 +49,7 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
             .unique(false)
             .background(true))
       ),
-      extraCodecs  = mongoCodecs,
+      extraCodecs  = Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent),
       replaceIndexes = true
     ) {
 
@@ -57,12 +57,12 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
   def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType): Future[Seq[ApplicationEvent]] = {
-      collection.aggregate(
-        Seq(
-          filter(equal("eventType", eventType.entryName)),
-          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
-          filter(size("matched", 0))
-        )
-      ).toFuture()
+    collection.aggregate(
+      Seq(
+        filter(equal("eventType", eventType.entryName)),
+        lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
+        filter(size("matched", 0))
+      )
+    ).toFuture()
   }
 }
