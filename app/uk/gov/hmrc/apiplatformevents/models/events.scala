@@ -90,3 +90,10 @@ case class ProductionAppNameChangedEvent(id: EventId,
                                          oldAppName: String,
                                          newAppName: String,
                                          requestingAdminEmail: String) extends ApplicationEvent
+
+case class ProductionAppPrivacyPolicyLocationChanged(id: EventId,
+                                                     applicationId: String,
+                                                     eventDateTime: LocalDateTime,
+                                                     actor: Actor,
+                                                     oldLocation: PrivacyPolicyLocation,
+                                                     newLocation: PrivacyPolicyLocation) extends ApplicationEvent
