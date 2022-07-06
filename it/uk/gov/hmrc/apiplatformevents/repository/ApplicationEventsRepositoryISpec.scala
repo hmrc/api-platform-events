@@ -80,9 +80,14 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.collection.find().toFuture()) should contain only apiUnsubscribedModel
     }
 
-    "create an productionAppNameChangedEvent entity" in {
+    "create a productionAppNameChangedEvent entity" in {
       await(repo.createEntity(productionAppNameChangedEvent))
       await(repo.collection.find().toFuture()) should contain only productionAppNameChangedEvent
+    }
+
+    "create a productionAppPrivacyPolicyLocationChanged entity" in {
+      await(repo.createEntity(productionAppPrivacyPolicyLocationChangedEvent))
+      await(repo.collection.find().toFuture()) should contain only productionAppPrivacyPolicyLocationChangedEvent
     }
   }
 

@@ -38,7 +38,7 @@ case class OldActor(id: String, actorType: ActorType)
 sealed trait Actor
 
 case class GatekeeperUserActor(user: String) extends Actor
-//case class CollaboratorActor(email: String) extends Actor
+case class CollaboratorActor(email: String) extends Actor
 //case class ScheduledJobActor(jobId: String) extends Actor
 //case class UnknownActor() extends Actor
 
@@ -48,6 +48,7 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   val values: immutable.IndexedSeq[EventType] = findValues
 
   case object PROD_APP_NAME_CHANGED extends EventType
+  case object PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED extends EventType
   case object  API_SUBSCRIBED extends EventType
   case object  API_UNSUBSCRIBED extends EventType
 

@@ -4,7 +4,7 @@ import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, GatekeeperUserActor}
+import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, CollaboratorActor, EventId, GatekeeperUserActor}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
@@ -33,6 +33,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val actorId = "123454654"
   val actorEmail = "actor@example.com"
   val actorTypeGK = ActorType.GATEKEEPER
+  val actorTypeCollab = ActorType.COLLABORATOR
   val actorUser = "gatekeeper"
   val eventDateTimeString = "2014-01-01T13:13:34.441"
 
@@ -86,6 +87,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"oldAppName": "$oldAppName",
          |"newAppName": "$newAppName",
          |"requestingAdminEmail": "$requestingAdminEmail"}""".stripMargin
+
+  def validProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"newLocation": {"privacyPolicyType":"url", "value":"$newUrl"},
+         |"oldLocation": {"privacyPolicyType":"url", "value":"$oldUrl"}}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -291,7 +301,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
     }
 
     "POST /application-event" should {
-      "respond with 201 when valid json is sent" in {
+      "respond with 201 when valid prod app name changed json is sent" in {
         val oldAppName = "old name"
         val newAppName = "new name"
         val requestingAdminEmail = "admin@example.com"
@@ -312,6 +322,23 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
           case _ => fail("expected GatekeeperUserActor")
         }
 
+      }
+
+      "respond with 201 when valid prod app privacy policy location changed json is sent" in {
+        val oldUrl = "http://example.com/old"
+        val newUrl = "http://example.com/new"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
+
+        val results =await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionAppPrivacyPolicyLocationChanged]
+
+        checkCommonEventValues(event)
+        event.oldLocation shouldBe PrivacyPolicyLocation.Url(oldUrl)
+        event.newLocation shouldBe PrivacyPolicyLocation.Url(newUrl)
+        event.actor shouldBe CollaboratorActor(adminEmail)
       }
 
       "handle error scenarios correctly" in {
