@@ -96,4 +96,13 @@ case class ProductionAppPrivacyPolicyLocationChanged(id: EventId,
                                                      eventDateTime: LocalDateTime,
                                                      actor: Actor,
                                                      oldLocation: PrivacyPolicyLocation,
-                                                     newLocation: PrivacyPolicyLocation) extends ApplicationEvent
+                                                     newLocation: PrivacyPolicyLocation,
+                                                     requestingAdminEmail: String) extends ApplicationEvent
+
+case class ProductionLegacyAppPrivacyPolicyLocationChanged(id: EventId,
+                                                           applicationId: String,
+                                                           eventDateTime: LocalDateTime,
+                                                           actor: Actor,
+                                                           oldUrl: String,
+                                                           newUrl: String,
+                                                           requestingAdminEmail: String) extends ApplicationEvent

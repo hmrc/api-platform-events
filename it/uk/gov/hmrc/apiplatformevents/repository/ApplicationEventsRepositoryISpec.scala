@@ -89,6 +89,11 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.createEntity(productionAppPrivacyPolicyLocationChangedEvent))
       await(repo.collection.find().toFuture()) should contain only productionAppPrivacyPolicyLocationChangedEvent
     }
+
+    "create a productionLegacyAppPrivacyPolicyLocationChangedEvent entity" in {
+      await(repo.createEntity(productionLegacyAppPrivacyPolicyLocationChangedEvent))
+      await(repo.collection.find().toFuture()) should contain only productionLegacyAppPrivacyPolicyLocationChangedEvent
+    }
   }
 
   "fetchEventsToNotify" should {

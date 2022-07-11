@@ -95,7 +95,18 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"eventType": "PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
          |"newLocation": {"privacyPolicyType":"url", "value":"$newUrl"},
-         |"oldLocation": {"privacyPolicyType":"url", "value":"$oldUrl"}}""".stripMargin
+         |"oldLocation": {"privacyPolicyType":"url", "value":"$oldUrl"},
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
+  def validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"newUrl": "$newUrl",
+         |"oldUrl": "$oldUrl",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -338,6 +349,23 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldLocation shouldBe PrivacyPolicyLocation.Url(oldUrl)
         event.newLocation shouldBe PrivacyPolicyLocation.Url(newUrl)
+        event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid legacy prod app privacy policy location changed json is sent" in {
+        val oldUrl = "http://example.com/old"
+        val newUrl = "http://example.com/new"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
+
+        val results =await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionLegacyAppPrivacyPolicyLocationChanged]
+
+        checkCommonEventValues(event)
+        event.oldUrl shouldBe oldUrl
+        event.newUrl shouldBe newUrl
         event.actor shouldBe CollaboratorActor(adminEmail)
       }
 

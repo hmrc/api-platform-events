@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.data
 
-import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, PpnsCallBackUriUpdatedEvent, PrivacyPolicyLocation, ProductionAppNameChangedEvent, ProductionAppPrivacyPolicyLocationChanged, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
+import uk.gov.hmrc.apiplatformevents.models.{ApiSubscribedEvent, ApiUnsubscribedEvent, ClientSecretAddedEvent, ClientSecretRemovedEvent, PpnsCallBackUriUpdatedEvent, PrivacyPolicyLocation, ProductionAppNameChangedEvent, ProductionAppPrivacyPolicyLocationChanged, ProductionLegacyAppPrivacyPolicyLocationChanged, RedirectUrisUpdatedEvent, TeamMemberAddedEvent, TeamMemberRemovedEvent}
 import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, CollaboratorActor, EventId, GatekeeperUserActor, OldActor}
 
 import java.time.LocalDateTime
@@ -103,5 +103,15 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
     oldLocation = PrivacyPolicyLocation.InDesktopSoftware,
-    newLocation = PrivacyPolicyLocation.Url("http://example.com"))
+    newLocation = PrivacyPolicyLocation.Url("http://example.com"),
+    requestingAdminEmail = "admin@example.com")
+
+  val productionLegacyAppPrivacyPolicyLocationChangedEvent: ProductionLegacyAppPrivacyPolicyLocationChanged = ProductionLegacyAppPrivacyPolicyLocationChanged(
+    id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd04")),
+    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    oldUrl = "http://example.com/old",
+    newUrl = "http://example.com/new",
+    requestingAdminEmail = "admin@example.com")
 }
