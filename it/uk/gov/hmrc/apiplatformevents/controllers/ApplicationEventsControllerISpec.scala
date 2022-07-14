@@ -108,6 +108,26 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"oldUrl": "$oldUrl",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
+  def validProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"newLocation": {"termsAndConditionsType":"url", "value":"$newUrl"},
+         |"oldLocation": {"termsAndConditionsType":"url", "value":"$oldUrl"},
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
+  def validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"newUrl": "$newUrl",
+         |"oldUrl": "$oldUrl",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
   def doGet(path: String): Future[WSResponse] = {
     wsClient
       .url(s"$url$path")
@@ -342,7 +362,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         testSuccessScenario("/application-event", validProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
-        val results =await(repo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ProductionAppPrivacyPolicyLocationChanged]
 
@@ -362,6 +382,40 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val results =await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ProductionLegacyAppPrivacyPolicyLocationChanged]
+
+        checkCommonEventValues(event)
+        event.oldUrl shouldBe oldUrl
+        event.newUrl shouldBe newUrl
+        event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid prod app t&cs location changed json is sent" in {
+        val oldUrl = "http://example.com/old"
+        val newUrl = "http://example.com/new"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionAppTermsConditionsLocationChanged]
+
+        checkCommonEventValues(event)
+        event.oldLocation shouldBe TermsAndConditionsLocation.Url(oldUrl)
+        event.newLocation shouldBe TermsAndConditionsLocation.Url(newUrl)
+        event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid legacy prod app t&cs location changed json is sent" in {
+        val oldUrl = "http://example.com/old"
+        val newUrl = "http://example.com/new"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionLegacyAppTermsConditionsLocationChanged]
 
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
