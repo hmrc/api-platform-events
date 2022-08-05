@@ -52,6 +52,7 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED extends EventType
   case object PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED extends EventType
   case object PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED extends EventType
+  case object RESPONSIBLE_INDIVIDUAL_CHANGED extends EventType
 
   case object  API_SUBSCRIBED extends EventType
   case object  API_UNSUBSCRIBED extends EventType

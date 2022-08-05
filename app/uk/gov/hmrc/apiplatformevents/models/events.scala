@@ -122,3 +122,14 @@ case class ProductionLegacyAppTermsConditionsLocationChanged(id: EventId,
                                                              oldUrl: String,
                                                              newUrl: String,
                                                              requestingAdminEmail: String) extends ApplicationEvent
+
+case class ResponsibleIndividualChanged(id: EventId,
+                                        applicationId: String,
+                                        eventDateTime: LocalDateTime,
+                                        actor: Actor,
+                                        responsibleIndividualName: String,
+                                        responsibleIndividualEmail: String,
+                                        submissionId: String,
+                                        submissionIndex: Int,
+                                        requestingAdminEmail: String
+                                       ) extends ApplicationEvent
