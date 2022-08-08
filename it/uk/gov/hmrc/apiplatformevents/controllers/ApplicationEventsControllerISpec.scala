@@ -30,6 +30,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   val eventId: UUID = EventId.random.value
   val applicationId: String = ju.UUID.randomUUID.toString
+  val submissionId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorEmail = "actor@example.com"
   val actorTypeGK = ActorType.GATEKEEPER
@@ -127,6 +128,19 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"newUrl": "$newUrl",
          |"oldUrl": "$oldUrl",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
+  def validResponsibleIndividualChangedJsonBody(riName: String, riEmail: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"responsibleIndividualName": "$riName",
+         |"responsibleIndividualEmail": "$riEmail",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -420,6 +434,23 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
         event.newUrl shouldBe newUrl
+        event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid responsible individual changed json is sent" in {
+        val riName = "Mr Responsible"
+        val riEmail = "ri@example.com"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validResponsibleIndividualChangedJsonBody(riName, riEmail, adminEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualChanged]
+
+        checkCommonEventValues(event)
+        event.responsibleIndividualName shouldBe riName
+        event.responsibleIndividualEmail shouldBe riEmail
         event.actor shouldBe CollaboratorActor(adminEmail)
       }
 

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-
 import org.bson._
 import org.bson.codecs.{Codec, DecoderContext, EncoderContext}
 import org.bson.json.{JsonMode, JsonReader, JsonWriter, JsonWriterSettings}
@@ -27,7 +26,6 @@ import play.api.libs.json._
 import org.mongodb.scala.{Document => ScalaDocument}
 import scala.reflect.runtime.universe._
 import scala.collection.JavaConverters._
-import scala.reflect.ClassTag
 
 trait Codecs {
   outer =>
