@@ -143,5 +143,17 @@ trait ApplicationEventTestData {
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
     requestingAdminEmail = "admin@example.com")
+
+  val responsibleIndividualVerificationStarted: ResponsibleIndividualVerificationStarted = ResponsibleIndividualVerificationStarted(
+    id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
+    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    applicationName = "my app",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    requestingAdminEmail = "admin@example.com")
 }
 

@@ -133,3 +133,15 @@ case class ResponsibleIndividualChanged(id: EventId,
                                         submissionIndex: Int,
                                         requestingAdminEmail: String
                                        ) extends ApplicationEvent
+
+case class ResponsibleIndividualVerificationStarted(id: EventId,
+                                                    applicationId: String,
+                                                    eventDateTime: LocalDateTime,
+                                                    actor: Actor,
+                                                    responsibleIndividualName: String,
+                                                    responsibleIndividualEmail: String,
+                                                    applicationName: String,
+                                                    submissionId: String,
+                                                    submissionIndex: Int,
+                                                    requestingAdminEmail: String
+                                                   ) extends ApplicationEvent
