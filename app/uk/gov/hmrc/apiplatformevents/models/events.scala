@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.models
 
 import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, OldActor}
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 
 sealed trait ApplicationEvent {
   def id: EventId
@@ -136,12 +136,14 @@ case class ResponsibleIndividualChanged(id: EventId,
 
 case class ResponsibleIndividualVerificationStarted(id: EventId,
                                                     applicationId: String,
+                                                    applicationName: String,
                                                     eventDateTime: LocalDateTime,
                                                     actor: Actor,
+                                                    requestingAdminName: String,
+                                                    requestingAdminEmail: String,
                                                     responsibleIndividualName: String,
                                                     responsibleIndividualEmail: String,
-                                                    applicationName: String,
                                                     submissionId: String,
                                                     submissionIndex: Int,
-                                                    requestingAdminEmail: String
+                                                    verificationId: String
                                                    ) extends ApplicationEvent
