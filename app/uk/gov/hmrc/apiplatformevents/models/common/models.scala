@@ -20,6 +20,7 @@ import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 import java.util.UUID
 import scala.collection.immutable
+import play.api.libs.json.Json
 
 
 sealed trait ActorType extends EnumEntry
@@ -66,6 +67,7 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
 
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
+
 }
 
 case class EventId(value: UUID) extends AnyVal
@@ -73,3 +75,10 @@ object EventId {
   def random: EventId = EventId(UUID.randomUUID())
 }
 
+case class ApplicationId(value: UUID) extends AnyVal
+
+object ApplicationId {
+  def random: ApplicationId = ApplicationId.random
+
+  implicit val format = Json.valueFormat[ApplicationId]
+}

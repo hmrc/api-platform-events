@@ -11,6 +11,7 @@ import uk.gov.hmrc.apiplatformevents.support.{MetricsTestSupport, ThirdPartyAppl
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
 
 class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with ThirdPartyApplicationService {
 
@@ -31,11 +32,11 @@ class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSup
   }
 
   "getApplicationName" should {
-    val applicationId = randomUUID.toString
+    val applicationId = ApplicationId.random
     val expectedApp = ApplicationResponse("foobar app", Set.empty)
 
     "retrieve application record based on provided clientId" in new SetUp() {
-      val jsonResponse: String = raw"""{"id":  "$applicationId", "name": "${expectedApp.name}", "collaborators": []}"""
+      val jsonResponse: String = raw"""{"id":  "${applicationId.value}", "name": "${expectedApp.name}", "collaborators": []}"""
       primeApplicationEndpoint(OK, jsonResponse, applicationId)
 
       val result: ApplicationResponse = await(objInTest.getApplication(applicationId))

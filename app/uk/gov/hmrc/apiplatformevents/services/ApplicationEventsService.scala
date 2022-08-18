@@ -18,14 +18,42 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.ApplicationEvent
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, HasActor, HasOldActor}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationId, EventType, GatekeeperUserActor, CollaboratorActor}
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository) {
+class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {
   def captureEvent[A <: ApplicationEvent](event : A): Future[Boolean] ={
     repo.createEntity(event)
+  }
+
+  def fetchEventsBy(applicationId: ApplicationId, year: Option[Int], eventType: Option[EventType], actor: Option[String]) = {
+    val yearFilter: ApplicationEvent => Boolean = { evt =>
+      year.fold(true)(matchYear => evt.eventDateTime.getYear == matchYear)
+    }
+
+    val actorFilter: ApplicationEvent => Boolean = { evt =>
+      actor.fold(true)(matchActor =>
+        evt match {
+          case e: ApplicationEvent with HasOldActor => e.actor.id == matchActor
+          case ea: ApplicationEvent with HasActor => 
+            ea.actor match {
+              case GatekeeperUserActor(user) => user == matchActor
+              case CollaboratorActor(email) => email == matchActor
+              case _ => true
+            }
+          case _ => true
+        }
+      )
+    }
+
+    repo.fetchEventsBy(applicationId, eventType)
+    .map(
+      evts => evts.filter(yearFilter).filter(actorFilter)
+    )
   }
 }

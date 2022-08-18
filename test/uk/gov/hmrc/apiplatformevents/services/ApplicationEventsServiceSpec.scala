@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformevents.services
 
-import java.util.UUID
 import org.mongodb.scala.MongoException
 import org.scalatest.concurrent.Eventually
 import uk.gov.hmrc.apiplatformevents.models._
@@ -24,11 +23,12 @@ import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, Gatekeep
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
 
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
@@ -36,7 +36,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
-    applicationId = UUID.randomUUID().toString,
+    applicationId = ApplicationId.random,
     eventDateTime= LocalDateTime.now,
     actor = OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
@@ -44,7 +44,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId.random,
-    applicationId = UUID.randomUUID().toString,
+    applicationId = ApplicationId.random,
     eventDateTime= LocalDateTime.now,
     actor = GatekeeperUserActor("gk@example.com"),
     oldAppName = "old app name",

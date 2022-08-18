@@ -21,12 +21,13 @@ import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, CollaboratorActor
 
 import java.time.LocalDateTime
 import java.util.UUID
+import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
 
 trait ApplicationEventTestData {
 
   val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId(UUID.fromString("21dbf54a-aa62-4217-a5c6-17e085e42105")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
@@ -34,7 +35,7 @@ trait ApplicationEventTestData {
 
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
     id = EventId(UUID.fromString("45a39393-d3a8-4c1b-9817-f4b8828b1b65")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "jkhkhk",
@@ -42,21 +43,21 @@ trait ApplicationEventTestData {
 
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
     id = EventId(UUID.fromString("7a152fa7-45e2-4fcf-9ef3-0b62b49bdc23")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
     id = EventId(UUID.fromString("3afd75ae-6a42-425a-b650-7259c3ba72fa")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
     id = EventId(UUID.fromString("04c391dc-2a16-4e6a-b5c8-aa10db742e3f")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     oldRedirectUris = "oldru",
@@ -64,7 +65,7 @@ trait ApplicationEventTestData {
 
   val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
     id = EventId(UUID.fromString("5308887f-f6d8-49f5-b2b4-8280fa7a5e60")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
@@ -72,7 +73,7 @@ trait ApplicationEventTestData {
 
   val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
     id = EventId(UUID.fromString("7005e378-1ed3-46d9-b786-fc0202807cf6")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d4",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     context = "apicontext",
@@ -80,7 +81,7 @@ trait ApplicationEventTestData {
 
   val ppnsCallBackUriUpdatedEvent: PpnsCallBackUriUpdatedEvent = PpnsCallBackUriUpdatedEvent(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     boxId = "boxId",
@@ -90,7 +91,7 @@ trait ApplicationEventTestData {
 
   val productionAppNameChangedEvent: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = GatekeeperUserActor("iam@admin.com"),
     oldAppName = "old app name",
@@ -99,7 +100,7 @@ trait ApplicationEventTestData {
 
   val productionAppPrivacyPolicyLocationChangedEvent: ProductionAppPrivacyPolicyLocationChanged = ProductionAppPrivacyPolicyLocationChanged(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
     oldLocation = PrivacyPolicyLocation.InDesktopSoftware,
@@ -108,7 +109,7 @@ trait ApplicationEventTestData {
 
   val productionLegacyAppPrivacyPolicyLocationChangedEvent: ProductionLegacyAppPrivacyPolicyLocationChanged = ProductionLegacyAppPrivacyPolicyLocationChanged(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd04")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
     oldUrl = "http://example.com/old",
@@ -117,7 +118,7 @@ trait ApplicationEventTestData {
 
   val productionAppTermsConditionsLocationChangedEvent: ProductionAppTermsConditionsLocationChanged = ProductionAppTermsConditionsLocationChanged(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
     oldLocation = TermsAndConditionsLocation.InDesktopSoftware,
@@ -126,7 +127,7 @@ trait ApplicationEventTestData {
 
   val productionLegacyAppTermsConditionsLocationChangedEvent: ProductionLegacyAppTermsConditionsLocationChanged = ProductionLegacyAppTermsConditionsLocationChanged(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
     oldUrl = "http://example.com/old",
@@ -135,7 +136,7 @@ trait ApplicationEventTestData {
 
   val responsibleIndividualChangedEvent: ResponsibleIndividualChanged = ResponsibleIndividualChanged(
     id = EventId(UUID.fromString("a5baebbb-a69d-4434-ba7a-573c274ffd03")),
-    applicationId = "e174ec96-5bd9-4530-91d8-473f019e5d41",
+    applicationId = ApplicationId.random,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
     responsibleIndividualName = "Mr Responsible",

@@ -3,11 +3,12 @@ package uk.gov.hmrc.apiplatformevents.support
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Collaborator, Role}
+import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
 
 trait ThirdPartyApplicationService {
-  private def applicationUrl(appId: String) = s"/application/$appId"
+  private def applicationUrl(appId: ApplicationId) = s"/application/${appId.value}"
 
-  def primeApplicationEndpoint(status : Int, body: String, applicationId: String): StubMapping = {
+  def primeApplicationEndpoint(status : Int, body: String, applicationId: ApplicationId): StubMapping = {
     stubFor(get(urlPathEqualTo(applicationUrl(applicationId)))
       .willReturn(
         aResponse()

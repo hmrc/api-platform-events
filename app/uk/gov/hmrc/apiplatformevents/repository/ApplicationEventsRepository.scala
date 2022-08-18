@@ -22,13 +22,14 @@ import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
-import uk.gov.hmrc.apiplatformevents.models.common.EventType
+import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationId, EventType}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformevents.models.Codecs
+import org.bson.conversions.Bson
 
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
@@ -64,5 +65,12 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
         filter(size("matched", 0))
       )
     ).toFuture()
+  }
+
+  def fetchEventsBy(applicationId: ApplicationId, eventType: Option[EventType]): Future[Seq[ApplicationEvent]] = {
+    val filters = Seq(filter(equal("applicationId", applicationId.value))) ++ (eventType.fold(Seq.empty[Bson])(et => Seq(filter(equal("eventType", et.entryName)))))
+
+    collection.aggregate(filters)
+    .toFuture()
   }
 }
