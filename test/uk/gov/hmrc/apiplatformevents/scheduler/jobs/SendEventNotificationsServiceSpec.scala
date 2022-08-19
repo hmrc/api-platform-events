@@ -42,7 +42,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
+import java.util.UUID
 
 class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with FutureAwaits with DefaultAwaitTimeout with LogCapturing with BeforeAndAfterEach {
 
@@ -80,7 +80,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     val mongoLockId = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event = PpnsCallBackUriUpdatedEvent(EventId.random, ApplicationId.random, LocalDateTime.now(), OldActor("iam@admin.com", ActorType.GATEKEEPER),
+    val event = PpnsCallBackUriUpdatedEvent(EventId.random, UUID.randomUUID().toString, LocalDateTime.now(), OldActor("iam@admin.com", ActorType.GATEKEEPER),
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
   def primeLockRepository() = {

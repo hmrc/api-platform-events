@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common._
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -28,38 +27,22 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.{ExecutionContext, Future}
 import cats.data.ValidatedNec
 import cats.implicits._
-import cats.implicits._
 import uk.gov.hmrc.apiplatformevents.models.common.EventType
 import play.api.libs.json.Json
 import JsonRequestFormatters._
 
-object QueryController {
+object QueryEventsController {
   case class QueryResponse(events: Seq[ApplicationEvent])
 
   object QueryResponse {
     implicit val format = Json.format[QueryResponse]
   }
-}
-
-@Singleton
-class QueryController @Inject()(
-  val env: Environment,
-  service: ApplicationEventsService,
-  playBodyParsers: PlayBodyParsers,
-  cc: ControllerComponents
-)(
-  implicit val configuration: Configuration,
-  ec: ExecutionContext
-) extends BackendController(cc) with ApplicationLogger {
-
-  import QueryController._
 
   type ValidationResult[A] = ValidatedNec[String, A]
 
-
   def validateYear(in: String): ValidationResult[Int] = {
     try {
-      in.toInt.validNec
+      (in.toInt).validNec
     } catch {
       case e: Exception => (s"$in is not a valid year").invalidNec
     }
@@ -74,26 +57,48 @@ class QueryController @Inject()(
   }
 
   def extractOption[A](param:String)(fn: String => ValidationResult[A])(implicit request: Request[_]) = {
-    request.queryString(param)
-    .headOption
+    request.getQueryString(param)
     .fold[ValidationResult[Option[A]]](None.validNec)(fn(_).map(Some(_)))
   }
 
-  def query(applicationId: ApplicationId)(year: Option[Int], eventType: Option[EventType], actor: Option[String]): Future[Seq[ApplicationEvent]] = {
-    service.fetchEventsBy(applicationId, year, eventType, actor)
-  }
-
-  def asResult(in: Future[Seq[ApplicationEvent]]): Future[Result] = {
-    in.map(evts => Ok(Json.toJson(QueryResponse(evts))))
-  }
-
-  def queryDispatcher(applicationId: ApplicationId) = Action.async { implicit request =>
-
+  def extractOptions(implicit request: Request[_]): (ValidationResult[Option[Int]], ValidationResult[Option[EventType]], ValidationResult[Option[String]]) = {
     val yearV = extractOption("year")(validateYear)
     
     val eventTypeV = extractOption("eventType")(validateEventType)
 
     val actorV = extractOption("actor")(validateActor)
+
+    (yearV, eventTypeV, actorV)
+  }
+}
+
+@Singleton
+class QueryEventsController @Inject()(
+  val env: Environment,
+  service: ApplicationEventsService,
+  playBodyParsers: PlayBodyParsers,
+  cc: ControllerComponents
+)(
+  implicit val configuration: Configuration,
+  ec: ExecutionContext
+) extends BackendController(cc) with ApplicationLogger {
+
+  import QueryEventsController._
+
+  implicit val orderEvents: Ordering[ApplicationEvent] = new Ordering[ApplicationEvent]() {
+    override def compare(x: ApplicationEvent, y: ApplicationEvent): Int = x.eventDateTime.compareTo(y.eventDateTime)
+  }
+
+  private def query(applicationId: String)(year: Option[Int], eventType: Option[EventType], actor: Option[String]): Future[Seq[ApplicationEvent]] = {
+    service.fetchEventsBy(applicationId, year, eventType, actor)
+  }
+
+  def queryDispatcher(applicationId: String) = Action.async { implicit request =>
+    def asResult(in: Future[Seq[ApplicationEvent]]): Future[Result] = {
+      in.map(evts => Ok(Json.toJson(QueryResponse(evts.sorted))))
+    }
+
+    val (yearV, eventTypeV, actorV) = extractOptions(request)
 
     (yearV, eventTypeV, actorV)
     .mapN(query(applicationId))

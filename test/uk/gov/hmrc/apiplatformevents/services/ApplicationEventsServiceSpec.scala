@@ -28,15 +28,18 @@ import scala.concurrent.Future
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
+import java.util.UUID
+import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
+import uk.gov.hmrc.apiplatformevents.models.common.EventType
+import uk.gov.hmrc.apiplatformevents.models.common.CollaboratorActor
 
-class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
+class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with ApplicationEventTestData {
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
-    applicationId = ApplicationId.random,
+    applicationId = UUID.randomUUID().toString,
     eventDateTime= LocalDateTime.now,
     actor = OldActor("iam@admin.com", ActorType.GATEKEEPER),
     teamMemberEmail = "bob@bob.com",
@@ -44,7 +47,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
 
   val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId.random,
-    applicationId = ApplicationId.random,
+    applicationId = UUID.randomUUID().toString,
     eventDateTime= LocalDateTime.now,
     actor = GatekeeperUserActor("gk@example.com"),
     oldAppName = "old app name",
@@ -111,6 +114,97 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually {
       }
 
       exception.getMessage shouldBe "some mongo error"
+    }
+  }
+
+  "fetch events by" should {
+    def primeRepo(events: ApplicationEvent*): Seq[ApplicationEvent] = {
+      when(mockRepository.fetchEventsBy(*,eqTo(None))).thenReturn(Future.successful(events.toSeq))
+      events.toSeq
+    }
+    def primeRepoFor(eventType: EventType)(events: ApplicationEvent*): Seq[ApplicationEvent] = {
+      when(mockRepository.fetchEventsBy(*,eqTo(Some(eventType)))).thenReturn(Future.successful(events.toSeq))
+      events.toSeq
+    }
+
+    "return everything when no queries" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      val evts = primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberRemovedEvent(Some(appId)),
+        makeClientSecretAddedEvent(Some(appId))
+      )
+
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, None))
+
+      fetchedEvents should contain allOf(evts(0), evts(1), evts(2))
+    }
+
+    "return based on year" in new Setup {
+      val appId = UUID.randomUUID().toString()
+      val now = LocalDateTime.now()
+      val nowButLastYear = now.minusYears(1)
+      val year = now.getYear()
+      val lastYear = nowButLastYear.getYear()
+
+      val evts = primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now.withMinute(10)),
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear)
+      )
+
+      val fetchedEvents1900 = await(inTest.fetchEventsBy(appId, Some(1900), None, None))
+      fetchedEvents1900 shouldBe Seq.empty
+
+      val fetchedEventsLastYear = await(inTest.fetchEventsBy(appId, Some(lastYear), None, None))
+      fetchedEventsLastYear should contain only (evts(2))
+
+      val fetchedEventsNow = await(inTest.fetchEventsBy(appId, Some(year), None, None))
+      fetchedEventsNow should contain allOf(evts(0), evts(1))
+    }
+
+    "return everything for an eventType" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      val evts = primeRepoFor(
+        EventType.TEAM_MEMBER_ADDED
+      )(
+        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(Some(appId))
+      )
+
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, None, Some(EventType.TEAM_MEMBER_ADDED), None))
+
+      fetchedEvents should contain allOf(evts(0), evts(1))
+    }
+
+    "return events for an actor matching OldActor" in new Setup {
+     val appId = UUID.randomUUID().toString()
+
+      val evts = primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
+        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
+        makeTeamMemberRemovedEvent(Some(appId))
+      )
+
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, Some("bob")))
+
+      fetchedEvents should contain allOf(evts(0), evts(1))
+    }
+
+    "return events for an actor matching Actor" in new Setup {
+     val appId = UUID.randomUUID().toString()
+
+      val evts = primeRepo(
+        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("bob")), 
+        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("bob")), 
+        makeRedirectUrisUpdatedEvent(Some(appId))
+      )
+
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, Some("bob")))
+
+      fetchedEvents should contain allOf(evts(0), evts(1))
     }
   }
 }

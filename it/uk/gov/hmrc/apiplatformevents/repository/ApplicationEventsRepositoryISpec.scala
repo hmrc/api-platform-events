@@ -25,6 +25,9 @@ import java.time.LocalDateTime
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
 
@@ -132,6 +135,43 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
 
       result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
+    }
+  }
+
+  private def primeMongo(events: ApplicationEvent*): Array[ApplicationEvent] = {
+    await(Future.sequence(events.toList.map(repo.createEntity(_))))
+    events.toArray
+  }
+
+  "fetchEventsBy" should {
+    "filter results by applicationId" in {
+      val appId = UUID.randomUUID().toString()
+
+      val evts = primeMongo(
+        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(),
+        makeTeamMemberRemovedEvent(Some(appId)),
+        makeClientSecretAddedEvent(Some(appId))
+      )
+
+      val events = await(repo.fetchEventsBy(appId, None))
+      events.length shouldBe 3
+      events should contain only (evts(0), evts(2), evts(3))
+    }
+
+    "filter results by applicationId and eventType" in {
+      val appId = UUID.randomUUID().toString()
+
+      val evts = primeMongo(
+        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(),
+        makeTeamMemberRemovedEvent(Some(appId)),
+        makeClientSecretAddedEvent(Some(appId))
+      )
+
+      val events = await(repo.fetchEventsBy(appId, Some(TEAM_MEMBER_ADDED)))
+      events.length shouldBe 1
+      events should contain only (evts(0))
     }
   }
 }

@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, OldActor, ApplicationId}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, OldActor}
 
 import java.time.LocalDateTime
 
 sealed trait ApplicationEvent {
   def id: EventId
-  def applicationId: ApplicationId
+  def applicationId: String
   def eventDateTime: LocalDateTime
 }
 
@@ -35,34 +35,34 @@ sealed trait HasActor {
 }
 
 case class TeamMemberAddedEvent(id: EventId,
-                                applicationId: ApplicationId,
+                                applicationId: String,
                                 eventDateTime: LocalDateTime,
                                 actor: OldActor,
                                 teamMemberEmail: String,
                                 teamMemberRole: String) extends ApplicationEvent with HasOldActor
 
 case class TeamMemberRemovedEvent(id: EventId,
-                                  applicationId: ApplicationId,
+                                  applicationId: String,
                                   eventDateTime: LocalDateTime,
                                   actor: OldActor,
                                   teamMemberEmail: String,
                                   teamMemberRole: String) extends ApplicationEvent with HasOldActor
 
 case class ClientSecretAddedEvent(id: EventId,
-                                  applicationId: ApplicationId,
+                                  applicationId: String,
                                   eventDateTime: LocalDateTime,
                                   actor: OldActor,
                                   clientSecretId: String) extends ApplicationEvent with HasOldActor
 
 case class ClientSecretRemovedEvent(id: EventId,
-                                    applicationId: ApplicationId,
+                                    applicationId: String,
                                     eventDateTime: LocalDateTime,
                                     actor: OldActor,
                                     clientSecretId: String) extends ApplicationEvent with HasOldActor
 
 
 case class PpnsCallBackUriUpdatedEvent(id: EventId,
-                                       applicationId: ApplicationId,
+                                       applicationId: String,
                                        eventDateTime: LocalDateTime,
                                        actor: OldActor,
                                        boxId: String,
@@ -71,28 +71,28 @@ case class PpnsCallBackUriUpdatedEvent(id: EventId,
                                        newCallbackUrl: String) extends ApplicationEvent with HasOldActor
 
 case class RedirectUrisUpdatedEvent(id: EventId,
-                                    applicationId: ApplicationId,
+                                    applicationId: String,
                                     eventDateTime: LocalDateTime,
                                     actor: OldActor,
                                     oldRedirectUris: String,
                                     newRedirectUris: String) extends ApplicationEvent with HasOldActor
 
 case class ApiSubscribedEvent(id: EventId,
-                              applicationId: ApplicationId,
+                              applicationId: String,
                               eventDateTime: LocalDateTime,
                               actor: OldActor,
                               context: String,
                               version: String) extends ApplicationEvent with HasOldActor
 
 case class ApiUnsubscribedEvent(id: EventId,
-                                applicationId: ApplicationId,
+                                applicationId: String,
                                 eventDateTime: LocalDateTime,
                                 actor: OldActor,
                                 context: String,
                                 version: String) extends ApplicationEvent with HasOldActor
 
 case class ProductionAppNameChangedEvent(id: EventId,
-                                         applicationId: ApplicationId,
+                                         applicationId: String,
                                          eventDateTime: LocalDateTime,
                                          actor: Actor,
                                          oldAppName: String,
@@ -100,7 +100,7 @@ case class ProductionAppNameChangedEvent(id: EventId,
                                          requestingAdminEmail: String) extends ApplicationEvent with HasActor
 
 case class ProductionAppPrivacyPolicyLocationChanged(id: EventId,
-                                                     applicationId: ApplicationId,
+                                                     applicationId: String,
                                                      eventDateTime: LocalDateTime,
                                                      actor: Actor,
                                                      oldLocation: PrivacyPolicyLocation,
@@ -108,7 +108,7 @@ case class ProductionAppPrivacyPolicyLocationChanged(id: EventId,
                                                      requestingAdminEmail: String) extends ApplicationEvent with HasActor
 
 case class ProductionLegacyAppPrivacyPolicyLocationChanged(id: EventId,
-                                                           applicationId: ApplicationId,
+                                                           applicationId: String,
                                                            eventDateTime: LocalDateTime,
                                                            actor: Actor,
                                                            oldUrl: String,
@@ -116,7 +116,7 @@ case class ProductionLegacyAppPrivacyPolicyLocationChanged(id: EventId,
                                                            requestingAdminEmail: String) extends ApplicationEvent with HasActor
 
 case class ProductionAppTermsConditionsLocationChanged(id: EventId,
-                                                       applicationId: ApplicationId,
+                                                       applicationId: String,
                                                        eventDateTime: LocalDateTime,
                                                        actor: Actor,
                                                        oldLocation: TermsAndConditionsLocation,
@@ -124,7 +124,7 @@ case class ProductionAppTermsConditionsLocationChanged(id: EventId,
                                                        requestingAdminEmail: String) extends ApplicationEvent with HasActor
 
 case class ProductionLegacyAppTermsConditionsLocationChanged(id: EventId,
-                                                             applicationId: ApplicationId,
+                                                             applicationId: String,
                                                              eventDateTime: LocalDateTime,
                                                              actor: Actor,
                                                              oldUrl: String,
@@ -132,7 +132,7 @@ case class ProductionLegacyAppTermsConditionsLocationChanged(id: EventId,
                                                              requestingAdminEmail: String) extends ApplicationEvent with HasActor
 
 case class ResponsibleIndividualChanged(id: EventId,
-                                        applicationId: ApplicationId,
+                                        applicationId: String,
                                         eventDateTime: LocalDateTime,
                                         actor: Actor,
                                         responsibleIndividualName: String,

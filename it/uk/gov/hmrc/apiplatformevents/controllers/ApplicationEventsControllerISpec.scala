@@ -11,7 +11,6 @@ import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 import java.util.UUID
 import java.{util => ju}
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach {
 
@@ -30,7 +29,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val eventId: UUID = EventId.random.value
-  val applicationId = ApplicationId.random
+  val applicationId = UUID.randomUUID().toString
   val submissionId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorEmail = "actor@example.com"
@@ -41,7 +40,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"teamMemberEmail": "$teamMemberEmail",
@@ -49,14 +48,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validClientSecretJsonBody(clientSecretId: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   def validRedirectUrisUpdatedJsonBody(oldRedirectUri: String, newRedirectUri: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"oldRedirectUris": "$oldRedirectUri",
@@ -64,7 +63,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validApiSubscriptionJsonBody(apiContext: String, apiVersion: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"context": "$apiContext",
@@ -72,7 +71,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"boxId": "$boxId",
@@ -82,7 +81,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_NAME_CHANGED",
          |"actor": { "user": "$actorUser", "actorType": "$actorTypeGK" },
@@ -92,7 +91,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
@@ -102,7 +101,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
@@ -112,7 +111,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
@@ -122,7 +121,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
@@ -132,7 +131,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validResponsibleIndividualChangedJsonBody(riName: String, riEmail: String, adminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "${applicationId.value}",
+         |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },

@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, HasActor, HasOldA
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformevents.models.common.{ApplicationId, EventType, GatekeeperUserActor, CollaboratorActor}
+import uk.gov.hmrc.apiplatformevents.models.common.{EventType, GatekeeperUserActor, CollaboratorActor}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -31,7 +31,7 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(impl
     repo.createEntity(event)
   }
 
-  def fetchEventsBy(applicationId: ApplicationId, year: Option[Int], eventType: Option[EventType], actor: Option[String]) = {
+  def fetchEventsBy(applicationId: String, year: Option[Int], eventType: Option[EventType], actor: Option[String]) = {
     val yearFilter: ApplicationEvent => Boolean = { evt =>
       year.fold(true)(matchYear => evt.eventDateTime.getYear == matchYear)
     }

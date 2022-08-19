@@ -23,13 +23,12 @@ import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.apiplatformevents.models.common.ApplicationId
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ThirdPartyApplicationConnector @Inject()(http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) {
 
-  def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
-    http.GET[ApplicationResponse](s"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value}")
+  def getApplication(applicationId: String)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
+    http.GET[ApplicationResponse](s"${appConfig.thirdPartyApplicationUrl}/application/$applicationId")
   }
 }
