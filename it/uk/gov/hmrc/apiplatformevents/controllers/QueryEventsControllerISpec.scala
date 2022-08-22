@@ -51,7 +51,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
   
   private def primeMongo(events: ApplicationEvent*): Array[ApplicationEvent] = {
     await(Future.sequence(events.toList.map(repo.createEntity(_))))
-    events.toArray
+    events.toArray.sorted(QueryEventsController.orderEvents)
   }
   
   "QueryEventsController" when {
@@ -91,7 +91,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
         
         val result = await(doGet(s"/application-event/$appId"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(Seq(evts(0), evts(1)))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.toSeq.sorted(QueryEventsController.orderEvents))))
         result.body shouldBe expectedText
       }
     }

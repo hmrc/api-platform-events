@@ -70,6 +70,11 @@ object QueryEventsController {
 
     (yearV, eventTypeV, actorV)
   }
+  
+  implicit val orderEvents: Ordering[ApplicationEvent] = new Ordering[ApplicationEvent]() {
+    override def compare(x: ApplicationEvent, y: ApplicationEvent): Int = x.eventDateTime.compareTo(y.eventDateTime)
+  }
+
 }
 
 @Singleton
@@ -84,10 +89,6 @@ class QueryEventsController @Inject()(
 ) extends BackendController(cc) with ApplicationLogger {
 
   import QueryEventsController._
-
-  implicit val orderEvents: Ordering[ApplicationEvent] = new Ordering[ApplicationEvent]() {
-    override def compare(x: ApplicationEvent, y: ApplicationEvent): Int = x.eventDateTime.compareTo(y.eventDateTime)
-  }
 
   private def query(applicationId: String)(year: Option[Int], eventType: Option[EventType], actor: Option[String]): Future[Seq[ApplicationEvent]] = {
     service.fetchEventsBy(applicationId, year, eventType, actor)
