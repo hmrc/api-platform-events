@@ -36,6 +36,13 @@ case class OldActor(id: String, actorType: ActorType)
 
 sealed trait Actor
 
+object Actor {
+  def extractActorText(actor: Actor): String = actor match {
+    case GatekeeperUserActor(user) => user
+    case CollaboratorActor(email) => email
+  }
+}
+
 case class GatekeeperUserActor(user: String) extends Actor
 case class CollaboratorActor(email: String) extends Actor
 //case class ScheduledJobActor(jobId: String) extends Actor

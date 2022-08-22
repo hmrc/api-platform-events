@@ -37,6 +37,11 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
+  val now = LocalDateTime.now()
+  val nowButLastYear = now.minusYears(1)
+  val year = now.getYear()
+  val lastYear = nowButLastYear.getYear()
+
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
@@ -122,6 +127,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       when(mockRepository.fetchEventsBy(*,eqTo(None))).thenReturn(Future.successful(events.toSeq))
       events.toSeq
     }
+
     def primeRepoFor(eventType: EventType)(events: ApplicationEvent*): Seq[ApplicationEvent] = {
       when(mockRepository.fetchEventsBy(*,eqTo(Some(eventType)))).thenReturn(Future.successful(events.toSeq))
       events.toSeq
@@ -143,10 +149,6 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
     "return based on year" in new Setup {
       val appId = UUID.randomUUID().toString()
-      val now = LocalDateTime.now()
-      val nowButLastYear = now.minusYears(1)
-      val year = now.getYear()
-      val lastYear = nowButLastYear.getYear()
 
       val evts = primeRepo(
         makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
@@ -205,6 +207,103 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, Some("bob")))
 
       fetchedEvents should contain allOf(evts(0), evts(1))
+    }
+  }
+
+  "fetchfetchEventQueryValues" should {
+    def primeEmptyRepo(): Unit = {
+      when(mockRepository.fetchEvents(*)).thenReturn(Future.successful(Seq.empty))
+    }
+
+    def primeRepo(events: ApplicationEvent*): Seq[ApplicationEvent] = {
+      when(mockRepository.fetchEvents(*)).thenReturn(Future.successful(events.toSeq))
+      events.toSeq
+    }
+
+    "return None when no records found for application" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      primeEmptyRepo()
+
+      val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
+
+      fetchEventQueryValues shouldBe None
+    }
+
+    "return correct first year value when records found for application" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear)
+      )
+
+      val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
+
+      inside(fetchEventQueryValues.value) { case QueryableValues(firstYear, _,_,_) =>
+        firstYear shouldBe lastYear
+      }
+    }
+
+    "return correct last year value when records found for application" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear)
+      )
+
+      val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
+
+      inside(fetchEventQueryValues.value) { case QueryableValues(_, lastYear,_,_) =>
+        lastYear shouldBe year
+      }
+    }
+
+    "return correct distinct event types when records found for application" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now)
+      )
+
+      val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
+
+      inside(fetchEventQueryValues.value) { case QueryableValues(_, _, eventTypes, _) =>
+        eventTypes should contain allOf (EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED, EventType.CLIENT_SECRET_ADDED)
+        eventTypes should not contain EventType.CLIENT_SECRET_REMOVED
+      }
+    }
+
+    "return correct actors when records found" in new Setup {
+      val appId = UUID.randomUUID().toString()
+
+      primeRepo(
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
+        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
+        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
+        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
+        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
+        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("dylan")), 
+        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("ellie"))
+      )
+
+      val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
+
+      inside(fetchEventQueryValues.value) { case QueryableValues(_, _, _, actors) =>
+        actors should contain allOf ("alice","bob","charlie", "dylan", "ellie")
+      }
     }
   }
 }

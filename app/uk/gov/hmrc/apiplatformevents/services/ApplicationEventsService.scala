@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, HasActor, HasOldActor}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, HasActor, HasOldActor, QueryableValues}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.Future
@@ -55,5 +55,25 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(impl
     .map(
       evts => evts.filter(yearFilter).filter(actorFilter)
     )
+  }
+
+  def fetchEventQueryValues(applicationId: String): Future[Option[QueryableValues]] = {
+    // Not the most efficient but certainly the more readable
+    def handleEvents(events: Seq[ApplicationEvent]): Option[QueryableValues] = {
+      if(events.isEmpty) {
+        None
+      } else {
+        val firstYear = events.map(_.eventDateTime.getYear).min
+        val lastYear = events.map(_.eventDateTime.getYear).max
+        val distictEventTypes = events.map(ApplicationEvent.asEventTypeValue(_)).distinct.toList
+        val distinctActor = events.map(ApplicationEvent.extractActorText(_)).distinct.toList
+        Some(QueryableValues(firstYear, lastYear, distictEventTypes, distinctActor))
+      }
+    }
+  
+    for {
+      events <- repo.fetchEvents(applicationId)
+    }
+    yield handleEvents(events)
   }
 }

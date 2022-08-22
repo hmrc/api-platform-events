@@ -106,4 +106,9 @@ class QueryEventsController @Inject()(
     .leftMap(errs => Future.successful(BadRequest(errs.toList.mkString(","))))
     .merge
   }
+
+  def queryValues(applicationId: String) = Action.async { _ =>
+    service.fetchEventQueryValues(applicationId)
+    .map[Result](_.fold(NotFound(""))(qv => Ok(Json.toJson(qv))))
+  }
 }
