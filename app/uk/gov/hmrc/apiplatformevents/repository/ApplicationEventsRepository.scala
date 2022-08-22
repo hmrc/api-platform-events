@@ -29,6 +29,7 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatformevents.models.Codecs
+import org.bson.conversions.Bson
 
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
@@ -64,5 +65,17 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
         filter(size("matched", 0))
       )
     ).toFuture()
+  }
+
+  def fetchEventsBy(applicationId: String, eventType: Option[EventType]): Future[Seq[ApplicationEvent]] = {
+    val filters = Seq(filter(equal("applicationId", applicationId))) ++ (eventType.fold(Seq.empty[Bson])(et => Seq(filter(equal("eventType", et.entryName)))))
+
+    collection.aggregate(filters)
+    .toFuture()
+  }
+
+  def fetchEvents(applicationId: String): Future[Seq[ApplicationEvent]] = {
+    collection.find(equal("applicationId", applicationId))
+    .toFuture
   }
 }

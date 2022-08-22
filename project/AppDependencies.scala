@@ -18,6 +18,7 @@ object AppDependencies {
     "com.enragedginger"       %%  "akka-quartz-scheduler"       %  "1.9.1-akka-2.6.x",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"           % hmrcMongoVersion,
     "com.typesafe.play"       %% "play-json-joda"               % "2.8.1",
+    "org.typelevel"           %% "cats-core"                    % "2.0.0"
   )
 
   private lazy val testDependencies = Seq(

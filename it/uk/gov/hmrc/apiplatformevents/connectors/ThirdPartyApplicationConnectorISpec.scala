@@ -1,7 +1,5 @@
 package uk.gov.hmrc.apiplatformevents.connectors
 
-import java.util.UUID.randomUUID
-
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -11,6 +9,7 @@ import uk.gov.hmrc.apiplatformevents.support.{MetricsTestSupport, ThirdPartyAppl
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import java.util.UUID
 
 class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with ThirdPartyApplicationService {
 
@@ -31,7 +30,7 @@ class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSup
   }
 
   "getApplicationName" should {
-    val applicationId = randomUUID.toString
+    val applicationId = UUID.randomUUID().toString
     val expectedApp = ApplicationResponse("foobar app", Set.empty)
 
     "retrieve application record based on provided clientId" in new SetUp() {
