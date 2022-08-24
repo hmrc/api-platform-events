@@ -61,6 +61,7 @@ object ApplicationEvent {
     case e: ProductionLegacyAppTermsConditionsLocationChanged => Actor.extractActorText(e.actor)
     case e: RedirectUrisUpdatedEvent => e.actor.id
     case e: ResponsibleIndividualChanged => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualVerificationStarted => Actor.extractActorText(e.actor)
   }
 }
 
