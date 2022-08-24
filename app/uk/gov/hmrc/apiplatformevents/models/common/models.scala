@@ -21,7 +21,6 @@ import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import java.util.UUID
 import scala.collection.immutable
 
-
 sealed trait ActorType extends EnumEntry
 
 object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
@@ -36,6 +35,13 @@ object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
 case class OldActor(id: String, actorType: ActorType)
 
 sealed trait Actor
+
+object Actor {
+  def extractActorText(actor: Actor): String = actor match {
+    case GatekeeperUserActor(user) => user
+    case CollaboratorActor(email) => email
+  }
+}
 
 case class GatekeeperUserActor(user: String) extends Actor
 case class CollaboratorActor(email: String) extends Actor
@@ -67,6 +73,7 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
 
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
+
 }
 
 case class EventId(value: UUID) extends AnyVal

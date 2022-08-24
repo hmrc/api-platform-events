@@ -1,4 +1,7 @@
 # microservice specific routes
 ->          /application-events               appEvents.Routes
 
-POST        /application-event                @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.handleEvent()
+GET         /application-event/:id            uk.gov.hmrc.apiplatformevents.controllers.QueryEventsController.queryDispatcher(id: String)
+GET         /application-event/:id/values     uk.gov.hmrc.apiplatformevents.controllers.QueryEventsController.queryValues(id: String)
+
+POST        /application-event                uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.handleEvent()

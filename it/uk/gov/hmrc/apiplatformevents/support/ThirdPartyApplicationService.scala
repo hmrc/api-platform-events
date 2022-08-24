@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Collaborator, Role}
 
 trait ThirdPartyApplicationService {
-  private def applicationUrl(appId: String) = s"/application/$appId"
+  private def applicationUrl(appId: String) = s"/application/${appId}"
 
   def primeApplicationEndpoint(status : Int, body: String, applicationId: String): StubMapping = {
     stubFor(get(urlPathEqualTo(applicationUrl(applicationId)))

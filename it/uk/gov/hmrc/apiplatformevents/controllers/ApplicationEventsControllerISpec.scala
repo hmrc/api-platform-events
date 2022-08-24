@@ -29,7 +29,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val eventId: UUID = EventId.random.value
-  val applicationId: String = ju.UUID.randomUUID.toString
+  val applicationId = UUID.randomUUID().toString
   val submissionId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorEmail = "actor@example.com"

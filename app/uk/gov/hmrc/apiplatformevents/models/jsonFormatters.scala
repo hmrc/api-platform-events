@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.models
 
 
 import play.api.libs.json._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, CollaboratorActor, EventId, EventType, GatekeeperUserActor, OldActor}
+import uk.gov.hmrc.apiplatformevents.models.common._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.json.Union
 
@@ -72,7 +72,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 
-object JsonRequestFormatters {
+trait JsonRequestFormatters {
 
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val oldActorFormat: OFormat[OldActor] = Json.format[OldActor]
@@ -119,3 +119,5 @@ object JsonRequestFormatters {
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
 }
+
+object JsonRequestFormatters extends JsonRequestFormatters
