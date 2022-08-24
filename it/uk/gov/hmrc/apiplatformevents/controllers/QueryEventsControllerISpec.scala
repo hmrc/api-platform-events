@@ -16,6 +16,8 @@ import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatformevents.models.common.EventType
 
+import java.time.LocalDateTime
+
 class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach with ApplicationEventTestData with JsonRequestFormatters {
 
   this: Suite with ServerProvider =>
@@ -84,9 +86,11 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
       }
       
       "return all relevant events" in {
+        val event1 = makeTeamMemberAddedEvent(Some(appId))
+        val event2 = makeApiSubscribedEvent(Some(appId))
         val evts = primeMongo(
-          makeTeamMemberAddedEvent(Some(appId)),
-          makeApiSubscribedEvent(Some(appId))
+          event1.copy(eventDateTime = LocalDateTime.now.minusDays(2)),
+          event2.copy(eventDateTime = LocalDateTime.now.minusDays(1))
         )
         
         val result = await(doGet(s"/application-event/$appId"))
