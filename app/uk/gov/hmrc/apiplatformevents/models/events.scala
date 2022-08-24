@@ -31,7 +31,7 @@ object ApplicationEvent {
   def asEventTypeValue(evt: ApplicationEvent): EventType = evt match {
     case _: ApiSubscribedEvent => EventType.API_SUBSCRIBED
     case _: ApiUnsubscribedEvent => EventType.API_UNSUBSCRIBED
-    case _: TeamMemberAddedEvent => EventType.TEAM_MEMBER_ADDED 
+    case _: TeamMemberAddedEvent => EventType.TEAM_MEMBER_ADDED
     case _: TeamMemberRemovedEvent => EventType.TEAM_MEMBER_REMOVED
     case _: ClientSecretAddedEvent => EventType.CLIENT_SECRET_ADDED
     case _: ClientSecretRemovedEvent => EventType.CLIENT_SECRET_REMOVED
@@ -43,6 +43,7 @@ object ApplicationEvent {
     case _: ProductionLegacyAppTermsConditionsLocationChanged => EventType.PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED
     case _: RedirectUrisUpdatedEvent => EventType.REDIRECT_URIS_UPDATED
     case _: ResponsibleIndividualChanged => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED
+    case _: ResponsibleIndividualVerificationStarted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED
   }
 
   def extractActorText(evt: ApplicationEvent): String = evt match {
@@ -68,7 +69,7 @@ sealed trait HasOldActor {
 }
 
 sealed trait HasActor {
-  def actor: Actor  
+  def actor: Actor
 }
 
 case class TeamMemberAddedEvent(id: EventId,
@@ -178,3 +179,17 @@ case class ResponsibleIndividualChanged(id: EventId,
                                         submissionIndex: Int,
                                         requestingAdminEmail: String
                                        ) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualVerificationStarted(id: EventId,
+                                                    applicationId: String,
+                                                    applicationName: String,
+                                                    eventDateTime: LocalDateTime,
+                                                    actor: Actor,
+                                                    requestingAdminName: String,
+                                                    requestingAdminEmail: String,
+                                                    responsibleIndividualName: String,
+                                                    responsibleIndividualEmail: String,
+                                                    submissionId: String,
+                                                    submissionIndex: Int,
+                                                    verificationId: String
+                                                   ) extends ApplicationEvent with HasActor

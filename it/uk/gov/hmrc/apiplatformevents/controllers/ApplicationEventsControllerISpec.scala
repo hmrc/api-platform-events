@@ -141,6 +141,20 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionIndex": 1,
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
+  def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: String, appName: String, adminName: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"applicationName": "$appName",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"requestingAdminName": "$adminName",
+         |"requestingAdminEmail": "$adminEmail",
+         |"responsibleIndividualName": "$riName",
+         |"responsibleIndividualEmail": "$riEmail",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"verificationId": "${UUID.randomUUID().toString}"}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -452,6 +466,28 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
         event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid responsible individual verification started json is sent" in {
+        val riName = "Mr Responsible"
+        val riEmail = "ri@example.com"
+        val appName = "app name"
+        val adminName = "ms admin"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validResponsibleIndividualVerificationStartedJsonBody(riName, riEmail, appName, adminName, adminEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualVerificationStarted]
+
+        checkCommonEventValues(event)
+        event.responsibleIndividualName shouldBe riName
+        event.responsibleIndividualEmail shouldBe riEmail
+        event.applicationName shouldBe appName
+        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.requestingAdminName shouldBe adminName
+        event.requestingAdminEmail shouldBe adminEmail
       }
 
       "handle error scenarios correctly" in {
