@@ -141,6 +141,21 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionIndex": 1,
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
+  def validResponsibleIndividualSetJsonBody(riName: String, riEmail: String, adminEmail: String, code: String, oldAppState: String, newAppState: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"responsibleIndividualName": "$riName",
+         |"responsibleIndividualEmail": "$riEmail",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"code": "$code",
+         |"oldAppState": "$oldAppState",
+         |"newAppState": "$newAppState",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
   def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: String, appName: String, adminName: String, adminEmail: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
