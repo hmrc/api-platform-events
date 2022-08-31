@@ -44,6 +44,7 @@ object ApplicationEvent {
     case _: RedirectUrisUpdatedEvent => EventType.REDIRECT_URIS_UPDATED
     case _: ResponsibleIndividualSet => EventType.RESPONSIBLE_INDIVIDUAL_SET
     case _: ResponsibleIndividualChanged => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED
+    case _: ApplicationStateChanged => EventType.APPLICATION_STATE_CHANGED
     case _: ResponsibleIndividualVerificationStarted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED
   }
 
@@ -63,6 +64,7 @@ object ApplicationEvent {
     case e: RedirectUrisUpdatedEvent => e.actor.id
     case e: ResponsibleIndividualSet => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualChanged => Actor.extractActorText(e.actor)
+    case e: ApplicationStateChanged => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualVerificationStarted => Actor.extractActorText(e.actor)
   }
 }
@@ -192,8 +194,16 @@ case class ResponsibleIndividualSet(id: EventId,
                                     submissionId: String,
                                     submissionIndex: Int,
                                     code: String,
+                                    requestingAdminEmail: String
+                                   ) extends ApplicationEvent with HasActor
+
+case class ApplicationStateChanged(id: EventId,
+                                    applicationId: String,
+                                    eventDateTime: LocalDateTime,
+                                    actor: Actor,
                                     oldAppState: String,
                                     newAppState: String,
+                                    requestingAdminName: String,
                                     requestingAdminEmail: String
                                    ) extends ApplicationEvent with HasActor
 

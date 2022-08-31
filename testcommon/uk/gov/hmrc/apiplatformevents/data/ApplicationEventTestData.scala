@@ -210,12 +210,24 @@ trait ApplicationEventTestData {
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
     code = UUID.randomUUID().toString,
-    oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION",
-    newAppState = "PENDING_GATEKEEPER_APPROVAL",
     requestingAdminEmail = "admin@example.com")
 
   def makeResponsibleIndividualSet(appId: Option[String] = None): ResponsibleIndividualSet = {
     responsibleIndividualSetEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val applicationStateChangedEvent: ApplicationStateChanged = ApplicationStateChanged(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION",
+    newAppState = "PENDING_GATEKEEPER_APPROVAL",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeApplicationStateChanged(appId: Option[String] = None): ApplicationStateChanged = {
+    applicationStateChangedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val responsibleIndividualVerificationStarted: ResponsibleIndividualVerificationStarted = ResponsibleIndividualVerificationStarted(

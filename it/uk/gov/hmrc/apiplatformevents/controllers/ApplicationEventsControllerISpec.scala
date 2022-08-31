@@ -141,19 +141,28 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionIndex": 1,
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
-  def validResponsibleIndividualSetJsonBody(riName: String, riEmail: String, adminEmail: String, code: String, oldAppState: String, newAppState: String): String =
+  def validResponsibleIndividualSetJsonBody(riName: String, riEmail: String, adminEmail: String, code: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
          |"eventDateTime": "$eventDateTimeString",
-         |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_SET",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
          |"responsibleIndividualEmail": "$riEmail",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
+  def validApplicationStateChangedJsonBody(adminName: String, adminEmail: String, oldAppState: String, newAppState: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "APPLICATION_STATE_CHANGED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
          |"oldAppState": "$oldAppState",
          |"newAppState": "$newAppState",
+         |"requestingAdminName": "$adminName",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: String, appName: String, adminName: String, adminEmail: String): String =
@@ -480,6 +489,43 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
+        event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid responsible individual set json is sent" in {
+        val riName = "Mr Responsible"
+        val riEmail = "ri@example.com"
+        val adminEmail = "admin@example.com"
+        val code = "434235934537645394"
+
+        testSuccessScenario("/application-event", validResponsibleIndividualSetJsonBody(riName, riEmail, adminEmail, code))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualSet]
+
+        checkCommonEventValues(event)
+        event.responsibleIndividualName shouldBe riName
+        event.responsibleIndividualEmail shouldBe riEmail
+        event.code shouldBe code
+        event.actor shouldBe CollaboratorActor(adminEmail)
+      }
+
+      "respond with 201 when valid application state changed json is sent" in {
+        val adminName = "Mr Admin"
+        val adminEmail = "admin@example.com"
+        val oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION"
+        val newAppState = "PENDING_GATEKEEPER_APPROVAL"
+
+        testSuccessScenario("/application-event", validApplicationStateChangedJsonBody(adminName, adminEmail, oldAppState, newAppState))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ApplicationStateChanged]
+
+        checkCommonEventValues(event)
+        event.oldAppState shouldBe oldAppState
+        event.newAppState shouldBe newAppState
         event.actor shouldBe CollaboratorActor(adminEmail)
       }
 
