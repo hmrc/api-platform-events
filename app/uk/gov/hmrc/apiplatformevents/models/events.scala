@@ -46,6 +46,7 @@ object ApplicationEvent {
     case _: ResponsibleIndividualChanged => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED
     case _: ApplicationStateChanged => EventType.APPLICATION_STATE_CHANGED
     case _: ResponsibleIndividualVerificationStarted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED
+    case _: ResponsibleIndividualVerificationCompleted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_COMPLETED
   }
 
   def extractActorText(evt: ApplicationEvent): String = evt match {
@@ -66,6 +67,7 @@ object ApplicationEvent {
     case e: ResponsibleIndividualChanged => Actor.extractActorText(e.actor)
     case e: ApplicationStateChanged => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualVerificationStarted => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualVerificationCompleted => Actor.extractActorText(e.actor)
   }
 }
 
@@ -178,10 +180,13 @@ case class ResponsibleIndividualChanged(id: EventId,
                                         applicationId: String,
                                         eventDateTime: LocalDateTime,
                                         actor: Actor,
-                                        responsibleIndividualName: String,
-                                        responsibleIndividualEmail: String,
+                                        previousResponsibleIndividualName: String,
+                                        previousResponsibleIndividualEmail: String,
+                                        newResponsibleIndividualName: String,
+                                        newResponsibleIndividualEmail: String,
                                         submissionId: String,
                                         submissionIndex: Int,
+                                        requestingAdminName: String,
                                         requestingAdminEmail: String
                                        ) extends ApplicationEvent with HasActor
 
@@ -220,3 +225,11 @@ case class ResponsibleIndividualVerificationStarted(id: EventId,
                                                     submissionIndex: Int,
                                                     verificationId: String
                                                    ) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualVerificationCompleted(id: EventId,
+                                                    applicationId: String,
+                                                    eventDateTime: LocalDateTime,
+                                                    actor: Actor,
+                                                    code: String,
+                                                    requestingAdminEmail: String
+                                                   ) extends ApplicationEvent with HasActor                                                   

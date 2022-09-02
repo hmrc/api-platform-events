@@ -190,10 +190,13 @@ trait ApplicationEventTestData {
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
-    responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail = "ri@example.com",
+    previousResponsibleIndividualName = "Mr Old Responsible",
+    previousResponsibleIndividualEmail = "old-ri@example.com",
+    newResponsibleIndividualName = "Mr Responsible",
+    newResponsibleIndividualEmail = "ri@example.com",
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
+    requestingAdminName = "Mr Admin",
     requestingAdminEmail = "admin@example.com")
 
   def makeResponsibleIndividualChanged(appId: Option[String] = None): ResponsibleIndividualChanged = {
@@ -248,5 +251,16 @@ trait ApplicationEventTestData {
     responsibleIndividualVerificationStarted.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
+  val responsibleIndividualVerificationCompleted: ResponsibleIndividualVerificationCompleted = ResponsibleIndividualVerificationCompleted(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    code = "4234323523423423432123214324234",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualVerificationCompleted(appId: Option[String] = None): ResponsibleIndividualVerificationCompleted = {
+    responsibleIndividualVerificationCompleted.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
 }
 

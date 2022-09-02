@@ -135,10 +135,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
-         |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"previousResponsibleIndividualName": "Old RI Name",
+         |"previousResponsibleIndividualEmail": "old-ri@example.com",
+         |"newResponsibleIndividualName": "$riName",
+         |"newResponsibleIndividualEmail": "$riEmail",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
+         |"requestingAdminName": "Mr Admin",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def validResponsibleIndividualSetJsonBody(riName: String, riEmail: String, adminEmail: String, code: String): String =
@@ -179,6 +182,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"verificationId": "${UUID.randomUUID().toString}"}""".stripMargin
+
+  def validResponsibleIndividualVerificationCompletedJsonBody(code: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_VERIFICATION_COMPLETED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"code": "$code",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -487,8 +499,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val event = results.head.asInstanceOf[ResponsibleIndividualChanged]
 
         checkCommonEventValues(event)
-        event.responsibleIndividualName shouldBe riName
-        event.responsibleIndividualEmail shouldBe riEmail
+        event.newResponsibleIndividualName shouldBe riName
+        event.newResponsibleIndividualEmail shouldBe riEmail
         event.actor shouldBe CollaboratorActor(adminEmail)
       }
 
@@ -548,6 +560,22 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.applicationName shouldBe appName
         event.actor shouldBe CollaboratorActor(adminEmail)
         event.requestingAdminName shouldBe adminName
+        event.requestingAdminEmail shouldBe adminEmail
+      }
+
+      "respond with 201 when valid responsible individual verification completed json is sent" in {
+        val code = "656578234943587346592345345"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validResponsibleIndividualVerificationCompletedJsonBody(code, adminEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualVerificationCompleted]
+
+        checkCommonEventValues(event)
+        event.code shouldBe code
+        event.actor shouldBe CollaboratorActor(adminEmail)
         event.requestingAdminEmail shouldBe adminEmail
       }
 

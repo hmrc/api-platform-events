@@ -52,6 +52,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val responsibleIndividualChangedFormats: OFormat[ResponsibleIndividualChanged] = Json.format[ResponsibleIndividualChanged]
   implicit val applicationStateChangedFormats: OFormat[ApplicationStateChanged] = Json.format[ApplicationStateChanged]
   implicit val responsibleIndividualVerificationStartedFormats: OFormat[ResponsibleIndividualVerificationStarted] = Json.format[ResponsibleIndividualVerificationStarted]
+  implicit val responsibleIndividualVerificationCompletedFormats: OFormat[ResponsibleIndividualVerificationCompleted] = Json.format[ResponsibleIndividualVerificationCompleted]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -63,6 +64,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[ResponsibleIndividualChanged](EventType.RESPONSIBLE_INDIVIDUAL_CHANGED.toString)
     .and[ApplicationStateChanged](EventType.APPLICATION_STATE_CHANGED.toString)
     .and[ResponsibleIndividualVerificationStarted](EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED.toString)
+    .and[ResponsibleIndividualVerificationCompleted](EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_COMPLETED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
@@ -106,6 +108,7 @@ trait JsonRequestFormatters {
   implicit val responsibleIndividualChangedFormats: OFormat[ResponsibleIndividualChanged] = Json.format[ResponsibleIndividualChanged]
   implicit val applicationStateChangedFormats: OFormat[ApplicationStateChanged] = Json.format[ApplicationStateChanged]
   implicit val responsibleIndividualVerificationStartedFormats: OFormat[ResponsibleIndividualVerificationStarted] = Json.format[ResponsibleIndividualVerificationStarted]
+  implicit val responsibleIndividualVerificationCompletedFormats: OFormat[ResponsibleIndividualVerificationCompleted] = Json.format[ResponsibleIndividualVerificationCompleted]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -117,6 +120,7 @@ trait JsonRequestFormatters {
     .and[ResponsibleIndividualChanged](EventType.RESPONSIBLE_INDIVIDUAL_CHANGED.toString)
     .and[ApplicationStateChanged](EventType.APPLICATION_STATE_CHANGED.toString)
     .and[ResponsibleIndividualVerificationStarted](EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED.toString)
+    .and[ResponsibleIndividualVerificationCompleted](EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_COMPLETED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
