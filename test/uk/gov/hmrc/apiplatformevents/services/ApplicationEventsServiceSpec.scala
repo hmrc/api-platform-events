@@ -296,13 +296,14 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
         makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("dylan")), 
-        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("ellie"))
+        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("ellie")),
+        makeResponsibleIndividualSet(Some(appId)).copy(actor = CollaboratorActor("lucy"))
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
       inside(fetchEventQueryValues.value) { case QueryableValues(_, _, _, actors) =>
-        actors should contain allOf ("alice","bob","charlie", "dylan", "ellie")
+        actors should contain allOf ("alice","bob","charlie", "dylan", "ellie", "lucy")
       }
     }
   }

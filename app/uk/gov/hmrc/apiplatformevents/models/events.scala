@@ -42,7 +42,9 @@ object ApplicationEvent {
     case _: ProductionLegacyAppPrivacyPolicyLocationChanged => EventType.PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED
     case _: ProductionLegacyAppTermsConditionsLocationChanged => EventType.PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED
     case _: RedirectUrisUpdatedEvent => EventType.REDIRECT_URIS_UPDATED
+    case _: ResponsibleIndividualSet => EventType.RESPONSIBLE_INDIVIDUAL_SET
     case _: ResponsibleIndividualChanged => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED
+    case _: ApplicationStateChanged => EventType.APPLICATION_STATE_CHANGED
     case _: ResponsibleIndividualVerificationStarted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED
   }
 
@@ -60,7 +62,9 @@ object ApplicationEvent {
     case e: ProductionLegacyAppPrivacyPolicyLocationChanged => Actor.extractActorText(e.actor)
     case e: ProductionLegacyAppTermsConditionsLocationChanged => Actor.extractActorText(e.actor)
     case e: RedirectUrisUpdatedEvent => e.actor.id
+    case e: ResponsibleIndividualSet => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualChanged => Actor.extractActorText(e.actor)
+    case e: ApplicationStateChanged => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualVerificationStarted => Actor.extractActorText(e.actor)
   }
 }
@@ -180,6 +184,28 @@ case class ResponsibleIndividualChanged(id: EventId,
                                         submissionIndex: Int,
                                         requestingAdminEmail: String
                                        ) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualSet(id: EventId,
+                                    applicationId: String,
+                                    eventDateTime: LocalDateTime,
+                                    actor: Actor,
+                                    responsibleIndividualName: String,
+                                    responsibleIndividualEmail: String,
+                                    submissionId: String,
+                                    submissionIndex: Int,
+                                    code: String,
+                                    requestingAdminEmail: String
+                                   ) extends ApplicationEvent with HasActor
+
+case class ApplicationStateChanged(id: EventId,
+                                    applicationId: String,
+                                    eventDateTime: LocalDateTime,
+                                    actor: Actor,
+                                    oldAppState: String,
+                                    newAppState: String,
+                                    requestingAdminName: String,
+                                    requestingAdminEmail: String
+                                   ) extends ApplicationEvent with HasActor
 
 case class ResponsibleIndividualVerificationStarted(id: EventId,
                                                     applicationId: String,

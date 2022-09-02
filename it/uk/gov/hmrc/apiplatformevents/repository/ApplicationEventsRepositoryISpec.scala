@@ -113,6 +113,16 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.collection.find().toFuture()) should contain only responsibleIndividualChangedEvent
     }
 
+    "create a responsibleIndividualSetEvent entity" in {
+      await(repo.createEntity(responsibleIndividualSetEvent))
+      await(repo.collection.find().toFuture()) should contain only responsibleIndividualSetEvent
+    }
+
+    "create a applicationStateChangedEvent entity" in {
+      await(repo.createEntity(applicationStateChangedEvent))
+      await(repo.collection.find().toFuture()) should contain only applicationStateChangedEvent
+    }
+
     "create a responsibleIndividualVerificationStarted entity" in {
       await(repo.createEntity(responsibleIndividualVerificationStarted))
       await(repo.collection.find().toFuture()) should contain only responsibleIndividualVerificationStarted
