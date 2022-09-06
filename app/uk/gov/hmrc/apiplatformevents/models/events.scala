@@ -212,6 +212,7 @@ case class ResponsibleIndividualSet(id: EventId,
                                     submissionId: String,
                                     submissionIndex: Int,
                                     code: String,
+                                    requestingAdminName: String,
                                     requestingAdminEmail: String
                                    ) extends ApplicationEvent with HasActor
 

@@ -169,6 +169,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
+         |"requestingAdminName": "Mr Admin",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def validApplicationStateChangedJsonBody(adminName: String, adminEmail: String, oldAppState: String, newAppState: String): String =

@@ -230,6 +230,7 @@ trait ApplicationEventTestData {
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
     code = UUID.randomUUID().toString,
+    requestingAdminName = "Mr Admin",
     requestingAdminEmail = "admin@example.com")
 
   def makeResponsibleIndividualSet(appId: Option[String] = None): ResponsibleIndividualSet = {
