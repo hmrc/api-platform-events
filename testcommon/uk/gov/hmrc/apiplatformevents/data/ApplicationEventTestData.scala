@@ -190,14 +190,34 @@ trait ApplicationEventTestData {
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
     actor = CollaboratorActor("iam@admin.com"),
-    responsibleIndividualName = "Mr Responsible",
-    responsibleIndividualEmail = "ri@example.com",
+    previousResponsibleIndividualName = "Mr Old Responsible",
+    previousResponsibleIndividualEmail = "old-ri@example.com",
+    newResponsibleIndividualName = "Mr Responsible",
+    newResponsibleIndividualEmail = "ri@example.com",
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
     requestingAdminEmail = "admin@example.com")
 
   def makeResponsibleIndividualChanged(appId: Option[String] = None): ResponsibleIndividualChanged = {
     responsibleIndividualChangedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualChangedToSelfEvent: ResponsibleIndividualChangedToSelf = ResponsibleIndividualChangedToSelf(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    previousResponsibleIndividualName = "Mr Old Responsible",
+    previousResponsibleIndividualEmail = "old-ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualChangedToSelf(appId: Option[String] = None): ResponsibleIndividualChangedToSelf = {
+    responsibleIndividualChangedToSelfEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val responsibleIndividualSetEvent: ResponsibleIndividualSet = ResponsibleIndividualSet(
@@ -210,6 +230,7 @@ trait ApplicationEventTestData {
     submissionId = UUID.randomUUID().toString,
     submissionIndex = 1,
     code = UUID.randomUUID().toString,
+    requestingAdminName = "Mr Admin",
     requestingAdminEmail = "admin@example.com")
 
   def makeResponsibleIndividualSet(appId: Option[String] = None): ResponsibleIndividualSet = {
@@ -247,6 +268,5 @@ trait ApplicationEventTestData {
   def makeResponsibleIndividualVerificationStarted(appId: Option[String] = None): ResponsibleIndividualVerificationStarted = {
     responsibleIndividualVerificationStarted.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
-
 }
 

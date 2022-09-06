@@ -135,10 +135,27 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
-         |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"previousResponsibleIndividualName": "Old RI Name",
+         |"previousResponsibleIndividualEmail": "old-ri@example.com",
+         |"newResponsibleIndividualName": "$riName",
+         |"newResponsibleIndividualEmail": "$riEmail",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
+         |"code": "123456789",
+         |"requestingAdminName": "Mr Admin",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
+  def validResponsibleIndividualChangedToSelfJsonBody(adminName: String, adminEmail: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"previousResponsibleIndividualName": "Old RI Name",
+         |"previousResponsibleIndividualEmail": "old-ri@example.com",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"requestingAdminName": "$adminName",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def validResponsibleIndividualSetJsonBody(riName: String, riEmail: String, adminEmail: String, code: String): String =
@@ -152,6 +169,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
+         |"requestingAdminName": "Mr Admin",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
   def validApplicationStateChangedJsonBody(adminName: String, adminEmail: String, oldAppState: String, newAppState: String): String =
@@ -487,8 +505,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val event = results.head.asInstanceOf[ResponsibleIndividualChanged]
 
         checkCommonEventValues(event)
-        event.responsibleIndividualName shouldBe riName
-        event.responsibleIndividualEmail shouldBe riEmail
+        event.newResponsibleIndividualName shouldBe riName
+        event.newResponsibleIndividualEmail shouldBe riEmail
         event.actor shouldBe CollaboratorActor(adminEmail)
       }
 
@@ -548,6 +566,22 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.applicationName shouldBe appName
         event.actor shouldBe CollaboratorActor(adminEmail)
         event.requestingAdminName shouldBe adminName
+        event.requestingAdminEmail shouldBe adminEmail
+      }
+
+      "respond with 201 when valid responsible individual changed to self json is sent" in {
+        val adminName = "Mr Admin"
+        val adminEmail = "admin@example.com"
+
+        testSuccessScenario("/application-event", validResponsibleIndividualChangedToSelfJsonBody(adminName, adminEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualChangedToSelf]
+
+        checkCommonEventValues(event)
+        event.requestingAdminName shouldBe adminName
+        event.actor shouldBe CollaboratorActor(adminEmail)
         event.requestingAdminEmail shouldBe adminEmail
       }
 
