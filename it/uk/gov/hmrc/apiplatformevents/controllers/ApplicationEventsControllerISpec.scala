@@ -198,6 +198,34 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"submissionIndex": 1,
          |"verificationId": "${UUID.randomUUID().toString}"}""".stripMargin
 
+  def validResponsibleIndividualDeclinedJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, code: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_DECLINED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"responsibleIndividualName": "$riName",
+         |"responsibleIndividualEmail": "$riEmail",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"code": "$code",
+         |"requestingAdminName": "$adminName",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
+  def validApplicationApprovalRequestDeclinedJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, reasons: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "APPLICATION_APPROVAL_REQUEST_DECLINED",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"responsibleIndividualName": "$riName",
+         |"responsibleIndividualEmail": "$riEmail",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"reasons": "$reasons",
+         |"requestingAdminName": "$adminName",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
   def doGet(path: String): Future[WSResponse] = {
     wsClient
       .url(s"$url$path")
@@ -582,6 +610,49 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.requestingAdminName shouldBe adminName
         event.actor shouldBe CollaboratorActor(adminEmail)
+        event.requestingAdminEmail shouldBe adminEmail
+      }
+
+      "respond with 201 when valid responsible individual declined json is sent" in {
+        val riName = "Mr Responsible"
+        val riEmail = "ri@example.com"
+        val adminName = "Mr Admin"
+        val adminEmail = "admin@example.com"
+        val code = "324523487236548723458"
+        testSuccessScenario("/application-event", validResponsibleIndividualDeclinedJsonBody(riName, riEmail, adminName, adminEmail, code))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualDeclined]
+
+        checkCommonEventValues(event)
+        event.responsibleIndividualName shouldBe riName
+        event.responsibleIndividualEmail shouldBe riEmail
+        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.code shouldBe code
+        event.requestingAdminName shouldBe adminName
+        event.requestingAdminEmail shouldBe adminEmail
+      }
+
+      "respond with 201 when valid application approval request declined json is sent" in {
+        val riName = "Mr Responsible"
+        val riEmail = "ri@example.com"
+        val adminName = "Mr Admin"
+        val adminEmail = "admin@example.com"
+        val reasons = "reasons text" +
+          ""
+        testSuccessScenario("/application-event", validApplicationApprovalRequestDeclinedJsonBody(riName, riEmail, adminName, adminEmail, reasons))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ApplicationApprovalRequestDeclined]
+
+        checkCommonEventValues(event)
+        event.responsibleIndividualName shouldBe riName
+        event.responsibleIndividualEmail shouldBe riEmail
+        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.reasons shouldBe reasons
+        event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
       }
 

@@ -201,12 +201,14 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val evts = primeRepo(
         makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("bob")), 
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("bob")), 
+        makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = GatekeeperUserActor("vic")), 
+        makeResponsibleIndividualDeclined(Some(appId)).copy(actor = CollaboratorActor("bob")), 
         makeRedirectUrisUpdatedEvent(Some(appId))
       )
 
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, Some("bob")))
 
-      fetchedEvents should contain allOf(evts(0), evts(1))
+      fetchedEvents should contain allOf(evts(0), evts(1), evts(3))
     }
   }
 
@@ -295,15 +297,18 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
         makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
+        makeResponsibleIndividualChangedToSelf(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
+        makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = CollaboratorActor("vic")), 
         makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("dylan")), 
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("ellie")),
-        makeResponsibleIndividualSet(Some(appId)).copy(actor = CollaboratorActor("lucy"))
+        makeResponsibleIndividualSet(Some(appId)).copy(actor = CollaboratorActor("lucy")),
+        makeResponsibleIndividualDeclined(Some(appId)).copy(actor = GatekeeperUserActor("alice"))
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
       inside(fetchEventQueryValues.value) { case QueryableValues(_, _, _, actors) =>
-        actors should contain allOf ("alice","bob","charlie", "dylan", "ellie", "lucy")
+        actors should contain allOf ("alice","bob","charlie", "dylan", "ellie", "lucy", "vic")
       }
     }
   }
