@@ -218,8 +218,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "APPLICATION_APPROVAL_REQUEST_DECLINED",
          |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
-         |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"decliningUserName": "$riName",
+         |"decliningUserEmail": "$riEmail",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"reasons": "$reasons",
@@ -648,8 +648,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val event = results.head.asInstanceOf[ApplicationApprovalRequestDeclined]
 
         checkCommonEventValues(event)
-        event.responsibleIndividualName shouldBe riName
-        event.responsibleIndividualEmail shouldBe riEmail
+        event.decliningUserName shouldBe riName
+        event.decliningUserEmail shouldBe riEmail
         event.actor shouldBe CollaboratorActor(adminEmail)
         event.reasons shouldBe reasons
         event.requestingAdminName shouldBe adminName
