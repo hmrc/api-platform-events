@@ -64,6 +64,7 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object APPLICATION_STATE_CHANGED extends EventType
   case object RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED extends EventType
   case object RESPONSIBLE_INDIVIDUAL_DECLINED extends EventType
+  case object RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY extends EventType
   case object APPLICATION_APPROVAL_REQUEST_DECLINED extends EventType
 
   case object  API_SUBSCRIBED extends EventType

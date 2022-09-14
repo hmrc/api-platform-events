@@ -203,6 +203,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("bob")), 
         makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = GatekeeperUserActor("vic")), 
         makeResponsibleIndividualDeclined(Some(appId)).copy(actor = CollaboratorActor("bob")), 
+        makeResponsibleIndividualDidNotVerify(Some(appId)).copy(actor = CollaboratorActor("vic")), 
         makeRedirectUrisUpdatedEvent(Some(appId))
       )
 

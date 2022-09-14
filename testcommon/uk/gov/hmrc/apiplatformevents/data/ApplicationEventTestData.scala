@@ -286,6 +286,23 @@ trait ApplicationEventTestData {
     responsibleIndividualDeclinedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
+  val responsibleIndividualDidNotVerifyEvent: ResponsibleIndividualDidNotVerify = ResponsibleIndividualDidNotVerify(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDidNotVerify(appId: Option[String] = None): ResponsibleIndividualDidNotVerify = {
+    responsibleIndividualDidNotVerifyEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
   val applicationApprovalRequestDeclinedEvent: ApplicationApprovalRequestDeclined = ApplicationApprovalRequestDeclined(
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
