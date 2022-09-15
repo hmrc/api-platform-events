@@ -212,6 +212,20 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"requestingAdminName": "$adminName",
          |"requestingAdminEmail": "$adminEmail"}""".stripMargin
 
+  def validResponsibleIndividualDeclinedUpdateJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, code: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$applicationId",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE",
+         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"responsibleIndividualName": "$riName",
+         |"responsibleIndividualEmail": "$riEmail",
+         |"submissionId": "$submissionId",
+         |"submissionIndex": 1,
+         |"code": "$code",
+         |"requestingAdminName": "$adminName",
+         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+
   def validResponsibleIndividualDidNotVerifyJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, code: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$applicationId",
@@ -638,6 +652,27 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event = results.head.asInstanceOf[ResponsibleIndividualDeclined]
+
+        checkCommonEventValues(event)
+        event.responsibleIndividualName shouldBe riName
+        event.responsibleIndividualEmail shouldBe riEmail
+        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.code shouldBe code
+        event.requestingAdminName shouldBe adminName
+        event.requestingAdminEmail shouldBe adminEmail
+      }
+
+      "respond with 201 when valid responsible individual declined update json is sent" in {
+        val riName = "Mr Responsible"
+        val riEmail = "ri@example.com"
+        val adminName = "Mr Admin"
+        val adminEmail = "admin@example.com"
+        val code = "324523487236548723458"
+        testSuccessScenario("/application-event", validResponsibleIndividualDeclinedUpdateJsonBody(riName, riEmail, adminName, adminEmail, code))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ResponsibleIndividualDeclinedUpdate]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName

@@ -203,13 +203,14 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("bob")), 
         makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = GatekeeperUserActor("vic")), 
         makeResponsibleIndividualDeclined(Some(appId)).copy(actor = CollaboratorActor("bob")), 
+        makeResponsibleIndividualDeclinedUpdate(Some(appId)).copy(actor = CollaboratorActor("bob")), 
         makeResponsibleIndividualDidNotVerify(Some(appId)).copy(actor = CollaboratorActor("vic")), 
         makeRedirectUrisUpdatedEvent(Some(appId))
       )
 
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, Some("bob")))
 
-      fetchedEvents should contain allOf(evts(0), evts(1), evts(3))
+      fetchedEvents should contain allOf(evts(0), evts(1), evts(4))
     }
   }
 
