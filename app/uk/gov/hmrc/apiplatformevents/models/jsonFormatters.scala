@@ -53,6 +53,10 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val responsibleIndividualChangedToSelfFormats: OFormat[ResponsibleIndividualChangedToSelf] = Json.format[ResponsibleIndividualChangedToSelf]
   implicit val applicationStateChangedFormats: OFormat[ApplicationStateChanged] = Json.format[ApplicationStateChanged]
   implicit val responsibleIndividualVerificationStartedFormats: OFormat[ResponsibleIndividualVerificationStarted] = Json.format[ResponsibleIndividualVerificationStarted]
+  implicit val responsibleIndividualDeclinedFormats: OFormat[ResponsibleIndividualDeclined] = Json.format[ResponsibleIndividualDeclined]
+  implicit val responsibleIndividualDeclinedUpdateFormats: OFormat[ResponsibleIndividualDeclinedUpdate] = Json.format[ResponsibleIndividualDeclinedUpdate]
+  implicit val responsibleIndividualDidNotVerifyFormats: OFormat[ResponsibleIndividualDidNotVerify] = Json.format[ResponsibleIndividualDidNotVerify]
+  implicit val applicationApprovalRequestDeclinedFormats: OFormat[ApplicationApprovalRequestDeclined] = Json.format[ApplicationApprovalRequestDeclined]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -65,6 +69,10 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[ResponsibleIndividualChangedToSelf](EventType.RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF.toString)
     .and[ApplicationStateChanged](EventType.APPLICATION_STATE_CHANGED.toString)
     .and[ResponsibleIndividualVerificationStarted](EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED.toString)
+    .and[ResponsibleIndividualDeclined](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED.toString)
+    .and[ResponsibleIndividualDeclinedUpdate](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE.toString)
+    .and[ResponsibleIndividualDidNotVerify](EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY.toString)
+    .and[ApplicationApprovalRequestDeclined](EventType.APPLICATION_APPROVAL_REQUEST_DECLINED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
@@ -109,6 +117,10 @@ trait JsonRequestFormatters {
   implicit val responsibleIndividualChangedToSelfFormats: OFormat[ResponsibleIndividualChangedToSelf] = Json.format[ResponsibleIndividualChangedToSelf]
   implicit val applicationStateChangedFormats: OFormat[ApplicationStateChanged] = Json.format[ApplicationStateChanged]
   implicit val responsibleIndividualVerificationStartedFormats: OFormat[ResponsibleIndividualVerificationStarted] = Json.format[ResponsibleIndividualVerificationStarted]
+  implicit val responsibleIndividualDeclinedFormats: OFormat[ResponsibleIndividualDeclined] = Json.format[ResponsibleIndividualDeclined]
+  implicit val responsibleIndividualDeclinedUpdateFormats: OFormat[ResponsibleIndividualDeclinedUpdate] = Json.format[ResponsibleIndividualDeclinedUpdate]
+  implicit val responsibleIndividualDidNotVerifyFormats: OFormat[ResponsibleIndividualDidNotVerify] = Json.format[ResponsibleIndividualDidNotVerify]
+  implicit val applicationApprovalRequestDeclinedFormats: OFormat[ApplicationApprovalRequestDeclined] = Json.format[ApplicationApprovalRequestDeclined]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -121,6 +133,10 @@ trait JsonRequestFormatters {
     .and[ResponsibleIndividualChangedToSelf](EventType.RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF.toString)
     .and[ApplicationStateChanged](EventType.APPLICATION_STATE_CHANGED.toString)
     .and[ResponsibleIndividualVerificationStarted](EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED.toString)
+    .and[ResponsibleIndividualDeclined](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED.toString)
+    .and[ResponsibleIndividualDeclinedUpdate](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE.toString)
+    .and[ResponsibleIndividualDidNotVerify](EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY.toString)
+    .and[ApplicationApprovalRequestDeclined](EventType.APPLICATION_APPROVAL_REQUEST_DECLINED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)

@@ -47,6 +47,10 @@ object ApplicationEvent {
     case _: ResponsibleIndividualChangedToSelf => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF
     case _: ApplicationStateChanged => EventType.APPLICATION_STATE_CHANGED
     case _: ResponsibleIndividualVerificationStarted => EventType.RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED
+    case _: ResponsibleIndividualDeclined => EventType.RESPONSIBLE_INDIVIDUAL_DECLINED
+    case _: ResponsibleIndividualDeclinedUpdate => EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE
+    case _: ResponsibleIndividualDidNotVerify => EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY
+    case _: ApplicationApprovalRequestDeclined => EventType.APPLICATION_APPROVAL_REQUEST_DECLINED
   }
 
   def extractActorText(evt: ApplicationEvent): String = evt match {
@@ -68,6 +72,10 @@ object ApplicationEvent {
     case e: ResponsibleIndividualChangedToSelf => Actor.extractActorText(e.actor)
     case e: ApplicationStateChanged => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualVerificationStarted => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualDeclined => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualDeclinedUpdate => Actor.extractActorText(e.actor)
+    case e: ResponsibleIndividualDidNotVerify => Actor.extractActorText(e.actor)
+    case e: ApplicationApprovalRequestDeclined => Actor.extractActorText(e.actor)
   }
 }
 
@@ -239,3 +247,55 @@ case class ResponsibleIndividualVerificationStarted(id: EventId,
                                                     submissionIndex: Int,
                                                     verificationId: String
                                                    ) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualDeclined(id: EventId,
+                                         applicationId: String,
+                                         eventDateTime: LocalDateTime,
+                                         actor: Actor,
+                                         responsibleIndividualName: String,
+                                         responsibleIndividualEmail: String,
+                                         submissionId: String,
+                                         submissionIndex: Int,
+                                         code: String,
+                                         requestingAdminName: String,
+                                         requestingAdminEmail: String
+                                        ) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualDeclinedUpdate(id: EventId,
+                                         applicationId: String,
+                                         eventDateTime: LocalDateTime,
+                                         actor: Actor,
+                                         responsibleIndividualName: String,
+                                         responsibleIndividualEmail: String,
+                                         submissionId: String,
+                                         submissionIndex: Int,
+                                         code: String,
+                                         requestingAdminName: String,
+                                         requestingAdminEmail: String
+                                        ) extends ApplicationEvent with HasActor
+
+case class ResponsibleIndividualDidNotVerify(id: EventId,
+                                         applicationId: String,
+                                         eventDateTime: LocalDateTime,
+                                         actor: Actor,
+                                         responsibleIndividualName: String,
+                                         responsibleIndividualEmail: String,
+                                         submissionId: String,
+                                         submissionIndex: Int,
+                                         code: String,
+                                         requestingAdminName: String,
+                                         requestingAdminEmail: String
+                                        ) extends ApplicationEvent with HasActor
+                                       
+case class ApplicationApprovalRequestDeclined(id: EventId,
+                                              applicationId: String,
+                                              eventDateTime: LocalDateTime,
+                                              actor: Actor,
+                                              decliningUserName: String,
+                                              decliningUserEmail: String,
+                                              submissionId: String,
+                                              submissionIndex: Int,
+                                              reasons: String,
+                                              requestingAdminName: String,
+                                              requestingAdminEmail: String
+                                             ) extends ApplicationEvent with HasActor

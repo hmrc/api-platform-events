@@ -127,6 +127,27 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.createEntity(responsibleIndividualVerificationStarted))
       await(repo.collection.find().toFuture()) should contain only responsibleIndividualVerificationStarted
     }
+
+    "create a responsibleIndividualDeclinedEvent entity" in {
+      await(repo.createEntity(responsibleIndividualDeclinedEvent))
+      await(repo.collection.find().toFuture()) should contain only responsibleIndividualDeclinedEvent
+    }
+
+    "create a responsibleIndividualDeclinedUpdateEvent entity" in {
+      await(repo.createEntity(responsibleIndividualDeclinedUpdateEvent))
+      await(repo.collection.find().toFuture()) should contain only responsibleIndividualDeclinedUpdateEvent
+    }
+
+    "create a responsibleIndividualDidNotVerifyEvent entity" in {
+      await(repo.createEntity(responsibleIndividualDidNotVerifyEvent))
+      await(repo.collection.find().toFuture()) should contain only responsibleIndividualDidNotVerifyEvent
+    }
+
+    "create a applicationApprovalRequestDeclinedEvent entity" in {
+      await(repo.createEntity(applicationApprovalRequestDeclinedEvent))
+      await(repo.collection.find().toFuture()) should contain only applicationApprovalRequestDeclinedEvent
+    }
+
   }
 
   "fetchEventsToNotify" should {

@@ -268,5 +268,73 @@ trait ApplicationEventTestData {
   def makeResponsibleIndividualVerificationStarted(appId: Option[String] = None): ResponsibleIndividualVerificationStarted = {
     responsibleIndividualVerificationStarted.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
+
+  val responsibleIndividualDeclinedEvent: ResponsibleIndividualDeclined = ResponsibleIndividualDeclined(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDeclined(appId: Option[String] = None): ResponsibleIndividualDeclined = {
+    responsibleIndividualDeclinedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualDeclinedUpdateEvent: ResponsibleIndividualDeclinedUpdate = ResponsibleIndividualDeclinedUpdate(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDeclinedUpdate(appId: Option[String] = None): ResponsibleIndividualDeclinedUpdate = {
+    responsibleIndividualDeclinedUpdateEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val responsibleIndividualDidNotVerifyEvent: ResponsibleIndividualDidNotVerify = ResponsibleIndividualDidNotVerify(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    responsibleIndividualName = "Mr Responsible",
+    responsibleIndividualEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    code = "123456789",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeResponsibleIndividualDidNotVerify(appId: Option[String] = None): ResponsibleIndividualDidNotVerify = {
+    responsibleIndividualDidNotVerifyEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val applicationApprovalRequestDeclinedEvent: ApplicationApprovalRequestDeclined = ApplicationApprovalRequestDeclined(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    actor = CollaboratorActor("iam@admin.com"),
+    decliningUserName = "Mr Responsible",
+    decliningUserEmail = "ri@example.com",
+    submissionId = UUID.randomUUID().toString,
+    submissionIndex = 1,
+    reasons = "reason text",
+    requestingAdminName = "Mr Admin",
+    requestingAdminEmail = "admin@example.com")
+
+  def makeApplicationApprovalRequestDeclined(appId: Option[String] = None): ApplicationApprovalRequestDeclined = {
+    applicationApprovalRequestDeclinedEvent.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }    
 }
 
