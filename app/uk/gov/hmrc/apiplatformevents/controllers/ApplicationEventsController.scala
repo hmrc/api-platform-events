@@ -66,12 +66,14 @@ class ApplicationEventsController @Inject()(
     }
   }
 
+  @deprecated("please pass ClientSecretAddedV2 to handleEvent endpoint")
   def clientSecretAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretAddedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
   }
 
+  @deprecated("please pass ClientSecretRemovedV2 to handleEvent endpoint")
   def clientSecretRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretRemovedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery

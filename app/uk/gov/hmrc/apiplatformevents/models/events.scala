@@ -34,7 +34,9 @@ object ApplicationEvent {
     case _: TeamMemberAddedEvent => EventType.TEAM_MEMBER_ADDED
     case _: TeamMemberRemovedEvent => EventType.TEAM_MEMBER_REMOVED
     case _: ClientSecretAddedEvent => EventType.CLIENT_SECRET_ADDED
+    case _: ClientSecretAddedEventV2 => EventType.CLIENT_SECRET_ADDED_V2
     case _: ClientSecretRemovedEvent => EventType.CLIENT_SECRET_REMOVED
+    case _: ClientSecretRemovedEventV2 => EventType.CLIENT_SECRET_REMOVED_V2
     case _: PpnsCallBackUriUpdatedEvent => EventType.PPNS_CALLBACK_URI_UPDATED
     case _: ProductionAppNameChangedEvent => EventType.PROD_APP_NAME_CHANGED
     case _: ProductionAppPrivacyPolicyLocationChanged => EventType.PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED
@@ -59,7 +61,9 @@ object ApplicationEvent {
     case e: TeamMemberAddedEvent => e.actor.id
     case e: TeamMemberRemovedEvent => e.actor.id
     case e: ClientSecretAddedEvent => e.actor.id
+    case e: ClientSecretAddedEventV2 => Actor.extractActorText(e.actor)
     case e: ClientSecretRemovedEvent => e.actor.id
+    case e: ClientSecretRemovedEventV2 => Actor.extractActorText(e.actor)
     case e: PpnsCallBackUriUpdatedEvent => e.actor.id
     case e: ProductionAppNameChangedEvent => Actor.extractActorText(e.actor)
     case e: ProductionAppPrivacyPolicyLocationChanged => Actor.extractActorText(e.actor)
@@ -101,17 +105,34 @@ case class TeamMemberRemovedEvent(id: EventId,
                                   teamMemberEmail: String,
                                   teamMemberRole: String) extends ApplicationEvent with HasOldActor
 
+@deprecated("please use new event")
 case class ClientSecretAddedEvent(id: EventId,
                                   applicationId: String,
                                   eventDateTime: LocalDateTime,
                                   actor: OldActor,
                                   clientSecretId: String) extends ApplicationEvent with HasOldActor
 
+case class ClientSecretAddedEventV2(id: EventId,
+                                  applicationId: String,
+                                  eventDateTime: LocalDateTime,
+                                  actor: Actor,
+                                  clientSecretId: String,
+                                  requestingAdminEmail: String) extends ApplicationEvent with HasActor
+
+@deprecated("please use new event")
 case class ClientSecretRemovedEvent(id: EventId,
                                     applicationId: String,
                                     eventDateTime: LocalDateTime,
                                     actor: OldActor,
                                     clientSecretId: String) extends ApplicationEvent with HasOldActor
+
+case class ClientSecretRemovedEventV2(id: EventId,
+                                    applicationId: String,
+                                    eventDateTime: LocalDateTime,
+                                    actor: Actor,
+                                    clientSecretId: String,
+                                    requestingAdminEmail: String) extends ApplicationEvent with HasActor
+
 
 
 case class PpnsCallBackUriUpdatedEvent(id: EventId,

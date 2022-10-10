@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.data
 
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, CollaboratorActor, EventId, GatekeeperUserActor, OldActor}
+import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, CollaboratorActor, EventId, GatekeeperUserActor, OldActor}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -55,8 +55,20 @@ trait ApplicationEventTestData {
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
+  val clientSecretAddedV2Model: ClientSecretAddedEventV2 = ClientSecretAddedEventV2(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    GatekeeperUserActor("iam@admin.com"),
+    clientSecretId = "jkhkhk",
+    requestingAdminEmail = "admin@admin.com")
+
   def makeClientSecretAddedEvent(appId: Option[String] = None): ClientSecretAddedEvent = {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeClientSecretAddedEventV2(appId: Option[String] = None): ClientSecretAddedEventV2 = {
+    clientSecretAddedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(

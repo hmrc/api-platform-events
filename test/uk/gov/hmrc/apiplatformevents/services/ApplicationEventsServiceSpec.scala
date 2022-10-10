@@ -276,14 +276,16 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
-        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now)
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretAddedEventV2(Some(appId)).copy(eventDateTime = now)
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
       inside(fetchEventQueryValues.value) { case QueryableValues(_, _, eventTypes, _) =>
-        eventTypes should contain allOf (EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED, EventType.CLIENT_SECRET_ADDED)
-        eventTypes should not contain EventType.CLIENT_SECRET_REMOVED
+        eventTypes should contain allOf (EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED,
+          EventType.CLIENT_SECRET_ADDED, EventType.CLIENT_SECRET_ADDED_V2)
+        eventTypes should not contain (EventType.CLIENT_SECRET_REMOVED, EventType.CLIENT_SECRET_REMOVED_V2)
       }
     }
 
