@@ -59,9 +59,8 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
-    GatekeeperUserActor("iam@admin.com"),
-    clientSecretId = "jkhkhk",
-    requestingAdminEmail = "admin@admin.com")
+    CollaboratorActor("iam@admin.com"),
+    clientSecretId = "jkhkhk")
 
   def makeClientSecretAddedEvent(appId: Option[String] = None): ClientSecretAddedEvent = {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
