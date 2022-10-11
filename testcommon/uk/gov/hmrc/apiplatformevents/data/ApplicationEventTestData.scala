@@ -55,7 +55,7 @@ trait ApplicationEventTestData {
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
-  val clientSecretAddedV2Model: ClientSecretAddedEventV2 = ClientSecretAddedEventV2(
+  val clientSecretAddedV2Model: ClientSecretAdded = ClientSecretAdded(
     id = EventId.random,
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
@@ -67,7 +67,7 @@ trait ApplicationEventTestData {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
-  def makeClientSecretAddedEventV2(appId: Option[String] = None): ClientSecretAddedEventV2 = {
+  def makeClientSecretAdded(appId: Option[String] = None): ClientSecretAdded = {
     clientSecretAddedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 

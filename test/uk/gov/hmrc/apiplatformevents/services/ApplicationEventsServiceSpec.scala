@@ -277,7 +277,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
-        makeClientSecretAddedEventV2(Some(appId)).copy(eventDateTime = now)
+        makeClientSecretAdded(Some(appId)).copy(eventDateTime = now)
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))

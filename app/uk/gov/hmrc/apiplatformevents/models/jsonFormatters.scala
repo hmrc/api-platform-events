@@ -57,6 +57,8 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val responsibleIndividualDeclinedUpdateFormats: OFormat[ResponsibleIndividualDeclinedUpdate] = Json.format[ResponsibleIndividualDeclinedUpdate]
   implicit val responsibleIndividualDidNotVerifyFormats: OFormat[ResponsibleIndividualDidNotVerify] = Json.format[ResponsibleIndividualDidNotVerify]
   implicit val applicationApprovalRequestDeclinedFormats: OFormat[ApplicationApprovalRequestDeclined] = Json.format[ApplicationApprovalRequestDeclined]
+  implicit val clientSecretAddedFormats: OFormat[ClientSecretAdded] = Json.format[ClientSecretAdded]
+  implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -73,6 +75,8 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[ResponsibleIndividualDeclinedUpdate](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE.toString)
     .and[ResponsibleIndividualDidNotVerify](EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY.toString)
     .and[ApplicationApprovalRequestDeclined](EventType.APPLICATION_APPROVAL_REQUEST_DECLINED.toString)
+    .and[ClientSecretAdded](EventType.CLIENT_SECRET_ADDED_V2.toString)
+    .and[ClientSecretRemoved](EventType.CLIENT_SECRET_REMOVED_V2.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
