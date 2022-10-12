@@ -116,7 +116,9 @@ case class ClientSecretAdded(id: EventId,
                              applicationId: String,
                              eventDateTime: LocalDateTime,
                              actor: Actor,
-                             clientSecretId: String) extends ApplicationEvent with HasActor
+                             clientSecretId: String,
+                             clientSecretName: String,
+                             requestingAdminEmail: String) extends ApplicationEvent with HasActor
 
 @deprecated("please use new event ClientSecretRemoved")
 case class ClientSecretRemovedEvent(id: EventId,
