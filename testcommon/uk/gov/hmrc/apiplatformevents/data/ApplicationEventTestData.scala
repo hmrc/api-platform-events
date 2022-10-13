@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.data
 
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{Actor, ActorType, CollaboratorActor, EventId, GatekeeperUserActor, OldActor}
+import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, CollaboratorActor, EventId, GatekeeperUserActor, OldActor}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -60,7 +60,9 @@ trait ApplicationEventTestData {
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
     CollaboratorActor("iam@admin.com"),
-    clientSecretId = "jkhkhk")
+    clientSecretId = "jkhkhk",
+    clientSecretName = "****hkhk",
+    requestingAdminEmail = "other@admin.com")
 
   def makeClientSecretAddedEvent(appId: Option[String] = None): ClientSecretAddedEvent = {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -77,8 +79,21 @@ trait ApplicationEventTestData {
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
+  val clientSecretRemovedV2Model: ClientSecretRemoved = ClientSecretRemoved(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    clientSecretId = "jkhkhk",
+    clientSecretName = "****hkhk",
+    requestingAdminEmail = "other@admin.com")
+
   def makeClientSecretRemovedEvent(appId: Option[String] = None): ClientSecretRemovedEvent = {
     clientSecretRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeClientSecretRemoved(appId: Option[String] = None): ClientSecretRemoved = {
+    clientSecretRemovedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
