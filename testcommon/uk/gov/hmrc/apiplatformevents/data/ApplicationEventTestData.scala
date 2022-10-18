@@ -55,8 +55,21 @@ trait ApplicationEventTestData {
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
+  val clientSecretAddedV2Model: ClientSecretAdded = ClientSecretAdded(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    clientSecretId = "jkhkhk",
+    clientSecretName = "****hkhk",
+    requestingAdminEmail = "other@admin.com")
+
   def makeClientSecretAddedEvent(appId: Option[String] = None): ClientSecretAddedEvent = {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeClientSecretAdded(appId: Option[String] = None): ClientSecretAdded = {
+    clientSecretAddedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val clientSecretRemovedModel: ClientSecretRemovedEvent = ClientSecretRemovedEvent(
@@ -66,8 +79,21 @@ trait ApplicationEventTestData {
     OldActor("iam@admin.com", ActorType.GATEKEEPER),
     clientSecretId = "jkhkhk")
 
+  val clientSecretRemovedV2Model: ClientSecretRemoved = ClientSecretRemoved(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    clientSecretId = "jkhkhk",
+    clientSecretName = "****hkhk",
+    requestingAdminEmail = "other@admin.com")
+
   def makeClientSecretRemovedEvent(appId: Option[String] = None): ClientSecretRemovedEvent = {
     clientSecretRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeClientSecretRemoved(appId: Option[String] = None): ClientSecretRemoved = {
+    clientSecretRemovedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(

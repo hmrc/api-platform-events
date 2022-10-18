@@ -66,12 +66,14 @@ class ApplicationEventsController @Inject()(
     }
   }
 
+  @deprecated("please pass ClientSecretAddedV2 to handleEvent endpoint")
   def clientSecretAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretAddedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
   }
 
+  @deprecated("please pass ClientSecretRemovedV2 to handleEvent endpoint")
   def clientSecretRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretRemovedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
@@ -105,8 +107,10 @@ class ApplicationEventsController @Inject()(
     Try(json.validate[T]) match {
       case Success(JsSuccess(payload, _)) => f(payload)
       case Success(JsError(errs)) =>
+        errs.foreach(err=> logger.info(err._2.mkString(" ")))
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, JsError.toJson(errs))))
       case Failure(e) =>
+        logger.info(s"Error with request Json ${e.getMessage}")
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, e.getMessage)))
     }
   }

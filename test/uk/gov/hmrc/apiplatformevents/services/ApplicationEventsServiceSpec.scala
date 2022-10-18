@@ -139,7 +139,8 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val evts = primeRepo(
         makeTeamMemberAddedEvent(Some(appId)), 
         makeTeamMemberRemovedEvent(Some(appId)),
-        makeClientSecretAddedEvent(Some(appId))
+        makeClientSecretAddedEvent(Some(appId)),
+        makeClientSecretAdded(Some(appId))
       )
 
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, None))
@@ -153,14 +154,15 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val evts = primeRepo(
         makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
         makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now.withMinute(10)),
-        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear)
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear),
+        makeClientSecretAdded(Some(appId)).copy(eventDateTime = nowButLastYear)
       )
 
       val fetchedEvents1900 = await(inTest.fetchEventsBy(appId, Some(1900), None, None))
       fetchedEvents1900 shouldBe Seq.empty
 
       val fetchedEventsLastYear = await(inTest.fetchEventsBy(appId, Some(lastYear), None, None))
-      fetchedEventsLastYear should contain only (evts(2))
+      fetchedEventsLastYear should contain allOf (evts(2), evts(3))
 
       val fetchedEventsNow = await(inTest.fetchEventsBy(appId, Some(year), None, None))
       fetchedEventsNow should contain allOf(evts(0), evts(1))
@@ -276,14 +278,19 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
-        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now)
+        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretAdded(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretRemovedEvent(Some(appId)).copy(eventDateTime = now),
+        makeClientSecretRemoved(Some(appId)).copy(eventDateTime = now)
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
       inside(fetchEventQueryValues.value) { case QueryableValues(_, _, eventTypes, _) =>
-        eventTypes should contain allOf (EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED, EventType.CLIENT_SECRET_ADDED)
-        eventTypes should not contain EventType.CLIENT_SECRET_REMOVED
+        eventTypes should contain allOf (EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED,
+          EventType.CLIENT_SECRET_ADDED, EventType.CLIENT_SECRET_REMOVED,
+          EventType.CLIENT_SECRET_ADDED_V2, EventType.CLIENT_SECRET_REMOVED_V2)
+        eventTypes should not contain EventType.PPNS_CALLBACK_URI_UPDATED
       }
     }
 
@@ -295,8 +302,10 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
         makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
         makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)), 
+        makeClientSecretAdded(Some(appId)).copy(actor = CollaboratorActor("alice")), 
         makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
         makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
+        makeClientSecretAdded(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
         makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
         makeResponsibleIndividualChangedToSelf(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
