@@ -80,7 +80,9 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  REDIRECT_URIS_UPDATED extends EventType
 
   case object  TEAM_MEMBER_ADDED extends EventType
+  case object  TEAM_MEMBER_ADDED_V2 extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
+  case object  TEAM_MEMBER_REMOVED_V2 extends EventType
 
 }
 

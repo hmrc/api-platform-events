@@ -91,6 +91,14 @@ sealed trait HasActor {
   def actor: Actor
 }
 
+case class TeamMemberAdded(id: EventId,
+                           applicationId: String,
+                           eventDateTime: LocalDateTime,
+                           actor: Actor,
+                           teamMemberEmail: String,
+                           teamMemberRole: String,
+                           requestingAdminEmail: String) extends ApplicationEvent with HasActor
+@deprecated("please use new event TeamMemberAdded")
 case class TeamMemberAddedEvent(id: EventId,
                                 applicationId: String,
                                 eventDateTime: LocalDateTime,
@@ -98,6 +106,15 @@ case class TeamMemberAddedEvent(id: EventId,
                                 teamMemberEmail: String,
                                 teamMemberRole: String) extends ApplicationEvent with HasOldActor
 
+
+case class TeamMemberRemoved(id: EventId,
+                             applicationId: String,
+                             eventDateTime: LocalDateTime,
+                             actor: Actor,
+                             teamMemberEmail: String,
+                             teamMemberRole: String,
+                             requestingAdminEmail: String) extends ApplicationEvent with HasActor
+@deprecated("please use new event TeamMemberRemoved")
 case class TeamMemberRemovedEvent(id: EventId,
                                   applicationId: String,
                                   eventDateTime: LocalDateTime,
@@ -307,7 +324,7 @@ case class ResponsibleIndividualDidNotVerify(id: EventId,
                                          requestingAdminName: String,
                                          requestingAdminEmail: String
                                         ) extends ApplicationEvent with HasActor
-                                       
+
 case class ApplicationApprovalRequestDeclined(id: EventId,
                                               applicationId: String,
                                               eventDateTime: LocalDateTime,

@@ -32,8 +32,21 @@ trait ApplicationEventTestData {
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
+  val teamMemberAdded: TeamMemberAdded = TeamMemberAdded(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    teamMemberEmail = "jkhkhk",
+    teamMemberRole = "ADMIN",
+    requestingAdminEmail = "other@admin.com")
+
   def makeTeamMemberAddedEvent(appId: Option[String] = None): TeamMemberAddedEvent = {
     teamMemberAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeTeamMemberAdded(appId: Option[String] = None): TeamMemberAdded = {
+    teamMemberAdded.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
@@ -44,9 +57,23 @@ trait ApplicationEventTestData {
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
+  val teamMemberRemoved: TeamMemberRemoved = TeamMemberRemoved(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    teamMemberEmail = "jkhkhk",
+    teamMemberRole = "ADMIN",
+    requestingAdminEmail = "other@admin.com")
+
   def makeTeamMemberRemovedEvent(appId: Option[String] = None): TeamMemberRemovedEvent = {
     teamMemberRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
+
+  def makeTeamMemberRemoved(appId: Option[String] = None): TeamMemberRemoved = {
+    teamMemberRemoved.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
 
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
     id = EventId.random,
