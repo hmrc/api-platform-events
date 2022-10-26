@@ -91,14 +91,16 @@ sealed trait HasActor {
   def actor: Actor
 }
 
-case class TeamMemberAdded(id: EventId,
-                           applicationId: String,
-                           eventDateTime: LocalDateTime,
-                           actor: Actor,
-                           teamMemberEmail: String,
-                           teamMemberRole: String,
-                           requestingAdminEmail: String) extends ApplicationEvent with HasActor
-@deprecated("please use new event TeamMemberAdded")
+case class CollaboratorAdded(id: EventId,
+                             applicationId: String,
+                             eventDateTime: LocalDateTime,
+                             actor: Actor,
+                             collaboratorId: String,
+                             collaboratorEmail: String,
+                             collaboratorRole: Role,
+                             verifiedAdminsToEmail: Set[String],
+                             requestingAdminEmail: String) extends ApplicationEvent
+@deprecated("please use new event CollaboratorAdded")
 case class TeamMemberAddedEvent(id: EventId,
                                 applicationId: String,
                                 eventDateTime: LocalDateTime,
@@ -107,14 +109,17 @@ case class TeamMemberAddedEvent(id: EventId,
                                 teamMemberRole: String) extends ApplicationEvent with HasOldActor
 
 
-case class TeamMemberRemoved(id: EventId,
-                             applicationId: String,
-                             eventDateTime: LocalDateTime,
-                             actor: Actor,
-                             teamMemberEmail: String,
-                             teamMemberRole: String,
-                             requestingAdminEmail: String) extends ApplicationEvent with HasActor
-@deprecated("please use new event TeamMemberRemoved")
+case class CollaboratorRemoved(id: EventId,
+                               applicationId: String,
+                               eventDateTime: LocalDateTime,
+                               actor: Actor,
+                               collaboratorId: String,
+                               collaboratorEmail: String,
+                               collaboratorRole: Role,
+                               verifiedAdminsToEmail: Set[String],
+                               requestingAdminEmail: String) extends ApplicationEvent
+
+@deprecated("please use new event CollaboratorRemoved")
 case class TeamMemberRemovedEvent(id: EventId,
                                   applicationId: String,
                                   eventDateTime: LocalDateTime,

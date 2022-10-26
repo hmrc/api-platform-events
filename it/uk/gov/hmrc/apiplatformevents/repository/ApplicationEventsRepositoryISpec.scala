@@ -53,9 +53,9 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
     }
 
-    "create a teamMemberRemoved_V2 entity" in {
-      await(repo.createEntity(teamMemberRemoved))
-      await(repo.collection.find().toFuture()) should contain only teamMemberRemoved
+    "create a collaboratorRemoved entity" in {
+      await(repo.createEntity(collaboratorRemoved))
+      await(repo.collection.find().toFuture()) should contain only collaboratorRemoved
     }
 
     "create a teamMemberAdded entity" in {
@@ -63,9 +63,9 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.collection.find().toFuture()) should contain only teamMemberAddedModel
     }
 
-    "create a teamMemberAdded_V2 entity" in {
-      await(repo.createEntity(teamMemberAdded))
-      await(repo.collection.find().toFuture()) should contain only teamMemberAdded
+    "create a collaboratorAdded entity" in {
+      await(repo.createEntity(collaboratorAdded))
+      await(repo.collection.find().toFuture()) should contain only collaboratorAdded
     }
 
     "create a clientSecretAdded entity" in {

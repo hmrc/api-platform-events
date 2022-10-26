@@ -29,7 +29,7 @@ object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
   case object COLLABORATOR extends ActorType
   case object GATEKEEPER extends  ActorType
   case object SCHEDULED_JOB extends ActorType
-  case object UNKNOWN extends ActorType
+//  case object UNKNOWN extends ActorType
 }
 
 case class OldActor(id: String, actorType: ActorType)
@@ -40,12 +40,13 @@ object Actor {
   def extractActorText(actor: Actor): String = actor match {
     case GatekeeperUserActor(user) => user
     case CollaboratorActor(email) => email
+    case ScheduledJobActor(jobId) => jobId
   }
 }
 
 case class GatekeeperUserActor(user: String) extends Actor
 case class CollaboratorActor(email: String) extends Actor
-//case class ScheduledJobActor(jobId: String) extends Actor
+case class ScheduledJobActor(jobId: String) extends Actor
 //case class UnknownActor() extends Actor
 
 sealed trait EventType extends EnumEntry
@@ -80,9 +81,10 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  REDIRECT_URIS_UPDATED extends EventType
 
   case object  TEAM_MEMBER_ADDED extends EventType
-  case object  TEAM_MEMBER_ADDED_V2 extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType
-  case object  TEAM_MEMBER_REMOVED_V2 extends EventType
+
+  case object  COLLABORATOR_ADDED extends EventType
+  case object  COLLABORATOR_REMOVED extends EventType
 
 }
 
