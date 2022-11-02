@@ -40,8 +40,7 @@ trait ApplicationEventTestData {
     collaboratorId = "someId",
     collaboratorEmail = "jkhkhk",
     collaboratorRole = Role.DEVELOPER,
-    verifiedAdminsToEmail = Set("email"),
-    requestingAdminEmail = "other@admin.com")
+    verifiedAdminsToEmail = Set("email"))
 
   def makeTeamMemberAddedEvent(appId: Option[String] = None): TeamMemberAddedEvent = {
     teamMemberAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -67,8 +66,7 @@ trait ApplicationEventTestData {
     collaboratorId = "someId",
     collaboratorEmail = "jkhkhk",
     collaboratorRole = Role.ADMINISTRATOR,
-    verifiedAdminsToEmail= Set("email1", "email2", "email3"),
-    requestingAdminEmail = "other@admin.com")
+    verifiedAdminsToEmail= Set("email1", "email2", "email3"))
 
   def makeTeamMemberRemovedEvent(appId: Option[String] = None): TeamMemberRemovedEvent = {
     teamMemberRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -92,8 +90,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     CollaboratorActor("iam@admin.com"),
     clientSecretId = "jkhkhk",
-    clientSecretName = "****hkhk",
-    requestingAdminEmail = "other@admin.com")
+    clientSecretName = "****hkhk")
 
   def makeClientSecretAddedEvent(appId: Option[String] = None): ClientSecretAddedEvent = {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -116,8 +113,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     CollaboratorActor("iam@admin.com"),
     clientSecretId = "jkhkhk",
-    clientSecretName = "****hkhk",
-    requestingAdminEmail = "other@admin.com")
+    clientSecretName = "****hkhk")
 
   def makeClientSecretRemovedEvent(appId: Option[String] = None): ClientSecretRemovedEvent = {
     clientSecretRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())

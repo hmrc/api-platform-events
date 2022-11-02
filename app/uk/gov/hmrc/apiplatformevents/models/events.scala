@@ -98,8 +98,7 @@ case class CollaboratorAdded(id: EventId,
                              collaboratorId: String,
                              collaboratorEmail: String,
                              collaboratorRole: Role,
-                             verifiedAdminsToEmail: Set[String],
-                             requestingAdminEmail: String) extends ApplicationEvent
+                             verifiedAdminsToEmail: Set[String]) extends ApplicationEvent
 @deprecated("please use new event CollaboratorAdded")
 case class TeamMemberAddedEvent(id: EventId,
                                 applicationId: String,
@@ -116,8 +115,7 @@ case class CollaboratorRemoved(id: EventId,
                                collaboratorId: String,
                                collaboratorEmail: String,
                                collaboratorRole: Role,
-                               verifiedAdminsToEmail: Set[String],
-                               requestingAdminEmail: String) extends ApplicationEvent
+                               verifiedAdminsToEmail: Set[String]) extends ApplicationEvent
 
 @deprecated("please use new event CollaboratorRemoved")
 case class TeamMemberRemovedEvent(id: EventId,
@@ -139,8 +137,7 @@ case class ClientSecretAdded(id: EventId,
                              eventDateTime: LocalDateTime,
                              actor: Actor,
                              clientSecretId: String,
-                             clientSecretName: String,
-                             requestingAdminEmail: String) extends ApplicationEvent with HasActor
+                             clientSecretName: String) extends ApplicationEvent with HasActor
 
 @deprecated("please use new event ClientSecretRemoved")
 case class ClientSecretRemovedEvent(id: EventId,
@@ -154,8 +151,7 @@ case class ClientSecretRemoved(id: EventId,
                                eventDateTime: LocalDateTime,
                                actor: Actor,
                                clientSecretId: String,
-                               clientSecretName: String,
-                               requestingAdminEmail: String) extends ApplicationEvent with HasActor
+                               clientSecretName: String) extends ApplicationEvent with HasActor
 
 case class PpnsCallBackUriUpdatedEvent(id: EventId,
                                        applicationId: String,
