@@ -53,9 +53,19 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
     }
 
+    "create a collaboratorRemoved entity" in {
+      await(repo.createEntity(collaboratorRemoved))
+      await(repo.collection.find().toFuture()) should contain only collaboratorRemoved
+    }
+
     "create a teamMemberAdded entity" in {
       await(repo.createEntity(teamMemberAddedModel))
       await(repo.collection.find().toFuture()) should contain only teamMemberAddedModel
+    }
+
+    "create a collaboratorAdded entity" in {
+      await(repo.createEntity(collaboratorAdded))
+      await(repo.collection.find().toFuture()) should contain only collaboratorAdded
     }
 
     "create a clientSecretAdded entity" in {
@@ -184,7 +194,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       val appId = UUID.randomUUID().toString()
 
       val evts = primeMongo(
-        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(Some(appId)),
         makeTeamMemberAddedEvent(),
         makeTeamMemberRemovedEvent(Some(appId)),
         makeClientSecretAddedEvent(Some(appId))
@@ -199,7 +209,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       val appId = UUID.randomUUID().toString()
 
       val evts = primeMongo(
-        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(Some(appId)),
         makeTeamMemberAddedEvent(),
         makeTeamMemberRemovedEvent(Some(appId)),
         makeClientSecretAddedEvent(Some(appId))

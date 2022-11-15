@@ -91,6 +91,15 @@ sealed trait HasActor {
   def actor: Actor
 }
 
+case class CollaboratorAdded(id: EventId,
+                             applicationId: String,
+                             eventDateTime: LocalDateTime,
+                             actor: Actor,
+                             collaboratorId: String,
+                             collaboratorEmail: String,
+                             collaboratorRole: Role,
+                             verifiedAdminsToEmail: Set[String]) extends ApplicationEvent
+@deprecated("please use new event CollaboratorAdded")
 case class TeamMemberAddedEvent(id: EventId,
                                 applicationId: String,
                                 eventDateTime: LocalDateTime,
@@ -98,6 +107,17 @@ case class TeamMemberAddedEvent(id: EventId,
                                 teamMemberEmail: String,
                                 teamMemberRole: String) extends ApplicationEvent with HasOldActor
 
+
+case class CollaboratorRemoved(id: EventId,
+                               applicationId: String,
+                               eventDateTime: LocalDateTime,
+                               actor: Actor,
+                               collaboratorId: String,
+                               collaboratorEmail: String,
+                               collaboratorRole: Role,
+                               verifiedAdminsToEmail: Set[String]) extends ApplicationEvent
+
+@deprecated("please use new event CollaboratorRemoved")
 case class TeamMemberRemovedEvent(id: EventId,
                                   applicationId: String,
                                   eventDateTime: LocalDateTime,
@@ -117,8 +137,7 @@ case class ClientSecretAdded(id: EventId,
                              eventDateTime: LocalDateTime,
                              actor: Actor,
                              clientSecretId: String,
-                             clientSecretName: String,
-                             requestingAdminEmail: String) extends ApplicationEvent with HasActor
+                             clientSecretName: String) extends ApplicationEvent with HasActor
 
 @deprecated("please use new event ClientSecretRemoved")
 case class ClientSecretRemovedEvent(id: EventId,
@@ -132,8 +151,7 @@ case class ClientSecretRemoved(id: EventId,
                                eventDateTime: LocalDateTime,
                                actor: Actor,
                                clientSecretId: String,
-                               clientSecretName: String,
-                               requestingAdminEmail: String) extends ApplicationEvent with HasActor
+                               clientSecretName: String) extends ApplicationEvent with HasActor
 
 case class PpnsCallBackUriUpdatedEvent(id: EventId,
                                        applicationId: String,
@@ -307,7 +325,7 @@ case class ResponsibleIndividualDidNotVerify(id: EventId,
                                          requestingAdminName: String,
                                          requestingAdminEmail: String
                                         ) extends ApplicationEvent with HasActor
-                                       
+
 case class ApplicationApprovalRequestDeclined(id: EventId,
                                               applicationId: String,
                                               eventDateTime: LocalDateTime,

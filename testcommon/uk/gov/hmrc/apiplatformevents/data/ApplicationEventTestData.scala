@@ -32,8 +32,22 @@ trait ApplicationEventTestData {
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
+  val collaboratorAdded: CollaboratorAdded = CollaboratorAdded(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    collaboratorId = "someId",
+    collaboratorEmail = "jkhkhk",
+    collaboratorRole = Role.DEVELOPER,
+    verifiedAdminsToEmail = Set("email"))
+
   def makeTeamMemberAddedEvent(appId: Option[String] = None): TeamMemberAddedEvent = {
     teamMemberAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeCollaboratorAdded(appId: Option[String] = None): CollaboratorAdded = {
+    collaboratorAdded.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val teamMemberRemovedModel: TeamMemberRemovedEvent = TeamMemberRemovedEvent(
@@ -44,9 +58,24 @@ trait ApplicationEventTestData {
     teamMemberEmail = "jkhkhk",
     teamMemberRole = "ADMIN")
 
+  val collaboratorRemoved: CollaboratorRemoved = CollaboratorRemoved(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    collaboratorId = "someId",
+    collaboratorEmail = "jkhkhk",
+    collaboratorRole = Role.ADMINISTRATOR,
+    verifiedAdminsToEmail= Set("email1", "email2", "email3"))
+
   def makeTeamMemberRemovedEvent(appId: Option[String] = None): TeamMemberRemovedEvent = {
     teamMemberRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
+
+  def makeCollaboratorRemoved(appId: Option[String] = None): CollaboratorRemoved = {
+    collaboratorRemoved.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
 
   val clientSecretAddedModel: ClientSecretAddedEvent = ClientSecretAddedEvent(
     id = EventId.random,
@@ -61,8 +90,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     CollaboratorActor("iam@admin.com"),
     clientSecretId = "jkhkhk",
-    clientSecretName = "****hkhk",
-    requestingAdminEmail = "other@admin.com")
+    clientSecretName = "****hkhk")
 
   def makeClientSecretAddedEvent(appId: Option[String] = None): ClientSecretAddedEvent = {
     clientSecretAddedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -85,8 +113,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     CollaboratorActor("iam@admin.com"),
     clientSecretId = "jkhkhk",
-    clientSecretName = "****hkhk",
-    requestingAdminEmail = "other@admin.com")
+    clientSecretName = "****hkhk")
 
   def makeClientSecretRemovedEvent(appId: Option[String] = None): ClientSecretRemovedEvent = {
     clientSecretRemovedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())

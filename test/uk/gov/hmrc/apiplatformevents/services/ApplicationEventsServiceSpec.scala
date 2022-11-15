@@ -174,7 +174,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val evts = primeRepoFor(
         EventType.TEAM_MEMBER_ADDED
       )(
-        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(Some(appId)),
         makeTeamMemberAddedEvent(Some(appId))
       )
 
@@ -272,9 +272,9 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val appId = UUID.randomUUID().toString()
 
       primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
-        makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),

@@ -54,12 +54,14 @@ class ApplicationEventsController @Inject()(
     }
   }
 
+  @deprecated("please pass CollaboratorAdded to handleEvent endpoint")
   def teamMemberAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberAddedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
   }
 
+  @deprecated("please pass CollaboratorRemoved to handleEvent endpoint")
   def teamMemberRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[TeamMemberRemovedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
