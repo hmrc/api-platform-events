@@ -81,6 +81,7 @@ object EventType extends Enum[EventType] with PlayJsonEnum[EventType]  {
   case object  PPNS_CALLBACK_URI_UPDATED extends EventType
 
   case object  REDIRECT_URIS_UPDATED extends EventType
+  case object  REDIRECT_URIS_UPDATED_V2 extends EventType
 
   case object  TEAM_MEMBER_ADDED extends EventType
   case object  TEAM_MEMBER_REMOVED extends EventType

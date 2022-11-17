@@ -131,8 +131,20 @@ trait ApplicationEventTestData {
     oldRedirectUris = "oldru",
     newRedirectUris = "newru")
 
+  val redirectUrisUpdatedV2Model: RedirectUrisUpdated = RedirectUrisUpdated(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    oldRedirectUris = "oldru",
+    newRedirectUris = "newru")
+
   def makeRedirectUrisUpdatedEvent(appId: Option[String] = None): RedirectUrisUpdatedEvent = {
     redirectUrisUpdatedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeRedirectUrisUpdated(appId: Option[String] = None): RedirectUrisUpdated = {
+    redirectUrisUpdatedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val apiSubscribedModel: ApiSubscribedEvent = ApiSubscribedEvent(
