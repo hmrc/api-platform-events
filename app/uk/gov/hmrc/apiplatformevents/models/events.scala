@@ -30,7 +30,9 @@ sealed trait ApplicationEvent {
 object ApplicationEvent {
   def asEventTypeValue(evt: ApplicationEvent): EventType = evt match {
     case _: ApiSubscribedEvent => EventType.API_SUBSCRIBED
+    case _: ApiSubscribed => EventType.API_SUBSCRIBED_V2
     case _: ApiUnsubscribedEvent => EventType.API_UNSUBSCRIBED
+    case _: ApiUnsubscribed => EventType.API_UNSUBSCRIBED_V2
     case _: TeamMemberAddedEvent => EventType.TEAM_MEMBER_ADDED
     case _: TeamMemberRemovedEvent => EventType.TEAM_MEMBER_REMOVED
     case _: ClientSecretAddedEvent => EventType.CLIENT_SECRET_ADDED
@@ -57,7 +59,9 @@ object ApplicationEvent {
 
   def extractActorText(evt: ApplicationEvent): String = evt match {
     case e: ApiSubscribedEvent => e.actor.id
+    case e: ApiSubscribed => Actor.extractActorText(e.actor)
     case e: ApiUnsubscribedEvent => e.actor.id
+    case e: ApiUnsubscribed => Actor.extractActorText(e.actor)
     case e: TeamMemberAddedEvent => e.actor.id
     case e: TeamMemberRemovedEvent => e.actor.id
     case e: ClientSecretAddedEvent => e.actor.id
@@ -169,6 +173,7 @@ case class RedirectUrisUpdatedEvent(id: EventId,
                                     oldRedirectUris: String,
                                     newRedirectUris: String) extends ApplicationEvent with HasOldActor
 
+@deprecated("please use new event ApiSubscribed")
 case class ApiSubscribedEvent(id: EventId,
                               applicationId: String,
                               eventDateTime: LocalDateTime,
@@ -176,12 +181,28 @@ case class ApiSubscribedEvent(id: EventId,
                               context: String,
                               version: String) extends ApplicationEvent with HasOldActor
 
+case class ApiSubscribed(id: EventId,
+                         applicationId: String,
+                         eventDateTime: LocalDateTime,
+                         actor: Actor,
+                         context: String,
+                         version: String) extends ApplicationEvent with HasActor
+
+
+@deprecated("please use new event ApiUnsubscribed")
 case class ApiUnsubscribedEvent(id: EventId,
                                 applicationId: String,
                                 eventDateTime: LocalDateTime,
                                 actor: OldActor,
                                 context: String,
                                 version: String) extends ApplicationEvent with HasOldActor
+
+case class ApiUnsubscribed(id: EventId,
+                           applicationId: String,
+                           eventDateTime: LocalDateTime,
+                           actor: Actor,
+                           context: String,
+                           version: String) extends ApplicationEvent with HasActor
 
 case class ProductionAppNameChangedEvent(id: EventId,
                                          applicationId: String,

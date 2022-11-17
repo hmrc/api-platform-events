@@ -140,7 +140,13 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeTeamMemberAddedEvent(Some(appId)), 
         makeTeamMemberRemovedEvent(Some(appId)),
         makeClientSecretAddedEvent(Some(appId)),
-        makeClientSecretAdded(Some(appId))
+        makeClientSecretAdded(Some(appId)),
+        makeClientSecretRemovedEvent(Some(appId)),
+        makeClientSecretRemoved(Some(appId)),
+        makeApiSubscribedEvent(Some(appId)),
+        makeApiSubscribed(Some(appId)),
+        makeApiUnsubscribedEvent(Some(appId)),
+        makeApiUnsubscribed(Some(appId))
       )
 
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, None))
@@ -277,11 +283,13 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
-        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
-        makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeClientSecretAdded(Some(appId)).copy(eventDateTime = now),
         makeClientSecretRemovedEvent(Some(appId)).copy(eventDateTime = now),
-        makeClientSecretRemoved(Some(appId)).copy(eventDateTime = now)
+        makeClientSecretRemoved(Some(appId)).copy(eventDateTime = now),
+        makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = now),
+        makeApiSubscribed(Some(appId)).copy(eventDateTime = now),
+        makeApiUnsubscribedEvent(Some(appId)).copy(eventDateTime = now),
+        makeApiUnsubscribed(Some(appId)).copy(eventDateTime = now)
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
@@ -289,7 +297,10 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       inside(fetchEventQueryValues.value) { case QueryableValues(_, _, eventTypes, _) =>
         eventTypes should contain allOf (EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED,
           EventType.CLIENT_SECRET_ADDED, EventType.CLIENT_SECRET_REMOVED,
-          EventType.CLIENT_SECRET_ADDED_V2, EventType.CLIENT_SECRET_REMOVED_V2)
+          EventType.CLIENT_SECRET_ADDED_V2, EventType.CLIENT_SECRET_REMOVED_V2,
+          EventType.API_SUBSCRIBED, EventType.API_UNSUBSCRIBED,
+          EventType.API_SUBSCRIBED_V2, EventType.API_UNSUBSCRIBED_V2
+        )
         eventTypes should not contain EventType.PPNS_CALLBACK_URI_UPDATED
       }
     }

@@ -57,6 +57,9 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val responsibleIndividualDeclinedUpdateFormats: OFormat[ResponsibleIndividualDeclinedUpdate] = Json.format[ResponsibleIndividualDeclinedUpdate]
   implicit val responsibleIndividualDidNotVerifyFormats: OFormat[ResponsibleIndividualDidNotVerify] = Json.format[ResponsibleIndividualDidNotVerify]
   implicit val applicationApprovalRequestDeclinedFormats: OFormat[ApplicationApprovalRequestDeclined] = Json.format[ApplicationApprovalRequestDeclined]
+
+  implicit val apiSubscribedFormats: OFormat[ApiSubscribed] = Json.format[ApiSubscribed]
+  implicit val apiUnsubscribedFormats: OFormat[ApiUnsubscribed] = Json.format[ApiUnsubscribed]
   implicit val clientSecretAddedFormats: OFormat[ClientSecretAdded] = Json.format[ClientSecretAdded]
   implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
   implicit val collaboratorAddedFormats: OFormat[CollaboratorAdded] = Json.format[CollaboratorAdded]
@@ -77,18 +80,20 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[ResponsibleIndividualDeclinedUpdate](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE.toString)
     .and[ResponsibleIndividualDidNotVerify](EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY.toString)
     .and[ApplicationApprovalRequestDeclined](EventType.APPLICATION_APPROVAL_REQUEST_DECLINED.toString)
+    .and[ApiSubscribed](EventType.API_SUBSCRIBED_V2.toString)
+    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
+    .and[ApiUnsubscribed](EventType.API_UNSUBSCRIBED_V2.toString)
+    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .and[ClientSecretAdded](EventType.CLIENT_SECRET_ADDED_V2.toString)
+    .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
     .and[ClientSecretRemoved](EventType.CLIENT_SECRET_REMOVED_V2.toString)
+    .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
     .and[CollaboratorAdded](EventType.COLLABORATOR_ADDED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[CollaboratorRemoved](EventType.COLLABORATOR_REMOVED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
-    .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
-    .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
     .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
     .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
-    .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
-    .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
     .format
 
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
@@ -99,14 +104,14 @@ trait JsonRequestFormatters {
   implicit val eventIdFormat: Format[EventId] = Json.valueFormat[EventId]
   implicit val oldActorFormat: OFormat[OldActor] = Json.format[OldActor]
 
-  implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
-  implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
-  implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
-  implicit val clientSecretRemovedEventFormats: OFormat[ClientSecretRemovedEvent] = Json.format[ClientSecretRemovedEvent]
-  implicit val urisUpdatedEventFormats: OFormat[RedirectUrisUpdatedEvent] = Json.format[RedirectUrisUpdatedEvent]
   implicit val apiSubscribedEventFormats: OFormat[ApiSubscribedEvent] = Json.format[ApiSubscribedEvent]
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
+  implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
+  implicit val clientSecretRemovedEventFormats: OFormat[ClientSecretRemovedEvent] = Json.format[ClientSecretRemovedEvent]
+  implicit val teamMemberAddedEventFormats: OFormat[TeamMemberAddedEvent] = Json.format[TeamMemberAddedEvent]
+  implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
+  implicit val urisUpdatedEventFormats: OFormat[RedirectUrisUpdatedEvent] = Json.format[RedirectUrisUpdatedEvent]
 
   implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
   implicit val collaboratorActorFormat: OFormat[CollaboratorActor] = Json.format[CollaboratorActor]
@@ -115,6 +120,8 @@ trait JsonRequestFormatters {
     .and[CollaboratorActor](ActorType.COLLABORATOR.toString)
     .format
 
+  implicit val apiSubscribedFormats: OFormat[ApiSubscribed] = Json.format[ApiSubscribed]
+  implicit val apiUnsubscribedFormats: OFormat[ApiUnsubscribed] = Json.format[ApiUnsubscribed]
   implicit val clientSecretAddedFormats: OFormat[ClientSecretAdded] = Json.format[ClientSecretAdded]
   implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
   implicit val collaboratorAddedFormats: OFormat[CollaboratorAdded] = Json.format[CollaboratorAdded]
@@ -153,14 +160,16 @@ trait JsonRequestFormatters {
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[CollaboratorRemoved](EventType.COLLABORATOR_REMOVED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
-    .and[ClientSecretAdded](EventType.CLIENT_SECRET_ADDED_V2.toString)
     .and[ClientSecretAddedEvent](EventType.CLIENT_SECRET_ADDED.toString)
+    .and[ClientSecretAdded](EventType.CLIENT_SECRET_ADDED_V2.toString)
     .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
     .and[ClientSecretRemoved](EventType.CLIENT_SECRET_REMOVED_V2.toString)
     .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
     .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
+    .and[ApiSubscribed](EventType.API_SUBSCRIBED_V2.toString)
     .and[ApiUnsubscribedEvent](EventType.API_UNSUBSCRIBED.toString)
+    .and[ApiUnsubscribed](EventType.API_UNSUBSCRIBED_V2.toString)
     .format
 }
 

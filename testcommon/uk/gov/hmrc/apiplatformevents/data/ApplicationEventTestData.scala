@@ -143,8 +143,20 @@ trait ApplicationEventTestData {
     context = "apicontext",
     version = "1.0")
 
+  val apiSubscribedV2Model: ApiSubscribed = ApiSubscribed(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    context = "apicontext",
+    version = "1.0")
+
   def makeApiSubscribedEvent(appId: Option[String] = None): ApiSubscribedEvent = {
     apiSubscribedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeApiSubscribed(appId: Option[String] = None): ApiSubscribed = {
+    apiSubscribedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val apiUnsubscribedModel: ApiUnsubscribedEvent = ApiUnsubscribedEvent(
@@ -155,8 +167,20 @@ trait ApplicationEventTestData {
     context = "apicontext",
     version = "1.0")
 
+  val apiUnsubscribedV2Model: ApiUnsubscribed = ApiUnsubscribed(
+    id = EventId.random,
+    applicationId = UUID.randomUUID().toString,
+    eventDateTime = LocalDateTime.now(),
+    CollaboratorActor("iam@admin.com"),
+    context = "apicontext",
+    version = "1.0")
+
   def makeApiUnsubscribedEvent(appId: Option[String] = None): ApiUnsubscribedEvent = {
     apiUnsubscribedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  def makeApiUnsubscribed(appId: Option[String] = None): ApiUnsubscribed = {
+    apiUnsubscribedV2Model.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }
 
   val ppnsCallBackUriUpdatedEvent: PpnsCallBackUriUpdatedEvent = PpnsCallBackUriUpdatedEvent(
