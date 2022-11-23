@@ -32,7 +32,6 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val clientSecretAddedEventFormats: OFormat[ClientSecretAddedEvent] = Json.format[ClientSecretAddedEvent]
   implicit val clientSecretRemovedEventFormats: OFormat[ClientSecretRemovedEvent] = Json.format[ClientSecretRemovedEvent]
   implicit val urisUpdatedEventFormats: OFormat[RedirectUrisUpdatedEvent] = Json.format[RedirectUrisUpdatedEvent]
-  implicit val redirectUrisUpdatedFormats: OFormat[RedirectUrisUpdated] = Json.format[RedirectUrisUpdated]
   implicit val apiSubscribedEventFormats: OFormat[ApiSubscribedEvent] = Json.format[ApiSubscribedEvent]
   implicit val apiUnsubscribedEventFormats: OFormat[ApiUnsubscribedEvent] = Json.format[ApiUnsubscribedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
@@ -65,6 +64,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
   implicit val collaboratorAddedFormats: OFormat[CollaboratorAdded] = Json.format[CollaboratorAdded]
   implicit val collaboratorRemovedFormats: OFormat[CollaboratorRemoved] = Json.format[CollaboratorRemoved]
+  implicit val redirectUrisUpdatedFormats: OFormat[RedirectUrisUpdated] = Json.format[RedirectUrisUpdated]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -114,7 +114,6 @@ trait JsonRequestFormatters {
   implicit val teamMemberRemovedEventFormats: OFormat[TeamMemberRemovedEvent] = Json.format[TeamMemberRemovedEvent]
   implicit val PpnsCallBackUriUpdatedEventFormats: OFormat[PpnsCallBackUriUpdatedEvent] = Json.format[PpnsCallBackUriUpdatedEvent]
   implicit val urisUpdatedEventFormats: OFormat[RedirectUrisUpdatedEvent] = Json.format[RedirectUrisUpdatedEvent]
-  implicit val redirectUrisUpdatedFormats: OFormat[RedirectUrisUpdated] = Json.format[RedirectUrisUpdated]
 
   implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
   implicit val collaboratorActorFormat: OFormat[CollaboratorActor] = Json.format[CollaboratorActor]
@@ -129,6 +128,7 @@ trait JsonRequestFormatters {
   implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
   implicit val collaboratorAddedFormats: OFormat[CollaboratorAdded] = Json.format[CollaboratorAdded]
   implicit val collaboratorRemovedFormats: OFormat[CollaboratorRemoved] = Json.format[CollaboratorRemoved]
+  implicit val redirectUrisUpdatedFormats: OFormat[RedirectUrisUpdated] = Json.format[RedirectUrisUpdated]
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val productionAppPrivacyPolicyLocationChangedFormats: OFormat[ProductionAppPrivacyPolicyLocationChanged] = Json.format[ProductionAppPrivacyPolicyLocationChanged]
   implicit val productionLegacyAppPrivacyPolicyLocationChangedFormats: OFormat[ProductionLegacyAppPrivacyPolicyLocationChanged] = Json.format[ProductionLegacyAppPrivacyPolicyLocationChanged]
