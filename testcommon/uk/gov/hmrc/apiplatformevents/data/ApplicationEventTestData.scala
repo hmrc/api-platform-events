@@ -136,8 +136,8 @@ trait ApplicationEventTestData {
     applicationId = UUID.randomUUID().toString,
     eventDateTime = LocalDateTime.now(),
     CollaboratorActor("iam@admin.com"),
-    oldRedirectUris = "oldru",
-    newRedirectUris = "newru")
+    oldRedirectUris = List("oldru"),
+    newRedirectUris = List("newru", "newuri2"))
 
   def makeRedirectUrisUpdatedEvent(appId: Option[String] = None): RedirectUrisUpdatedEvent = {
     redirectUrisUpdatedModel.copy(applicationId = appId.fold(UUID.randomUUID.toString)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())

@@ -184,8 +184,8 @@ case class RedirectUrisUpdated(id: EventId,
                                applicationId: String,
                                eventDateTime: LocalDateTime,
                                actor: Actor,
-                               oldRedirectUris: String,
-                               newRedirectUris: String) extends ApplicationEvent with HasActor
+                               oldRedirectUris: List[String],
+                               newRedirectUris: List[String]) extends ApplicationEvent with HasActor
 
 @deprecated("please use new event ApiSubscribed", "Oct 2022")
 case class ApiSubscribedEvent(id: EventId,
