@@ -4,21 +4,20 @@ import sbt._
 object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
-  lazy val bootstrapVersion = "5.24.0"
-  lazy val hmrcMongoVersion = "0.68.0"
+  lazy val bootstrapVersion = "7.3.0"
+  lazy val hmrcMongoVersion = "0.73.0"
 
   private lazy val dependencies = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"    % bootstrapVersion,
-    "com.beachape"            %% "enumeratum-play-json"         % "1.7.0",
-    "uk.gov.hmrc"             %% "play-json-union-formatter"    % "1.15.0-play-28",
-    "com.kenshoo"             %% "metrics-play"                 % "2.7.3_0.8.2",
-    "uk.gov.hmrc"             %% "domain"                       % "8.1.0-play-28",
-    "com.github.blemale"      %% "scaffeine"                    % "3.1.0",
-    "uk.gov.hmrc"             %% "agent-kenshoo-monitoring"     % "4.8.0-play-28",
-    "com.enragedginger"       %%  "akka-quartz-scheduler"       %  "1.9.1-akka-2.6.x",
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"           % hmrcMongoVersion,
-    "com.typesafe.play"       %% "play-json-joda"               % "2.8.1",
-    "org.typelevel"           %% "cats-core"                    % "2.0.0"
+    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"        % bootstrapVersion,
+    "com.beachape"            %% "enumeratum-play-json"             % "1.7.0",
+    "uk.gov.hmrc"             %% "play-json-union-formatter"        % "1.17.0-play-28",
+    "com.kenshoo"             %% "metrics-play"                     % "2.7.3_0.8.2",
+    "uk.gov.hmrc"             %% "domain"                           % "8.1.0-play-28",
+    "com.github.blemale"      %% "scaffeine"                        % "3.1.0",
+    "com.enragedginger"       %%  "akka-quartz-scheduler"           % "1.9.1-akka-2.6.x",
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"               % hmrcMongoVersion,
+    "org.typelevel"           %% "cats-core"                        % "2.1.0",
+    "uk.gov.hmrc"             %% "api-platform-application-events"  % "0.1.1"
   )
 
   private lazy val testDependencies = Seq(

@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "api-platform-events",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.13.8",
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
@@ -15,7 +15,7 @@ lazy val root = (project in file("."))
     unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
     majorVersion := 0
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
 
   .settings(ScoverageSettings())
