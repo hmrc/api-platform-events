@@ -29,7 +29,7 @@ object ActorType extends Enum[ActorType] with PlayJsonEnum[ActorType] {
   case object COLLABORATOR extends ActorType
   case object GATEKEEPER extends  ActorType
   case object SCHEDULED_JOB extends ActorType
-//  case object UNKNOWN extends ActorType
+  case object UNKNOWN extends ActorType
 }
 
 case class OldActor(id: String, actorType: ActorType)
