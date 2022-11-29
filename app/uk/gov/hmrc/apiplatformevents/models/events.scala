@@ -48,6 +48,7 @@ object ApplicationEvent {
     case _: ProductionLegacyAppPrivacyPolicyLocationChanged => EventType.PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED
     case _: ProductionLegacyAppTermsConditionsLocationChanged => EventType.PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED
     case _: RedirectUrisUpdatedEvent => EventType.REDIRECT_URIS_UPDATED
+    case _: RedirectUrisUpdated => EventType.REDIRECT_URIS_UPDATED_V2
     case _: ResponsibleIndividualSet => EventType.RESPONSIBLE_INDIVIDUAL_SET
     case _: ResponsibleIndividualChanged => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED
     case _: ResponsibleIndividualChangedToSelf => EventType.RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF
@@ -79,6 +80,7 @@ object ApplicationEvent {
     case e: ProductionLegacyAppPrivacyPolicyLocationChanged => Actor.extractActorText(e.actor)
     case e: ProductionLegacyAppTermsConditionsLocationChanged => Actor.extractActorText(e.actor)
     case e: RedirectUrisUpdatedEvent => e.actor.id
+    case e: RedirectUrisUpdated => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualSet => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualChanged => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualChangedToSelf => Actor.extractActorText(e.actor)
@@ -170,12 +172,20 @@ case class PpnsCallBackUriUpdatedEvent(id: EventId,
                                        oldCallbackUrl: String,
                                        newCallbackUrl: String) extends ApplicationEvent with HasOldActor
 
+@deprecated("please use new event RedirectUrisUpdated")
 case class RedirectUrisUpdatedEvent(id: EventId,
                                     applicationId: String,
                                     eventDateTime: LocalDateTime,
                                     actor: OldActor,
                                     oldRedirectUris: String,
                                     newRedirectUris: String) extends ApplicationEvent with HasOldActor
+
+case class RedirectUrisUpdated(id: EventId,
+                               applicationId: String,
+                               eventDateTime: LocalDateTime,
+                               actor: Actor,
+                               oldRedirectUris: List[String],
+                               newRedirectUris: List[String]) extends ApplicationEvent with HasActor
 
 @deprecated("please use new event ApiSubscribed", "Oct 2022")
 case class ApiSubscribedEvent(id: EventId,

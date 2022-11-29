@@ -64,6 +64,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
   implicit val collaboratorAddedFormats: OFormat[CollaboratorAdded] = Json.format[CollaboratorAdded]
   implicit val collaboratorRemovedFormats: OFormat[CollaboratorRemoved] = Json.format[CollaboratorRemoved]
+  implicit val redirectUrisUpdatedFormats: OFormat[RedirectUrisUpdated] = Json.format[RedirectUrisUpdated]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -93,6 +94,7 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[CollaboratorRemoved](EventType.COLLABORATOR_REMOVED.toString)
     .and[TeamMemberRemovedEvent](EventType.TEAM_MEMBER_REMOVED.toString)
     .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
+    .and[RedirectUrisUpdated](EventType.REDIRECT_URIS_UPDATED_V2.toString)
     .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
     .format
 
@@ -126,6 +128,7 @@ trait JsonRequestFormatters {
   implicit val clientSecretRemovedFormats: OFormat[ClientSecretRemoved] = Json.format[ClientSecretRemoved]
   implicit val collaboratorAddedFormats: OFormat[CollaboratorAdded] = Json.format[CollaboratorAdded]
   implicit val collaboratorRemovedFormats: OFormat[CollaboratorRemoved] = Json.format[CollaboratorRemoved]
+  implicit val redirectUrisUpdatedFormats: OFormat[RedirectUrisUpdated] = Json.format[RedirectUrisUpdated]
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
   implicit val productionAppPrivacyPolicyLocationChangedFormats: OFormat[ProductionAppPrivacyPolicyLocationChanged] = Json.format[ProductionAppPrivacyPolicyLocationChanged]
   implicit val productionLegacyAppPrivacyPolicyLocationChangedFormats: OFormat[ProductionLegacyAppPrivacyPolicyLocationChanged] = Json.format[ProductionLegacyAppPrivacyPolicyLocationChanged]
@@ -165,6 +168,7 @@ trait JsonRequestFormatters {
     .and[ClientSecretRemovedEvent](EventType.CLIENT_SECRET_REMOVED.toString)
     .and[ClientSecretRemoved](EventType.CLIENT_SECRET_REMOVED_V2.toString)
     .and[RedirectUrisUpdatedEvent](EventType.REDIRECT_URIS_UPDATED.toString)
+    .and[RedirectUrisUpdated](EventType.REDIRECT_URIS_UPDATED_V2.toString)
     .and[PpnsCallBackUriUpdatedEvent](EventType.PPNS_CALLBACK_URI_UPDATED.toString)
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
     .and[ApiSubscribed](EventType.API_SUBSCRIBED_V2.toString)

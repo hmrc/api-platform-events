@@ -146,19 +146,20 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeApiSubscribedEvent(Some(appId)),
         makeApiSubscribed(Some(appId)),
         makeApiUnsubscribedEvent(Some(appId)),
-        makeApiUnsubscribed(Some(appId))
+        makeApiUnsubscribed(Some(appId)),
+        makeRedirectUrisUpdated(Some(appId))
       )
 
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None, None))
 
-      fetchedEvents should contain allOf(evts(0), evts(1), evts(2))
+      fetchedEvents shouldBe evts
     }
 
     "return based on year" in new Setup {
       val appId = UUID.randomUUID().toString()
 
       val evts = primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeTeamMemberRemovedEvent(Some(appId)).copy(eventDateTime = now.withMinute(10)),
         makeClientSecretAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear),
         makeClientSecretAdded(Some(appId)).copy(eventDateTime = nowButLastYear)
@@ -193,8 +194,8 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
      val appId = UUID.randomUUID().toString()
 
       val evts = primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
-        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)),
+        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)),
         makeTeamMemberRemovedEvent(Some(appId))
       )
 
@@ -207,12 +208,12 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
      val appId = UUID.randomUUID().toString()
 
       val evts = primeRepo(
-        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("bob")), 
-        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("bob")), 
-        makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = GatekeeperUserActor("vic")), 
-        makeResponsibleIndividualDeclined(Some(appId)).copy(actor = CollaboratorActor("bob")), 
-        makeResponsibleIndividualDeclinedUpdate(Some(appId)).copy(actor = CollaboratorActor("bob")), 
-        makeResponsibleIndividualDidNotVerify(Some(appId)).copy(actor = CollaboratorActor("vic")), 
+        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("bob")),
+        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("bob")),
+        makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = GatekeeperUserActor("vic")),
+        makeResponsibleIndividualDeclined(Some(appId)).copy(actor = CollaboratorActor("bob")),
+        makeResponsibleIndividualDeclinedUpdate(Some(appId)).copy(actor = CollaboratorActor("bob")),
+        makeResponsibleIndividualDidNotVerify(Some(appId)).copy(actor = CollaboratorActor("vic")),
         makeRedirectUrisUpdatedEvent(Some(appId))
       )
 
@@ -222,7 +223,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     }
   }
 
-  "fetchfetchEventQueryValues" should {
+  "fetchEventQueryValues" should {
     def primeEmptyRepo(): Unit = {
       when(mockRepository.fetchEvents(*)).thenReturn(Future.successful(Seq.empty))
     }
@@ -246,8 +247,8 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val appId = UUID.randomUUID().toString()
 
       primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear)
       )
 
@@ -262,8 +263,8 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val appId = UUID.randomUUID().toString()
 
       primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
-        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
+        makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = now),
         makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowButLastYear)
       )
 
@@ -289,7 +290,9 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = now),
         makeApiSubscribed(Some(appId)).copy(eventDateTime = now),
         makeApiUnsubscribedEvent(Some(appId)).copy(eventDateTime = now),
-        makeApiUnsubscribed(Some(appId)).copy(eventDateTime = now)
+        makeApiUnsubscribed(Some(appId)).copy(eventDateTime = now),
+        makeRedirectUrisUpdated(Some(appId)).copy(eventDateTime = now),
+        makeRedirectUrisUpdatedEvent(Some(appId)).copy(eventDateTime = now)
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
@@ -299,8 +302,8 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
           EventType.CLIENT_SECRET_ADDED, EventType.CLIENT_SECRET_REMOVED,
           EventType.CLIENT_SECRET_ADDED_V2, EventType.CLIENT_SECRET_REMOVED_V2,
           EventType.API_SUBSCRIBED, EventType.API_UNSUBSCRIBED,
-          EventType.API_SUBSCRIBED_V2, EventType.API_UNSUBSCRIBED_V2
-        )
+          EventType.API_SUBSCRIBED_V2, EventType.API_UNSUBSCRIBED_V2,
+          EventType.REDIRECT_URIS_UPDATED, EventType.REDIRECT_URIS_UPDATED_V2)
         eventTypes should not contain EventType.PPNS_CALLBACK_URI_UPDATED
       }
     }
@@ -309,19 +312,19 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val appId = UUID.randomUUID().toString()
 
       primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)), 
-        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
-        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
-        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)), 
-        makeClientSecretAdded(Some(appId)).copy(actor = CollaboratorActor("alice")), 
-        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)), 
-        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)), 
-        makeClientSecretAdded(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
-        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("charlie")), 
-        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
-        makeResponsibleIndividualChangedToSelf(Some(appId)).copy(actor = GatekeeperUserActor("alice")), 
-        makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = CollaboratorActor("vic")), 
-        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("dylan")), 
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)),
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)),
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)),
+        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("alice", ActorType.COLLABORATOR)),
+        makeClientSecretAdded(Some(appId)).copy(actor = CollaboratorActor("alice")),
+        makeTeamMemberAddedEvent(Some(appId)).copy(actor = OldActor("bob", ActorType.COLLABORATOR)),
+        makeClientSecretAddedEvent(Some(appId)).copy(actor = OldActor("charlie", ActorType.COLLABORATOR)),
+        makeClientSecretAdded(Some(appId)).copy(actor = CollaboratorActor("charlie")),
+        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("charlie")),
+        makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("alice")),
+        makeResponsibleIndividualChangedToSelf(Some(appId)).copy(actor = GatekeeperUserActor("alice")),
+        makeApplicationApprovalRequestDeclined(Some(appId)).copy(actor = CollaboratorActor("vic")),
+        makeProductionAppNameChangedEvent(Some(appId)).copy(actor = CollaboratorActor("dylan")),
         makeResponsibleIndividualChanged(Some(appId)).copy(actor = GatekeeperUserActor("ellie")),
         makeResponsibleIndividualSet(Some(appId)).copy(actor = CollaboratorActor("lucy")),
         makeResponsibleIndividualDeclined(Some(appId)).copy(actor = GatekeeperUserActor("alice"))
