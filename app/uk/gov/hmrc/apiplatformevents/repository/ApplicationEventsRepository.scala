@@ -76,6 +76,6 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
 
   def fetchEvents(applicationId: String): Future[Seq[ApplicationEvent]] = {
     collection.find(equal("applicationId", applicationId))
-    .toFuture
+    .toFuture()
   }
 }
