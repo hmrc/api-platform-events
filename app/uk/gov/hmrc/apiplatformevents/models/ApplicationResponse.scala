@@ -16,29 +16,19 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import play.api.libs.json.{Json, OFormat}
-
-import scala.collection.immutable
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
 
 case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
-  lazy val admins: Set[Collaborator] = collaborators.filter(_.role == Role.ADMINISTRATOR)
-  lazy val adminEmails: Set[String] = admins.map(_.emailAddress)
+  lazy val admins: Set[Collaborator] = collaborators.collect {
+    case c @ Collaborators.Administrator(_, _) => c
+  } 
+  lazy val adminEmails: Set[LaxEmailAddress] = admins.map(_.email)
 }
+
 object ApplicationResponse {
+  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CollaboratorJsonFormatters._
   implicit val applicationFmt: OFormat[ApplicationResponse] = Json.format[ApplicationResponse]
-}
-
-case class Collaborator(emailAddress: String, role: Role)
-object Collaborator {
-  implicit val collaboratorFmt: OFormat[Collaborator] = Json.format[Collaborator]
-}
-
-sealed trait Role extends EnumEntry
-object Role extends  Enum[Role] with PlayJsonEnum[Role]  {
-  val values: immutable.IndexedSeq[Role] = findValues
-
-  case object  DEVELOPER extends Role
-  case object  ADMINISTRATOR extends Role
-
 }

@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.NotFoundException
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
 
 @Singleton
 class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
@@ -38,7 +39,7 @@ class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(imp
   val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: LocalDateTime, recipients: Set[String])
+  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: LocalDateTime, recipients: Set[LaxEmailAddress])
                                             (implicit hc: HeaderCarrier): Future[HttpResponse] = {
     post(SendEmailRequest(
       recipients,
@@ -59,7 +60,7 @@ class EmailConnector @Inject()(httpClient: HttpClient, appConfig: AppConfig)(imp
   }
 }
 
-case class SendEmailRequest(to: Set[String],
+case class SendEmailRequest(to: Set[LaxEmailAddress],
                             templateId: String,
                             parameters: Map[String, String],
                             force: Boolean = false,
@@ -67,5 +68,6 @@ case class SendEmailRequest(to: Set[String],
                             eventUrl: Option[String] = None)
 
 object SendEmailRequest {
+  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
   implicit val sendEmailRequestFmt: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }

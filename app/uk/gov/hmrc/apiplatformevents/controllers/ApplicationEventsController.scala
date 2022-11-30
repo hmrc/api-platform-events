@@ -20,8 +20,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.apiplatformevents.models.JsonRequestFormatters._
-import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -29,6 +27,10 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatformevents.models.JsErrorResponse
+import uk.gov.hmrc.apiplatformevents.models.ErrorCode
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters
 
 @Singleton
 class ApplicationEventsController @Inject()(
@@ -40,10 +42,11 @@ class ApplicationEventsController @Inject()(
   implicit val configuration: Configuration,
   ec: ExecutionContext
 ) extends BackendController(cc) with ApplicationLogger {
+  
+  import EventsInterServiceCallJsonFormatters._
 
- 
   def handleEvent(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ApplicationEvent] { event =>
+    withJsonBody[AbstractApplicationEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
   }

@@ -28,7 +28,7 @@ class SchedulingActorSpec extends PlaySpec {
 
   "props" should {
     "return the correct type of props" in new Setup {
-      val expectedType = Props[SchedulingActor]
+      val expectedType = Props[SchedulingActor]()
       val result = schedulingActorCompanionObject.props
       result mustBe expectedType
     }

@@ -38,6 +38,12 @@ lazy val root = (project in file("."))
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / parallelExecution := false,
     IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value)
+  ) 
+  .settings(
+    routesImport ++= Seq(
+      "uk.gov.hmrc.apiplatform.modules.applications.domain.models._",
+      "uk.gov.hmrc.apiplatformevents.controllers.binders._"
+    )
   )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
