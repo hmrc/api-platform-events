@@ -10,6 +10,7 @@ import java.util.UUID
 import java.{util => ju}
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach {

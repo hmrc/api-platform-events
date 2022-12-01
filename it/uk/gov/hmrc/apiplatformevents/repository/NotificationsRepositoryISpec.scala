@@ -40,7 +40,7 @@ class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongo
   protected def repository: PlayMongoRepository[Notification]= new NotificationsRepository(mongoComponent)
   val repo: NotificationsRepository = repository.asInstanceOf[NotificationsRepository]
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     await(repo.ensureIndexes)
   }

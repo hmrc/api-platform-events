@@ -139,12 +139,13 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeApiSubscribedEvent(Some(appId)),
         makeApiSubscribed(Some(appId)),
         makeApiUnsubscribedEvent(Some(appId)),
-        makeApiUnsubscribed(Some(appId))
+        makeApiUnsubscribed(Some(appId)),
+        makeRedirectUrisUpdated(Some(appId))
       )
 
       val fetchedEvents = await(inTest.fetchEventsBy(appId, None))
 
-      fetchedEvents should contain allOf(evts(0), evts(1), evts(2))
+      fetchedEvents shouldBe evts
     }
 
     "return everything for an eventType" in new Setup {
@@ -165,7 +166,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     }
   }
 
-  "fetchfetchEventQueryValues" should {
+  "fetchEventQueryValues" should {
     def primeEmptyRepo(): Unit = {
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(List.empty))
     }
@@ -200,12 +201,14 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = now),
         makeApiSubscribed(Some(appId)).copy(eventDateTime = now),
         makeApiUnsubscribedEvent(Some(appId)).copy(eventDateTime = now),
-        makeApiUnsubscribed(Some(appId)).copy(eventDateTime = now)
+        makeApiUnsubscribed(Some(appId)).copy(eventDateTime = now),
+        makeRedirectUrisUpdated(Some(appId)).copy(eventDateTime = now),
+        makeRedirectUrisUpdatedEvent(Some(appId)).copy(eventDateTime = now)
       )
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
-      fetchEventQueryValues.value.eventTags should contain only(EventTags.COLLABORATOR, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION)
+      fetchEventQueryValues.value.eventTags should contain only(EventTags.COLLABORATOR, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION, EventTags.REDIRECT_URIS)
 
       fetchEventQueryValues.value.eventTags should not contain EventTags.PPNS_CALLBACK
     }
