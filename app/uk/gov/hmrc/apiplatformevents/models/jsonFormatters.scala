@@ -38,9 +38,11 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
 
   implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
   implicit val collaboratorActorFormat: OFormat[CollaboratorActor] = Json.format[CollaboratorActor]
+  implicit val scheduledJobActorFormat: OFormat[ScheduledJobActor] = Json.format[ScheduledJobActor]
   implicit val formatActor: OFormat[Actor] = Union.from[Actor]("actorType")
     .and[GatekeeperUserActor](ActorType.GATEKEEPER.toString)
     .and[CollaboratorActor](ActorType.COLLABORATOR.toString)
+    .and[ScheduledJobActor](ActorType.SCHEDULED_JOB.toString)
     .format
 
   implicit val productionAppNameChangedEventFormats: OFormat[ProductionAppNameChangedEvent] = Json.format[ProductionAppNameChangedEvent]
@@ -57,6 +59,9 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
   implicit val responsibleIndividualDeclinedUpdateFormats: OFormat[ResponsibleIndividualDeclinedUpdate] = Json.format[ResponsibleIndividualDeclinedUpdate]
   implicit val responsibleIndividualDidNotVerifyFormats: OFormat[ResponsibleIndividualDidNotVerify] = Json.format[ResponsibleIndividualDidNotVerify]
   implicit val applicationApprovalRequestDeclinedFormats: OFormat[ApplicationApprovalRequestDeclined] = Json.format[ApplicationApprovalRequestDeclined]
+  implicit val applicationDeletedFormats: OFormat[ApplicationDeleted] = Json.format[ApplicationDeleted]
+  implicit val applicationDeletedByGatekeeperFormats: OFormat[ApplicationDeletedByGatekeeper] = Json.format[ApplicationDeletedByGatekeeper]
+  implicit val productionCredentialsApplicationDeletedFormats: OFormat[ProductionCredentialsApplicationDeleted] = Json.format[ProductionCredentialsApplicationDeleted]
 
   implicit val apiSubscribedFormats: OFormat[ApiSubscribed] = Json.format[ApiSubscribed]
   implicit val apiUnsubscribedFormats: OFormat[ApiUnsubscribed] = Json.format[ApiUnsubscribed]
@@ -81,6 +86,9 @@ object MongoFormatters extends MongoJavatimeFormats.Implicits {
     .and[ResponsibleIndividualDeclinedUpdate](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE.toString)
     .and[ResponsibleIndividualDidNotVerify](EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY.toString)
     .and[ApplicationApprovalRequestDeclined](EventType.APPLICATION_APPROVAL_REQUEST_DECLINED.toString)
+    .and[ApplicationDeleted](EventType.APPLICATION_DELETED.toString)
+    .and[ApplicationDeletedByGatekeeper](EventType.APPLICATION_DELETED_BY_GATEKEEPER.toString)
+    .and[ProductionCredentialsApplicationDeleted](EventType.PRODUCTION_CREDENTIALS_APPLICATION_DELETED.toString)
     .and[ApiSubscribed](EventType.API_SUBSCRIBED_V2.toString)
     .and[ApiSubscribedEvent](EventType.API_SUBSCRIBED.toString)
     .and[ApiUnsubscribed](EventType.API_UNSUBSCRIBED_V2.toString)
@@ -117,9 +125,11 @@ trait JsonRequestFormatters {
 
   implicit val gatekeeperUserActorFormat: OFormat[GatekeeperUserActor] = Json.format[GatekeeperUserActor]
   implicit val collaboratorActorFormat: OFormat[CollaboratorActor] = Json.format[CollaboratorActor]
+  implicit val scheduledJobActorFormat: OFormat[ScheduledJobActor] = Json.format[ScheduledJobActor]
   implicit val formatActor: OFormat[Actor] = Union.from[Actor]("actorType")
     .and[GatekeeperUserActor](ActorType.GATEKEEPER.toString)
     .and[CollaboratorActor](ActorType.COLLABORATOR.toString)
+    .and[ScheduledJobActor](ActorType.SCHEDULED_JOB.toString)
     .format
 
   implicit val apiSubscribedFormats: OFormat[ApiSubscribed] = Json.format[ApiSubscribed]
@@ -143,6 +153,9 @@ trait JsonRequestFormatters {
   implicit val responsibleIndividualDeclinedUpdateFormats: OFormat[ResponsibleIndividualDeclinedUpdate] = Json.format[ResponsibleIndividualDeclinedUpdate]
   implicit val responsibleIndividualDidNotVerifyFormats: OFormat[ResponsibleIndividualDidNotVerify] = Json.format[ResponsibleIndividualDidNotVerify]
   implicit val applicationApprovalRequestDeclinedFormats: OFormat[ApplicationApprovalRequestDeclined] = Json.format[ApplicationApprovalRequestDeclined]
+  implicit val applicationDeletedFormats: OFormat[ApplicationDeleted] = Json.format[ApplicationDeleted]
+  implicit val applicationDeletedByGatekeeperFormats: OFormat[ApplicationDeletedByGatekeeper] = Json.format[ApplicationDeletedByGatekeeper]
+  implicit val productionCredentialsApplicationDeletedFormats: OFormat[ProductionCredentialsApplicationDeleted] = Json.format[ProductionCredentialsApplicationDeleted]
 
   implicit val formatApplicationEvent: OFormat[ApplicationEvent] = Union.from[ApplicationEvent]("eventType")
     .and[ProductionAppNameChangedEvent](EventType.PROD_APP_NAME_CHANGED.toString)
@@ -159,6 +172,9 @@ trait JsonRequestFormatters {
     .and[ResponsibleIndividualDeclinedUpdate](EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE.toString)
     .and[ResponsibleIndividualDidNotVerify](EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY.toString)
     .and[ApplicationApprovalRequestDeclined](EventType.APPLICATION_APPROVAL_REQUEST_DECLINED.toString)
+    .and[ApplicationDeleted](EventType.APPLICATION_DELETED.toString)
+    .and[ApplicationDeletedByGatekeeper](EventType.APPLICATION_DELETED_BY_GATEKEEPER.toString)
+    .and[ProductionCredentialsApplicationDeleted](EventType.PRODUCTION_CREDENTIALS_APPLICATION_DELETED.toString)
     .and[CollaboratorAdded](EventType.COLLABORATOR_ADDED.toString)
     .and[TeamMemberAddedEvent](EventType.TEAM_MEMBER_ADDED.toString)
     .and[CollaboratorRemoved](EventType.COLLABORATOR_REMOVED.toString)

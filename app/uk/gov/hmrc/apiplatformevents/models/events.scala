@@ -20,6 +20,7 @@ import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, OldActor}
 
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatformevents.models.common.EventType
+import akka.actor
 
 sealed trait ApplicationEvent {
   def id: EventId
@@ -58,6 +59,9 @@ object ApplicationEvent {
     case _: ResponsibleIndividualDeclinedUpdate => EventType.RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE
     case _: ResponsibleIndividualDidNotVerify => EventType.RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY
     case _: ApplicationApprovalRequestDeclined => EventType.APPLICATION_APPROVAL_REQUEST_DECLINED
+    case _: ApplicationDeleted => EventType.APPLICATION_DELETED
+    case _: ApplicationDeletedByGatekeeper => EventType.APPLICATION_DELETED_BY_GATEKEEPER
+    case _: ProductionCredentialsApplicationDeleted => EventType.PRODUCTION_CREDENTIALS_APPLICATION_DELETED
   }
 
   def extractActorText(evt: ApplicationEvent): String = evt match {
@@ -90,6 +94,9 @@ object ApplicationEvent {
     case e: ResponsibleIndividualDeclinedUpdate => Actor.extractActorText(e.actor)
     case e: ResponsibleIndividualDidNotVerify => Actor.extractActorText(e.actor)
     case e: ApplicationApprovalRequestDeclined => Actor.extractActorText(e.actor)
+    case e: ApplicationDeleted => Actor.extractActorText(e.actor)
+    case e: ApplicationDeletedByGatekeeper => Actor.extractActorText(e.actor)
+    case e: ProductionCredentialsApplicationDeleted => Actor.extractActorText(e.actor)
   }
 }
 
@@ -373,3 +380,31 @@ case class ApplicationApprovalRequestDeclined(id: EventId,
                                               requestingAdminName: String,
                                               requestingAdminEmail: String
                                              ) extends ApplicationEvent with HasActor
+
+case class ApplicationDeleted(id: EventId,
+                              applicationId: String,
+                              eventDateTime: LocalDateTime,
+                              actor: Actor,
+                              clientId: String,
+                              wso2ApplicationName: String,
+                              reasons: String
+                             ) extends ApplicationEvent with HasActor
+
+case class ApplicationDeletedByGatekeeper(id: EventId,
+                                          applicationId: String,
+                                          eventDateTime: LocalDateTime,
+                                          actor: Actor,
+                                          clientId: String,
+                                          wso2ApplicationName: String,
+                                          reasons: String,
+                                          requestingAdminEmail: String
+                                         ) extends ApplicationEvent with HasActor
+
+case class ProductionCredentialsApplicationDeleted(id: EventId,
+                                                   applicationId: String,
+                                                   eventDateTime: LocalDateTime,
+                                                   actor: Actor,
+                                                   clientId: String,
+                                                   wso2ApplicationName: String,
+                                                   reasons: String
+                                                  ) extends ApplicationEvent with HasActor
