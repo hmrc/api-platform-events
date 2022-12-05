@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.models
+package uk.gov.hmrc.apiplatform.common.domain.services
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventTagJsonFormatters
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+import play.api.libs.json._
 
-case class QueryableValues(eventTags: List[EventTag])
+trait JsonFormattersSpec extends AnyWordSpec with Matchers {
 
-object QueryableValues {
-  import EventTagJsonFormatters._
-  implicit val format = Json.format[QueryableValues]
+  def testToJson[T](in: T)(fields: (String, String)*)(implicit wrt: Writes[T]) = {
+    val f: Seq[(String, JsValue)] = fields.map { case (k, v) => (k -> JsString(v)) }
+    Json.toJson(in) shouldBe JsObject(f)
+  }
+
+  def testFromJson[T](text: String)(expected: T)(implicit rdr: Reads[T]) = {
+    Json.parse(text).validate[T] shouldBe JsSuccess(expected)
+  }
 }

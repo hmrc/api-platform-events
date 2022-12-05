@@ -72,7 +72,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
       val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
       status(result) shouldBe CREATED
-
     }
 
     "return 500 when post request is valid json but service fails" in {
@@ -81,7 +80,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
       val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
       status(result) shouldBe INTERNAL_SERVER_ERROR
-
     }
 
     "return 400 when post request is invalid json" in {

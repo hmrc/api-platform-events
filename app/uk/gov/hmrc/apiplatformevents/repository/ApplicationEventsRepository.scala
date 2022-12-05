@@ -25,18 +25,17 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformevents.models.Codecs
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
+
+object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.localDateTimeFormat)
 
 object ApplicationEventsRepository {
-  object MongoEventsJsonFormatters extends EventsJsonFormatters {
-    implicit def localDateTimeFormats() = MongoJavatimeFormats.localDateTimeFormat
-  }
-  
-  val formatter = ApplicationEventsRepository.MongoEventsJsonFormatters.abstractApplicationEventFormats
+  lazy val formatter = MongoEventsJsonFormatters.abstractApplicationEventFormats
 }
+
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
                                            (implicit ec: ExecutionContext)

@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformevents.services
 
 import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.models.QueryableValues
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 import scala.concurrent.Future
@@ -33,9 +32,9 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(impl
   }
 
   def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag]): Future[List[AbstractApplicationEvent]] = eventTag match {
-    case None => 
+    case None =>
       repo.fetchEvents(applicationId)
-    case Some(tag) => 
+    case Some(tag) =>
       repo.fetchEvents(applicationId)
       .map(_.filter(EventTags.tag(_) == tag))
       
@@ -51,7 +50,7 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(impl
         Some(QueryableValues(distictEventTags))
       }
     }
-  
+
     for {
       events <- repo.fetchEvents(applicationId)
     }

@@ -31,7 +31,6 @@ import scala.concurrent.ExecutionContext
 object QueryEventsController {
   case class QueryResponse(events: List[AbstractApplicationEvent])
 
-  
   object QueryResponse {
     import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
     implicit val format = Json.format[QueryResponse]

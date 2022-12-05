@@ -96,7 +96,6 @@ trait Codecs {
     require(clazz.isTrait)
 
     val symbols = descend(clazz)
-    
     val mirror = tt.mirror
     symbols.toSeq.map { cs =>
       forcedPlayFormatCodec(format, legacyNumbers)(mirror.runtimeClass(cs))
