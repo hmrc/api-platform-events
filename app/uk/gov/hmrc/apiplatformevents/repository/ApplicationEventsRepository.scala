@@ -53,6 +53,11 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
           IndexOptions()
             .name("eventType_index")
             .unique(false)
+            .background(true)),
+        IndexModel(ascending("applicationId"),
+          IndexOptions()
+            .name("applicationId_index")
+            .unique(false)
             .background(true))
       ),
       extraCodecs  = Codecs.unionCodecs(ApplicationEventsRepository.formatter),

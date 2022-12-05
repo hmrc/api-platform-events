@@ -208,7 +208,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
-      fetchEventQueryValues.value.eventTags should contain only(EventTags.COLLABORATOR, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION, EventTags.REDIRECT_URIS)
+      fetchEventQueryValues.value.eventTags should contain theSameElementsAs List(EventTags.COLLABORATOR, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION, EventTags.REDIRECT_URIS)
 
       fetchEventQueryValues.value.eventTags should not contain EventTags.PPNS_CALLBACK
     }

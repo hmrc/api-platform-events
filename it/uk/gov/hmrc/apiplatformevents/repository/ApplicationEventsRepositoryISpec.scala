@@ -180,7 +180,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
 
       val result: List[AbstractApplicationEvent] = await(repo.fetchEventsToNotify())
 
-      result should contain only(ppnsCallBackUriUpdatedEvent, anotherEvent)
+      result should contain theSameElementsAs List(ppnsCallBackUriUpdatedEvent, anotherEvent)
     }
   }
 }

@@ -53,10 +53,11 @@ class QueryEventsController @Inject()(
   def query(applicationId: ApplicationId, eventTag: Option[EventTag]) = Action.async { _ =>
     service.fetchEventsBy(applicationId, eventTag)
     .map( seq => 
-      if(seq.isEmpty) 
+      if(seq.isEmpty) {
         NotFound("No application changes found")
-      else
+      } else {
         Ok(Json.toJson(QueryResponse(seq.sorted)))
+      }
     )
   }
 
