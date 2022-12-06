@@ -22,8 +22,6 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
 
   this: Suite with ServerProvider =>
     
-  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
-
   def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
   override def beforeEach(): Unit = {

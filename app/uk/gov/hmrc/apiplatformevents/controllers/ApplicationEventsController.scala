@@ -92,14 +92,14 @@ class ApplicationEventsController @Inject()(
     }
   }
 
-  @deprecated("please pass ApiSubscribedV2 to handleEvent endpoint", "Oct 2022")
+  @deprecated("please pass ApiSubscribed to handleEvent endpoint", "Oct 2022")
   def apiSubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ApiSubscribedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
   }
 
-  @deprecated("please pass ApiUnsubscribedV2 to handleEvent endpoint", "Oct 2022")
+  @deprecated("please pass ApiUnsubscribed to handleEvent endpoint", "Oct 2022")
   def apiUnsubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ApiUnsubscribedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
