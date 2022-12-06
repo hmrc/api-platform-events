@@ -20,7 +20,6 @@ import uk.gov.hmrc.apiplatformevents.models.common.{Actor, EventId, OldActor}
 
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatformevents.models.common.EventType
-import akka.actor
 
 sealed trait ApplicationEvent {
   def id: EventId
