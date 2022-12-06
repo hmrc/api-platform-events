@@ -17,7 +17,6 @@
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
 import org.mockito.scalatest.MockitoSugar
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mongodb.scala.MongoException
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
@@ -26,9 +25,6 @@ import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.models.Role.ADMINISTRATOR
-import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, EventId, EventType, OldActor}
-import uk.gov.hmrc.apiplatformevents.models._
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
@@ -42,15 +38,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
+import uk.gov.hmrc.apiplatformevents.models.Notification
+import org.mockito.ArgumentMatchersSugar
 
-class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with FutureAwaits with DefaultAwaitTimeout with LogCapturing with BeforeAndAfterEach {
+class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with ArgumentMatchersSugar with FutureAwaits with DefaultAwaitTimeout with LogCapturing with BeforeAndAfterEach {
 
-
-//  override def beforeEach(): Unit ={
-//    super.beforeEach()
-//    reset()
-//  }
   val finiteDuration: FiniteDuration = Duration(4, TimeUnit.MINUTES)
 
   class Setup {
@@ -80,25 +75,24 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     val mongoLockId = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event = PpnsCallBackUriUpdatedEvent(EventId.random, UUID.randomUUID().toString, LocalDateTime.now(), OldActor("iam@admin.com", ActorType.GATEKEEPER),
+    val event: AbstractApplicationEvent = PpnsCallBackUriUpdatedEvent(EventId.random, ApplicationId.random, LocalDateTime.now(), OldStyleActors.GatekeeperUser("iam@admin.com"),
       "boxId", "boxName", "https://example.com/old", "https://example.com/new")
 
   def primeLockRepository() = {
-    when(mockLockRepository.takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockLockRepository.takeLock(eqTo(mongoLockId), *, *))
       .thenReturn(Future.successful(true))
-    when(mockLockRepository.releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any()))
+    when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
       .thenReturn(Future.successful(()))
   }
 
     val adminEmail = "jd@exmample.com"
-    val application = ApplicationResponse("test app", Set(Collaborator(adminEmail, ADMINISTRATOR)))
-    val notificationCaptor: ArgumentCaptor[Notification] = ArgumentCaptor.forClass(classOf[Notification])
+    val application = ApplicationResponse("test app", Set(Collaborators.Administrator("id", LaxEmailAddress(adminEmail))))
 
-    def primeApplicationConnectorSuccess() {
+    def primeApplicationConnectorSuccess(): Unit = {
       when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
     }
 
-    def primeApplicationConnectorFailed() {
+    def primeApplicationConnectorFailed(): Unit = {
       when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(failed(UpstreamErrorResponse("", NOT_FOUND)))
     }
 
@@ -110,13 +104,13 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
    when(notificationsRepository.createEntity(eqTo(expectedNotification))).thenReturn(successful(true))
     }
 
-    def primeApplicationEventsRepositorySuccess(events: Seq[ApplicationEvent]): Unit ={
-      when(applicationEventsRepository.fetchEventsToNotify(EventType.PPNS_CALLBACK_URI_UPDATED))
-        .thenReturn(Future.successful(events))
+    def primeApplicationEventsRepositorySuccess(events: AbstractApplicationEvent*): Unit ={
+      when(applicationEventsRepository.fetchEventsToNotify())
+        .thenReturn(Future.successful(events.toList))
     }
 
     def primeApplicationEventsRepositoryFailure(): Unit ={
-      when(applicationEventsRepository.fetchEventsToNotify(EventType.PPNS_CALLBACK_URI_UPDATED))
+      when(applicationEventsRepository.fetchEventsToNotify())
         .thenReturn(Future.failed(new MongoException("Something went wrong")))
     }
   }
@@ -124,8 +118,8 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
   "invoke" should {
 
     "return true when events are processed and emails sent" in new Setup {
-      primeApplicationEventsRepositorySuccess(Seq(event))
-      primeLockRepository
+      primeApplicationEventsRepositorySuccess(event)
+      primeLockRepository()
       primeApplicationConnectorSuccess()
       primeEmailConnectorSuccess()
 
@@ -139,30 +133,30 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
         case _ => fail()
       }
 
-      verify(applicationEventsRepository).fetchEventsToNotify(*)
-      verify(thirdPartyApplicationConnector).getApplication(*)(*)
+      verify(applicationEventsRepository).fetchEventsToNotify()
+      verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(*)
       verify(emailConnector).sendPpnsCallbackUrlChangedNotification(*, *, *)(*)
       verify(notificationsRepository).createEntity(*)
     }
 
     "return true when there are no events for application" in new Setup {
-      primeApplicationEventsRepositorySuccess(Seq.empty)
-      primeLockRepository
+      primeApplicationEventsRepositorySuccess()
+      primeLockRepository()
       val result: Either[ScheduleStatus.JobFailed, Boolean] =  await(job.invoke)
       result match {
         case Right(resultVal) => resultVal mustBe true
         case _ => fail()
       }
 
-      verify(applicationEventsRepository).fetchEventsToNotify(*)
+      verify(applicationEventsRepository).fetchEventsToNotify()
       verifyZeroInteractions(thirdPartyApplicationConnector)
       verifyZeroInteractions(emailConnector)
       verifyZeroInteractions(notificationsRepository)
     }
 
     "return true when there are events but no matching applications" in new Setup {
-      primeApplicationEventsRepositorySuccess(Seq(event))
-      primeLockRepository
+      primeApplicationEventsRepositorySuccess(event)
+      primeLockRepository()
       primeApplicationConnectorFailed()
 
       val notification = Notification(event.id, LocalDateTime.now(clock), FAILED)
@@ -175,8 +169,8 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
         case _ => fail()
       }
 
-      verify(applicationEventsRepository).fetchEventsToNotify(*)
-      verify(thirdPartyApplicationConnector).getApplication(*)(*)
+      verify(applicationEventsRepository).fetchEventsToNotify()
+      verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(*)
       verifyZeroInteractions(emailConnector)
       verifyZeroInteractions(notificationsRepository)
     }
@@ -188,53 +182,53 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
 
     "return the result of the future passed in because the lockRepository was able to lock and unlock successfully" in new Setup {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(true))
-      when(mockLockRepository.takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration)))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration)))
         .thenReturn(Future.successful(true))
-      when(mockLockRepository.releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any()))
+      when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
         .thenReturn(Future.successful(()))
 
       await(job.tryLock(future)) mustBe Right(true)
 
-      verify(mockLockRepository, times(1)).takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration))
-      verify(mockLockRepository, times(1)).releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any())
+      verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
+      verify(mockLockRepository, times(1)).releaseLock(eqTo(mongoLockId), *)
     }
 
     s"return $Right false if lock returns Future successful false" in new Setup {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(true))
-      when(mockLockRepository.takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration)))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration)))
         .thenReturn(Future.successful(false))
       await(job.tryLock(future)) mustBe Right(false)
 
-      verify(mockLockRepository, times(1)).takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration))
-      verify(mockLockRepository, times(0)).releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any())
+      verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
+      verify(mockLockRepository, times(0)).releaseLock(eqTo(mongoLockId), *)
     }
 
     s"return $Left ${ScheduleStatus.MongoUnlockException} if lock returns exception," +
       s"release lock is still called and succeeds" in new Setup() {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(false))
       val exception = new Exception("uh oh")
-      when(mockLockRepository.takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration)))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration)))
         .thenReturn(Future.failed(exception))
-      when(mockLockRepository.releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any()))
+      when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
         .thenReturn(Future.successful(()))
       await(job.tryLock(future)) mustBe Left(ScheduleStatus.MongoUnlockException(exception))
 
-      verify(mockLockRepository, times(1)).takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration))
-      verify(mockLockRepository, times(1)).releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any())
+      verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
+      verify(mockLockRepository, times(1)).releaseLock(eqTo(mongoLockId), *)
     }
 
     s"return $Left ${ScheduleStatus.MongoUnlockException} if lock returns exception," +
       s"release lock is still called and failed also" in new Setup {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(false))
       val exception = new Exception("uh oh")
-      when(mockLockRepository.takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration)))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration)))
         .thenReturn(Future.failed(exception))
-      when(mockLockRepository.releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any()))
+      when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
         .thenReturn(Future.failed(exception))
       await(job.tryLock(future)) mustBe Left(ScheduleStatus.MongoUnlockException(exception))
 
-      verify(mockLockRepository, times(1)).takeLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any(), ArgumentMatchers.eq(releaseDuration))
-      verify(mockLockRepository, times(1)).releaseLock(ArgumentMatchers.eq(mongoLockId), ArgumentMatchers.any())
+      verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
+      verify(mockLockRepository, times(1)).releaseLock(eqTo(mongoLockId), *)
     }
   }
 

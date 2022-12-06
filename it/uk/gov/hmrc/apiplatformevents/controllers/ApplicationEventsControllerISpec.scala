@@ -3,14 +3,15 @@ package uk.gov.hmrc.apiplatformevents.controllers
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.{ActorType, CollaboratorActor, EventId, GatekeeperUserActor}
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
 import java.util.UUID
 import java.{util => ju}
 import scala.concurrent.Future
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach {
 
@@ -29,33 +30,33 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val eventId: UUID = EventId.random.value
-  val applicationId = UUID.randomUUID().toString
+  val applicationId = ApplicationId.random
   val submissionId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorEmail = "actor@example.com"
-  val actorTypeGK = ActorType.GATEKEEPER
-  val actorTypeCollab = ActorType.COLLABORATOR
+  val actorTypeGK = "GATEKEEPER"
+  val actorTypeCollab = "COLLABORATOR"
   val actorUser = "gatekeeper"
   val eventDateTimeString = "2014-01-01T13:13:34.441"
 
-  def validTeamMemberJsonBody(teamMemberEmail: String, teamMemberRole: String): String =
+  def validTeamMemberJsonBody(teamMemberEmail: LaxEmailAddress, teamMemberRole: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
-         |"teamMemberEmail": "$teamMemberEmail",
+         |"teamMemberEmail": "${teamMemberEmail.value}",
          |"teamMemberRole": "$teamMemberRole"}""".stripMargin
 
   def validClientSecretJsonBody(clientSecretId: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   def validRedirectUrisUpdatedJsonBody(oldRedirectUri: String, newRedirectUri: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"oldRedirectUris": "$oldRedirectUri",
@@ -63,7 +64,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validApiSubscriptionJsonBody(apiContext: String, apiVersion: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"context": "$apiContext",
@@ -71,7 +72,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"boxId": "$boxId",
@@ -79,180 +80,180 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"oldCallbackUrl": "$oldCallbackUrl",
          |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
-  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: String): String =
+  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_NAME_CHANGED",
          |"actor": { "user": "$actorUser", "actorType": "$actorTypeGK" },
          |"oldAppName": "$oldAppName",
          |"newAppName": "$newAppName",
-         |"requestingAdminEmail": "$requestingAdminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${requestingAdminEmail.value}"}""".stripMargin
 
-  def validProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+  def validProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"newLocation": {"privacyPolicyType":"url", "value":"$newUrl"},
          |"oldLocation": {"privacyPolicyType":"url", "value":"$oldUrl"},
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+  def validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"newUrl": "$newUrl",
          |"oldUrl": "$oldUrl",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+  def validProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"newLocation": {"termsAndConditionsType":"url", "value":"$newUrl"},
          |"oldLocation": {"termsAndConditionsType":"url", "value":"$oldUrl"},
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: String): String =
+  def validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"newUrl": "$newUrl",
          |"oldUrl": "$oldUrl",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validResponsibleIndividualChangedJsonBody(riName: String, riEmail: String, adminEmail: String): String =
+  def validResponsibleIndividualChangedJsonBody(riName: String, riEmail: LaxEmailAddress, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"previousResponsibleIndividualName": "Old RI Name",
          |"previousResponsibleIndividualEmail": "old-ri@example.com",
          |"newResponsibleIndividualName": "$riName",
-         |"newResponsibleIndividualEmail": "$riEmail",
+         |"newResponsibleIndividualEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "123456789",
          |"requestingAdminName": "Mr Admin",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validResponsibleIndividualChangedToSelfJsonBody(adminName: String, adminEmail: String): String =
+  def validResponsibleIndividualChangedToSelfJsonBody(adminName: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"previousResponsibleIndividualName": "Old RI Name",
          |"previousResponsibleIndividualEmail": "old-ri@example.com",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validResponsibleIndividualSetJsonBody(riName: String, riEmail: String, adminEmail: String, code: String): String =
+  def validResponsibleIndividualSetJsonBody(riName: String, riEmail: LaxEmailAddress, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_SET",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"responsibleIndividualEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "Mr Admin",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validApplicationStateChangedJsonBody(adminName: String, adminEmail: String, oldAppState: String, newAppState: String): String =
+  def validApplicationStateChangedJsonBody(adminName: String, adminEmail: LaxEmailAddress, oldAppState: String, newAppState: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "APPLICATION_STATE_CHANGED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"oldAppState": "$oldAppState",
          |"newAppState": "$newAppState",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: String, appName: String, adminName: String, adminEmail: String): String =
+  def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: LaxEmailAddress, appName: String, adminName: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"applicationName": "$appName",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail",
+         |"requestingAdminEmail": "${adminEmail.value}",
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"responsibleIndividualEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"verificationId": "${UUID.randomUUID().toString}"}""".stripMargin
 
-  def validResponsibleIndividualDeclinedJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, code: String): String =
+  def validResponsibleIndividualDeclinedJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_DECLINED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"responsibleIndividualEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validResponsibleIndividualDeclinedUpdateJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, code: String): String =
+  def validResponsibleIndividualDeclinedUpdateJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"responsibleIndividualEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validResponsibleIndividualDidNotVerifyJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, code: String): String =
+  def validResponsibleIndividualDidNotVerifyJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "$riEmail",
+         |"responsibleIndividualEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
-  def validApplicationApprovalRequestDeclinedJsonBody(riName: String, riEmail: String, adminName: String, adminEmail: String, reasons: String): String =
+  def validApplicationApprovalRequestDeclinedJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, reasons: String): String =
     raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$applicationId",
+         |"applicationId": "${applicationId.value}",
          |"eventDateTime": "$eventDateTimeString",
          |"eventType": "APPLICATION_APPROVAL_REQUEST_DECLINED",
-         |"actor": { "email": "$adminEmail", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
          |"decliningUserName": "$riName",
-         |"decliningUserEmail": "$riEmail",
+         |"decliningUserEmail": "${riEmail.value}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"reasons": "$reasons",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "$adminEmail"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -267,7 +268,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       .post(body)
   }
 
-  def checkCommonEventValues(event: ApplicationEvent): Unit = {
+  def checkCommonEventValues(event: AbstractApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
     event.eventDateTime.toString shouldBe eventDateTimeString
   }
@@ -276,7 +277,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
     "POST /teamMemberAdded" should {
       "respond with 201 when valid json is sent" in {
-        val teamMemberEmail = "bob@bob.com"
+        val teamMemberEmail = LaxEmailAddress("bob@bob.com")
         val adminRole = "ADMIN"
 
         testSuccessScenario("/application-events/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
@@ -287,8 +288,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -298,7 +298,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
     "POST /teamMemberRemoved" should {
       "respond with 201 when valid json is sent" in {
-        val teamMemberEmail = "bob@bob.com"
+        val teamMemberEmail = LaxEmailAddress("bob@bob.com")
         val adminRole = "ADMIN"
 
         testSuccessScenario("/application-events/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
@@ -310,8 +310,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -332,8 +331,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -353,8 +351,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -376,8 +373,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldRedirectUris shouldBe oldRedirectUri
         event.newRedirectUris shouldBe newRedirectUri
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -398,8 +394,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -420,8 +415,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -447,8 +441,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.oldCallbackUrl shouldBe oldCallbackUrl
         event.newCallbackUrl shouldBe newCallbackUrl
         event.boxName shouldBe boxName
-        event.actor.actorType shouldBe actorTypeGK
-        event.actor.id shouldBe actorId
+        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -461,7 +454,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       "respond with 201 when valid prod app name changed json is sent" in {
         val oldAppName = "old name"
         val newAppName = "new name"
-        val requestingAdminEmail = "admin@example.com"
+        val requestingAdminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminEmail))
 
@@ -474,17 +467,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.newAppName shouldBe newAppName
         event.requestingAdminEmail shouldBe requestingAdminEmail
 
-        event.actor match {
-          case GatekeeperUserActor(name) => name shouldBe actorUser
-          case _ => fail("expected GatekeeperUserActor")
-        }
+        event.actor shouldBe Actors.GatekeeperUser(actorUser)
 
       }
 
       "respond with 201 when valid prod app privacy policy location changed json is sent" in {
         val oldUrl = "http://example.com/old"
         val newUrl = "http://example.com/new"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
@@ -493,15 +483,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val event = results.head.asInstanceOf[ProductionAppPrivacyPolicyLocationChanged]
 
         checkCommonEventValues(event)
-        event.oldLocation shouldBe PrivacyPolicyLocation.Url(oldUrl)
-        event.newLocation shouldBe PrivacyPolicyLocation.Url(newUrl)
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.oldLocation shouldBe PrivacyPolicyLocations.Url(oldUrl)
+        event.newLocation shouldBe PrivacyPolicyLocations.Url(newUrl)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid legacy prod app privacy policy location changed json is sent" in {
         val oldUrl = "http://example.com/old"
         val newUrl = "http://example.com/new"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
@@ -512,13 +502,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
         event.newUrl shouldBe newUrl
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid prod app t&cs location changed json is sent" in {
         val oldUrl = "http://example.com/old"
         val newUrl = "http://example.com/new"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
@@ -527,15 +517,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val event = results.head.asInstanceOf[ProductionAppTermsConditionsLocationChanged]
 
         checkCommonEventValues(event)
-        event.oldLocation shouldBe TermsAndConditionsLocation.Url(oldUrl)
-        event.newLocation shouldBe TermsAndConditionsLocation.Url(newUrl)
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.oldLocation shouldBe TermsAndConditionsLocations.Url(oldUrl)
+        event.newLocation shouldBe TermsAndConditionsLocations.Url(newUrl)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid legacy prod app t&cs location changed json is sent" in {
         val oldUrl = "http://example.com/old"
         val newUrl = "http://example.com/new"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
@@ -546,13 +536,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
         event.newUrl shouldBe newUrl
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid responsible individual changed json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
-        val adminEmail = "admin@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validResponsibleIndividualChangedJsonBody(riName, riEmail, adminEmail))
 
@@ -563,13 +553,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.newResponsibleIndividualName shouldBe riName
         event.newResponsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid responsible individual set json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
-        val adminEmail = "admin@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
+        val adminEmail = LaxEmailAddress("admin@example.com")
         val code = "434235934537645394"
 
         testSuccessScenario("/application-event", validResponsibleIndividualSetJsonBody(riName, riEmail, adminEmail, code))
@@ -582,12 +572,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
         event.code shouldBe code
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid application state changed json is sent" in {
         val adminName = "Mr Admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
         val oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION"
         val newAppState = "PENDING_GATEKEEPER_APPROVAL"
 
@@ -600,15 +590,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.oldAppState shouldBe oldAppState
         event.newAppState shouldBe newAppState
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
       }
 
       "respond with 201 when valid responsible individual verification started json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
         val appName = "app name"
         val adminName = "ms admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validResponsibleIndividualVerificationStartedJsonBody(riName, riEmail, appName, adminName, adminEmail))
 
@@ -620,14 +610,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
         event.applicationName shouldBe appName
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
       }
 
       "respond with 201 when valid responsible individual changed to self json is sent" in {
         val adminName = "Mr Admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validResponsibleIndividualChangedToSelfJsonBody(adminName, adminEmail))
 
@@ -637,15 +627,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         checkCommonEventValues(event)
         event.requestingAdminName shouldBe adminName
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
         event.requestingAdminEmail shouldBe adminEmail
       }
 
       "respond with 201 when valid responsible individual declined json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
         val adminName = "Mr Admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
         val code = "324523487236548723458"
         testSuccessScenario("/application-event", validResponsibleIndividualDeclinedJsonBody(riName, riEmail, adminName, adminEmail, code))
 
@@ -656,7 +646,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
         event.code shouldBe code
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -664,9 +654,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
       "respond with 201 when valid responsible individual declined update json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
         val adminName = "Mr Admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
         val code = "324523487236548723458"
         testSuccessScenario("/application-event", validResponsibleIndividualDeclinedUpdateJsonBody(riName, riEmail, adminName, adminEmail, code))
 
@@ -677,7 +667,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
         event.code shouldBe code
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -685,9 +675,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
       "respond with 201 when valid responsible individual did not verify json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
         val adminName = "Mr Admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
         val code = "324523487236548723458"
         testSuccessScenario("/application-event", validResponsibleIndividualDidNotVerifyJsonBody(riName, riEmail, adminName, adminEmail, code))
 
@@ -698,7 +688,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
         event.code shouldBe code
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -706,9 +696,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
       "respond with 201 when valid application approval request declined json is sent" in {
         val riName = "Mr Responsible"
-        val riEmail = "ri@example.com"
+        val riEmail = LaxEmailAddress("ri@example.com")
         val adminName = "Mr Admin"
-        val adminEmail = "admin@example.com"
+        val adminEmail = LaxEmailAddress("admin@example.com")
         val reasons = "reasons text" +
           ""
         testSuccessScenario("/application-event", validApplicationApprovalRequestDeclinedJsonBody(riName, riEmail, adminName, adminEmail, reasons))
@@ -720,7 +710,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         checkCommonEventValues(event)
         event.decliningUserName shouldBe riName
         event.decliningUserEmail shouldBe riEmail
-        event.actor shouldBe CollaboratorActor(adminEmail)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
         event.reasons shouldBe reasons
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail

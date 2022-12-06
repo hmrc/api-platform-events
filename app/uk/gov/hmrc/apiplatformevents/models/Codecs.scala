@@ -25,7 +25,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json._
 import org.mongodb.scala.{Document => ScalaDocument}
 import scala.reflect.runtime.universe._
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait Codecs {
   outer =>
@@ -76,19 +76,33 @@ trait Codecs {
     legacyNumbers: Boolean = false
   )(implicit tt: TypeTag[P]): Seq[Codec[_]] = {
 
+    def descend(clazz: ClassSymbol): Set[ClassSymbol] = {
+      if(clazz.isCaseClass) {
+        Set(clazz)
+      }
+      else if(clazz.isTrait && clazz.isSealed) {
+        clazz.knownDirectSubclasses.collect {
+          case c : ClassSymbol => c
+        }
+        .flatMap(sc => descend(sc))
+      }
+      else {
+        Set()
+      }
+    }
+
     val clazz: ClassSymbol =  tt.tpe.typeSymbol.asClass
     require(clazz.isSealed)
     require(clazz.isTrait)
-    
-    val classSymbols = clazz.knownDirectSubclasses.collect {
-      case c : ClassSymbol => c
-    }
-    
+
+    val symbols = descend(clazz)
     val mirror = tt.mirror
-    classSymbols.toSeq.map { cs =>
+    symbols.toSeq.map { cs =>
       forcedPlayFormatCodec(format, legacyNumbers)(mirror.runtimeClass(cs))
     }
   }
+
+
   // $COVERAGE-OFF$
   def toBson[A: Writes](a: A, legacyNumbers: Boolean = false): BsonValue =
     jsonToBson(legacyNumbers)(Json.toJson(a))
@@ -98,6 +112,8 @@ trait Codecs {
   private def jsonToBson(legacyNumbers: Boolean)(js: JsValue): BsonValue =
     js match {
       case JsNull       => BsonNull.VALUE
+      case JsTrue       => BsonBoolean.TRUE
+      case JsFalse      => BsonBoolean.FALSE
       case JsBoolean(b) => BsonBoolean.valueOf(b)
       case JsNumber(n)  =>
         if (legacyNumbers) toBsonNumberLegacy(n)

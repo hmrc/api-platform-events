@@ -18,21 +18,30 @@ package uk.gov.hmrc.apiplatformevents.repository
 
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import uk.gov.hmrc.apiplatformevents.models.{MongoFormatters, Notification}
+import uk.gov.hmrc.apiplatformevents.models.Notification
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+
+object NotificationsRepository {
+  import play.api.libs.json.{OFormat, Json}
+  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
+
+  implicit def localDateTimeFormats() = MongoJavatimeFormats.localDateTimeFormat
+    implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
+}
 
 @Singleton
 class NotificationsRepository @Inject()(mongoComponent: MongoComponent)
                                        (implicit ec: ExecutionContext)
   extends PlayMongoRepository[Notification](
 
-      mongoComponent,
+    mongoComponent,
     "notifications",
-      MongoFormatters.formatNotification,
+    NotificationsRepository.formatNotification,
     indexes = Seq(IndexModel(ascending("eventId"),
                     IndexOptions()
                       .name("event_id_index")

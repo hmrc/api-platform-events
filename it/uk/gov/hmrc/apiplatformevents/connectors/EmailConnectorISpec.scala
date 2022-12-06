@@ -10,6 +10,7 @@ import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
 
 class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with EmailService {
 
@@ -32,7 +33,7 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
   "sendPpnsCallbackUrlChangedNotification" should {
     val applicationName: String = "foobar app"
     val dateTimeOfChange: LocalDateTime = LocalDateTime.now()
-    val recipients: Set[String] = Set("john.doe@example.com")
+    val recipients = Set("john.doe@example.com").map(LaxEmailAddress(_))
 
     val expectedRequestBody = SendEmailRequest(recipients,
       "ppnsCallbackUrlChangedNotification",

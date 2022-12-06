@@ -26,13 +26,12 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
-import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
 class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory
   with GuiceOneAppPerSuite with BeforeAndAfterEach {
@@ -73,7 +72,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
       val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
       status(result) shouldBe CREATED
-
     }
 
     "return 500 when post request is valid json but service fails" in {
@@ -82,7 +80,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
       val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
       status(result) shouldBe INTERNAL_SERVER_ERROR
-
     }
 
     "return 400 when post request is invalid json" in {

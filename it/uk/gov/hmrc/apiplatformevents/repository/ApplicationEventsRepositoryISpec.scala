@@ -18,16 +18,14 @@ package uk.gov.hmrc.apiplatformevents.repository
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.EventId
-import uk.gov.hmrc.apiplatformevents.models.common.EventType.TEAM_MEMBER_ADDED
 
 import java.time.LocalDateTime
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+
 
 class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
 
@@ -40,7 +38,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
   val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
   val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     await(notificationsRepo.collection.drop().toFuture())
     await(notificationsRepo.ensureIndexes)
     await(repo.collection.drop().toFuture())
@@ -48,6 +46,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
   }
 
   "createEntity" should {
+   
     "create a teamMemberRemoved entity" in {
       await(repo.createEntity(teamMemberRemovedModel))
       await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
@@ -161,63 +160,27 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
   }
 
   "fetchEventsToNotify" should {
-    "filter results by event type" in {
+    "filter results" in {
       await(repo.createEntity(teamMemberAddedModel))
       await(repo.createEntity(clientSecretAddedModel))
+      await(repo.createEntity(ppnsCallBackUriUpdatedEvent))
 
-      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+      val result: List[AbstractApplicationEvent] = await(repo.fetchEventsToNotify())
 
-      result should contain only teamMemberAddedModel
+      result should contain only ppnsCallBackUriUpdatedEvent
     }
 
     "only return events that have not been notified yet" in {
-      await(repo.createEntity(teamMemberAddedModel))
-      val anotherTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
-      await(repo.createEntity(anotherTeamMemberAddedModel))
-      val alreadyNotifiedTeamMemberAddedModel = teamMemberAddedModel.copy(id = EventId.random)
-      await(repo.createEntity(alreadyNotifiedTeamMemberAddedModel))
-      await(notificationsRepo.createEntity(Notification(alreadyNotifiedTeamMemberAddedModel.id, LocalDateTime.now(), SENT)))
+      await(repo.createEntity(ppnsCallBackUriUpdatedEvent))
+      val anotherEvent = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
+      await(repo.createEntity(anotherEvent))
+      val alreadyNotifiedEvent = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
+      await(repo.createEntity(alreadyNotifiedEvent))
+      await(notificationsRepo.createEntity(Notification(alreadyNotifiedEvent.id, LocalDateTime.now(), SENT)))
 
-      val result: Seq[ApplicationEvent] = await(repo.fetchEventsToNotify(TEAM_MEMBER_ADDED))
+      val result: List[AbstractApplicationEvent] = await(repo.fetchEventsToNotify())
 
-      result should contain only (teamMemberAddedModel, anotherTeamMemberAddedModel)
-    }
-  }
-
-  private def primeMongo(events: ApplicationEvent*): Array[ApplicationEvent] = {
-    await(Future.sequence(events.toList.map(repo.createEntity(_))))
-    events.toArray
-  }
-
-  "fetchEventsBy" should {
-    "filter results by applicationId" in {
-      val appId = UUID.randomUUID().toString()
-
-      val evts = primeMongo(
-        makeTeamMemberAddedEvent(Some(appId)),
-        makeTeamMemberAddedEvent(),
-        makeTeamMemberRemovedEvent(Some(appId)),
-        makeClientSecretAddedEvent(Some(appId))
-      )
-
-      val events = await(repo.fetchEventsBy(appId, None))
-      events.length shouldBe 3
-      events should contain only (evts(0), evts(2), evts(3))
-    }
-
-    "filter results by applicationId and eventType" in {
-      val appId = UUID.randomUUID().toString()
-
-      val evts = primeMongo(
-        makeTeamMemberAddedEvent(Some(appId)),
-        makeTeamMemberAddedEvent(),
-        makeTeamMemberRemovedEvent(Some(appId)),
-        makeClientSecretAddedEvent(Some(appId))
-      )
-
-      val events = await(repo.fetchEventsBy(appId, Some(TEAM_MEMBER_ADDED)))
-      events.length shouldBe 1
-      events should contain only (evts(0))
+      result should contain theSameElementsAs List(ppnsCallBackUriUpdatedEvent, anotherEvent)
     }
   }
 }

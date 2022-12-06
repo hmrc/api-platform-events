@@ -18,14 +18,14 @@ package uk.gov.hmrc.apiplatformevents.repository
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
-import uk.gov.hmrc.apiplatformevents.models._
-import uk.gov.hmrc.apiplatformevents.models.common.EventId
 import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatformevents.models.Notification
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 
 class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongoRepositorySupport[Notification] {
 
@@ -40,7 +40,7 @@ class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongo
   protected def repository: PlayMongoRepository[Notification]= new NotificationsRepository(mongoComponent)
   val repo: NotificationsRepository = repository.asInstanceOf[NotificationsRepository]
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     await(repo.ensureIndexes)
   }

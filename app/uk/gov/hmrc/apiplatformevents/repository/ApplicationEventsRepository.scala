@@ -20,24 +20,29 @@ import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import uk.gov.hmrc.apiplatformevents.models.MongoFormatters._
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationEvent, MongoFormatters}
-import uk.gov.hmrc.apiplatformevents.models.common.EventType
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatformevents.models.Codecs
-import org.bson.conversions.Bson
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
+
+object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.localDateTimeFormat)
+
+object ApplicationEventsRepository {
+  lazy val formatter = MongoEventsJsonFormatters.abstractApplicationEventFormats
+}
 
 @Singleton
 class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
                                            (implicit ec: ExecutionContext)
-    extends PlayMongoRepository[ApplicationEvent](
+    extends PlayMongoRepository[AbstractApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
-     domainFormat = MongoFormatters.formatApplicationEvent,
+     domainFormat = ApplicationEventsRepository.formatter,
       indexes = Seq(
         IndexModel(ascending("id"),
           IndexOptions()
@@ -48,34 +53,34 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
           IndexOptions()
             .name("eventType_index")
             .unique(false)
+            .background(true)),
+        IndexModel(ascending("applicationId"),
+          IndexOptions()
+            .name("applicationId_index")
+            .unique(false)
             .background(true))
       ),
-      extraCodecs  = Codecs.unionCodecs[ApplicationEvent](formatApplicationEvent),
+      extraCodecs  = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
       replaceIndexes = true
     ) {
 
-  def createEntity(event: ApplicationEvent): Future[Boolean] =
+  def createEntity(event: AbstractApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchEventsToNotify[A <: ApplicationEvent](eventType: EventType): Future[Seq[ApplicationEvent]] = {
+  def fetchEventsToNotify[A <: AbstractApplicationEvent](): Future[List[AbstractApplicationEvent]] = {
     collection.aggregate(
       Seq(
-        filter(equal("eventType", eventType.entryName)),
+        filter(equal("eventType", "PPNS_CALLBACK_URI_UPDATED")),
         lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
         filter(size("matched", 0))
       )
     ).toFuture()
+    .map(_.toList)
   }
 
-  def fetchEventsBy(applicationId: String, eventType: Option[EventType]): Future[Seq[ApplicationEvent]] = {
-    val filters = Seq(filter(equal("applicationId", applicationId))) ++ (eventType.fold(Seq.empty[Bson])(et => Seq(filter(equal("eventType", et.entryName)))))
-
-    collection.aggregate(filters)
+  def fetchEvents(applicationId: ApplicationId): Future[List[AbstractApplicationEvent]] = {
+    collection.find(equal("applicationId", applicationId.value))
     .toFuture()
-  }
-
-  def fetchEvents(applicationId: String): Future[Seq[ApplicationEvent]] = {
-    collection.find(equal("applicationId", applicationId))
-    .toFuture()
+    .map(_.toList)
   }
 }

@@ -40,7 +40,7 @@ object SchedulingActor {
     val service: ScheduledService[A]
   }
 
-  def props: Props = Props[SchedulingActor]
+  def props: Props = Props[SchedulingActor]()
 
   case class SendEventNotificationServiceActor(service: SendEventNotificationsService) extends
     ScheduledMessage[Either[ScheduleStatus.JobFailed, Boolean]] {}
