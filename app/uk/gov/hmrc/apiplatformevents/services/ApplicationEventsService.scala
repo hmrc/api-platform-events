@@ -37,7 +37,6 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(impl
     case Some(tag) =>
       repo.fetchEvents(applicationId)
       .map(_.filter(EventTags.tag(_) == tag))
-      
   }
 
   def fetchEventQueryValues(applicationId: ApplicationId): Future[Option[QueryableValues]] = {

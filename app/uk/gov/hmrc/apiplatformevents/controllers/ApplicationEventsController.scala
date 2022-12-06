@@ -42,7 +42,7 @@ class ApplicationEventsController @Inject()(
   implicit val configuration: Configuration,
   ec: ExecutionContext
 ) extends BackendController(cc) with ApplicationLogger {
-  
+
   import EventsInterServiceCallJsonFormatters._
 
   def handleEvent(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>

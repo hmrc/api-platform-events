@@ -34,7 +34,7 @@ class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSup
     val expectedApp = ApplicationResponse("foobar app", Set.empty)
 
     "retrieve application record based on provided clientId" in new SetUp() {
-      val jsonResponse: String = raw"""{"id":  "${applicationId.value}", "name": "${expectedApp.name}", "collaborators": []}"""
+      val jsonResponse: String = raw"""{"id":  "${applicationId.value.toString()}", "name": "${expectedApp.name}", "collaborators": []}"""
       primeApplicationEndpoint(OK, jsonResponse, applicationId)
 
       val result: ApplicationResponse = await(objInTest.getApplication(applicationId))
