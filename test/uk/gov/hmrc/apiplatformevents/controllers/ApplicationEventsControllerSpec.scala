@@ -32,11 +32,15 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory
   with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockApplicationsEventService: ApplicationEventsService = mock[ApplicationEventsService]
+
+  val appId = ApplicationId.random
+  val appIdText = appId.value.toString()
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[ApplicationEventsService].to(mockApplicationsEventService))
@@ -60,7 +64,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "TeamMemberAddedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"teamMemberEmail": "bob@bob.com",
@@ -101,7 +105,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "TeamMemberRemovedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"teamMemberEmail": "bob@bob.com",
@@ -145,7 +149,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "ClientSecretAddedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"clientSecretId": "abababab"}""".stripMargin
@@ -185,7 +189,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "ClientSecretRemovedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"clientSecretId": "abababab"}""".stripMargin
@@ -226,7 +230,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "RedirectUrisUpdatedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"oldRedirectUris": "oldrdu",
@@ -268,7 +272,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "ApiSubscribedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"context": "apicontext",
@@ -310,7 +314,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "ApiUnsubscribedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"context": "apicontext",
@@ -353,7 +357,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "PpnsCallBackUriUpdatedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "akjhjkhjshjkhksaih",
+           |"applicationId": "$appIdText",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
            |"boxId": "boxId",
@@ -399,7 +403,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   "ProductionAppNameChangedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "appid",
+           |"applicationId": "$appIdText",
            |"eventType": "PROD_APP_NAME_CHANGED",
            |"eventDateTime": "2014-01-01T13:13:34.441Z",
            |"actor":{"user": "gk user", "actorType": "GATEKEEPER"},

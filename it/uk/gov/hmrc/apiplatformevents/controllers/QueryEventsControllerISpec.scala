@@ -59,7 +59,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
     "GET /application-events/:id" should {
 
       "return 404 when no records exists" in {
-        val result = await(doGet(s"/application-event/${appId.value}"))
+        val result = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 404
       }
       
@@ -71,7 +71,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
           event2.copy(eventDateTime = LocalDateTime.now.minusDays(1))
         )
         
-        val result = await(doGet(s"/application-event/${appId.value}"))
+        val result = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 200
         val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.sorted(AbstractApplicationEvent.orderEvents))))
         result.body shouldBe expectedText

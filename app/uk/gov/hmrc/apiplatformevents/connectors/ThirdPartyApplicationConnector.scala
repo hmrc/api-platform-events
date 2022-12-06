@@ -30,6 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 class ThirdPartyApplicationConnector @Inject()(http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) {
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
-    http.GET[ApplicationResponse](s"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value}")
+    http.GET[ApplicationResponse](s"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value.toString()}")
   }
 }

@@ -30,7 +30,7 @@ package object binders {
     Try(ju.UUID.fromString(text))
       .toOption
       .toRight(s"Cannot accept $text as ApplicationId")
-      .map(uuid => ApplicationId(uuid.toString()))
+      .map(uuid => ApplicationId(uuid))
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
