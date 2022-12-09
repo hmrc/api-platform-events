@@ -156,9 +156,9 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeTeamMemberAddedEvent(Some(appId))
       )
 
-      val fetchedEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.COLLABORATOR)))
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.TEAM_MEMBER)))
 
-      fetchedEvents should contain allOf(evts(0), evts(1))
+      fetchedEvents should contain theSameElementsAs List(evts(0), evts(1))
 
       val fetchNoEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.SUBSCRIPTION)))
 
@@ -208,7 +208,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
-      fetchEventQueryValues.value.eventTags should contain theSameElementsAs List(EventTags.COLLABORATOR, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION, EventTags.REDIRECT_URIS)
+      fetchEventQueryValues.value.eventTags should contain theSameElementsAs List(EventTags.TEAM_MEMBER, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION, EventTags.REDIRECT_URIS)
 
       fetchEventQueryValues.value.eventTags should not contain EventTags.PPNS_CALLBACK
     }
