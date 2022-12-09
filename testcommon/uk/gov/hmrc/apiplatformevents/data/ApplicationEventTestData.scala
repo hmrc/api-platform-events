@@ -422,5 +422,45 @@ trait ApplicationEventTestData {
   def makeApplicationApprovalRequestDeclined(appId: Option[ApplicationId] = None): ApplicationApprovalRequestDeclined = {
     applicationApprovalRequestDeclinedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
   }    
+
+  val applicationDeletedEvent: ApplicationDeleted = ApplicationDeleted(
+    id = EventId.random,
+    applicationId = ApplicationId.random,
+    eventDateTime = LocalDateTime.now(),
+    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    clientId = ClientId("clientid"),
+    wso2ApplicationName = "wso2applicationname",
+    reasons = "reason text")
+
+  def makeApplicationDeleted(appId: Option[ApplicationId] = None): ApplicationDeleted = {
+    applicationDeletedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val applicationDeletedByGatekeeperEvent: ApplicationDeletedByGatekeeper = ApplicationDeletedByGatekeeper(
+    id = EventId.random,
+    applicationId = ApplicationId.random,
+    eventDateTime = LocalDateTime.now(),
+    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    clientId = ClientId("clientid"),
+    wso2ApplicationName = "wso2applicationname",
+    reasons = "reason text",
+    requestingAdminEmail = LaxEmailAddress("requester@example.com"))
+
+  def makeApplicationDeletedByGatekeeper(appId: Option[ApplicationId] = None): ApplicationDeletedByGatekeeper = {
+    applicationDeletedByGatekeeperEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
+
+  val productionCredentialsApplicationDeletedEvent: ProductionCredentialsApplicationDeleted = ProductionCredentialsApplicationDeleted(
+    id = EventId.random,
+    applicationId = ApplicationId.random,
+    eventDateTime = LocalDateTime.now(),
+    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    clientId = ClientId("clientid"),
+    wso2ApplicationName = "wso2applicationname",
+    reasons = "reason text")
+
+  def makeProductionCredentialsApplicationDeleted(appId: Option[ApplicationId] = None): ProductionCredentialsApplicationDeleted = {
+    productionCredentialsApplicationDeletedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
+  }
 }
 
