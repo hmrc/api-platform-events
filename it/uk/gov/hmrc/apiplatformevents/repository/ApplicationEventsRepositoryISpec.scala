@@ -157,6 +157,20 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.collection.find().toFuture()) should contain only applicationApprovalRequestDeclinedEvent
     }
 
+    "create a applicationDeletedEvent entity" in {
+      await(repo.createEntity(applicationDeletedEvent))
+      await(repo.collection.find().toFuture()) should contain only applicationDeletedEvent
+    }
+
+    "create a applicationDeletedByGatekeeperEvent entity" in {
+      await(repo.createEntity(applicationDeletedByGatekeeperEvent))
+      await(repo.collection.find().toFuture()) should contain only applicationDeletedByGatekeeperEvent
+    }
+
+    "create a productionCredentialsApplicationDeletedEvent entity" in {
+      await(repo.createEntity(productionCredentialsApplicationDeletedEvent))
+      await(repo.collection.find().toFuture()) should contain only productionCredentialsApplicationDeletedEvent
+    }
   }
 
   "fetchEventsToNotify" should {

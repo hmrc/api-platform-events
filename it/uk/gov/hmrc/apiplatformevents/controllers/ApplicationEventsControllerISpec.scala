@@ -32,6 +32,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
   val eventId: UUID = EventId.random.value
   val applicationId = ApplicationId.random
   val appIdText = applicationId.value.toString()
+  val clientId = ClientId.random
+  val clientIdText = clientId.value
   val submissionId: String = ju.UUID.randomUUID.toString
   val actorId = "123454654"
   val actorEmail = "actor@example.com"
@@ -255,6 +257,37 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
          |"reasons": "$reasons",
          |"requestingAdminName": "$adminName",
          |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+
+  def validApplicationDeletedJsonBody(adminEmail: LaxEmailAddress, wso2ApplicationName: String, reasons: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$appIdText",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "APPLICATION_DELETED",
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"clientId": "$clientIdText",
+         |"wso2ApplicationName": "$wso2ApplicationName",
+         |"reasons": "$reasons"}""".stripMargin
+
+  def validApplicationDeletedByGatekeeperJsonBody(adminEmail: LaxEmailAddress, wso2ApplicationName: String, reasons: String, requestingAdminEmail: LaxEmailAddress): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$appIdText",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "APPLICATION_DELETED_BY_GATEKEEPER",
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"clientId": "$clientIdText",
+         |"wso2ApplicationName": "$wso2ApplicationName",
+         |"reasons": "$reasons",
+         |"requestingAdminEmail": "${requestingAdminEmail.value}"}""".stripMargin
+
+  def validProductionCredentialsApplicationDeletedJsonBody(adminEmail: LaxEmailAddress, wso2ApplicationName: String, reasons: String): String =
+    raw"""{"id": "${EventId.random.value}",
+         |"applicationId": "$appIdText",
+         |"eventDateTime": "$eventDateTimeString",
+         |"eventType": "PRODUCTION_CREDENTIALS_APPLICATION_DELETED",
+         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"clientId": "$clientIdText",
+         |"wso2ApplicationName": "$wso2ApplicationName",
+         |"reasons": "$reasons"}""".stripMargin
 
   def doGet(path: String): Future[WSResponse] = {
     wsClient
@@ -715,6 +748,59 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         event.reasons shouldBe reasons
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
+      }
+
+      "respond with 201 when valid application deleted json is sent" in {
+        val wso2AppName = "wso2AppName"
+        val adminEmail = LaxEmailAddress("admin@example.com")
+        val reasons = "reasons text"
+        testSuccessScenario("/application-event", validApplicationDeletedJsonBody(adminEmail, wso2AppName, reasons))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ApplicationDeleted]
+
+        checkCommonEventValues(event)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.reasons shouldBe reasons
+        event.wso2ApplicationName shouldBe wso2AppName
+        event.clientId shouldBe clientId
+      }
+
+      "respond with 201 when valid application deleted by gatekeeper json is sent" in {
+        val wso2AppName = "wso2AppName"
+        val adminEmail = LaxEmailAddress("admin@example.com")
+        val reasons = "reasons text"
+        val requestedByEmail = LaxEmailAddress("requester@example.com")
+        testSuccessScenario("/application-event", validApplicationDeletedByGatekeeperJsonBody(adminEmail, wso2AppName, reasons, requestedByEmail))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ApplicationDeletedByGatekeeper]
+
+        checkCommonEventValues(event)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.reasons shouldBe reasons
+        event.wso2ApplicationName shouldBe wso2AppName
+        event.clientId shouldBe clientId
+        event.requestingAdminEmail shouldBe requestedByEmail
+      }
+
+      "respond with 201 when valid production credentials application deleted json is sent" in {
+        val wso2AppName = "wso2AppName"
+        val adminEmail = LaxEmailAddress("admin@example.com")
+        val reasons = "reasons text"
+        testSuccessScenario("/application-event", validProductionCredentialsApplicationDeletedJsonBody(adminEmail, wso2AppName, reasons))
+
+        val results = await(repo.collection.find().toFuture())
+        results.size shouldBe 1
+        val event = results.head.asInstanceOf[ProductionCredentialsApplicationDeleted]
+
+        checkCommonEventValues(event)
+        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.reasons shouldBe reasons
+        event.wso2ApplicationName shouldBe wso2AppName
+        event.clientId shouldBe clientId
       }
 
       "handle error scenarios correctly" in {
