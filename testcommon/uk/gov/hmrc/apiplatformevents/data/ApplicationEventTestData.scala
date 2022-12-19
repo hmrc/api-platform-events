@@ -225,8 +225,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = PrivacyPolicyLocations.InDesktopSoftware,
-    newLocation = PrivacyPolicyLocations.Url("http://example.com"),
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    newLocation = PrivacyPolicyLocations.Url("http://example.com"))
 
   def makeProductionAppPrivacyPolicyLocationChangedEvent(appId: Option[ApplicationId] = None): ProductionAppPrivacyPolicyLocationChanged = {
     productionAppPrivacyPolicyLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -238,8 +237,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
-    newUrl = "http://example.com/new",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    newUrl = "http://example.com/new")
 
   def makeProductionLegacyAppPrivacyPolicyLocationChanged(appId: Option[ApplicationId] = None): ProductionLegacyAppPrivacyPolicyLocationChanged = {
     productionLegacyAppPrivacyPolicyLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -251,8 +249,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = TermsAndConditionsLocations.InDesktopSoftware,
-    newLocation = TermsAndConditionsLocations.Url("http://example.com"),
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    newLocation = TermsAndConditionsLocations.Url("http://example.com"))
 
   def makeProductionAppTermsConditionsLocationChanged(appId: Option[ApplicationId] = None): ProductionAppTermsConditionsLocationChanged = {
     productionAppTermsConditionsLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
@@ -264,8 +261,7 @@ trait ApplicationEventTestData {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
-    newUrl = "http://example.com/new",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    newUrl = "http://example.com/new")
 
   def makeProductionLegacyAppTermsConditionsLocationChanged(appId: Option[ApplicationId] = None): ProductionLegacyAppTermsConditionsLocationChanged = {
     productionLegacyAppTermsConditionsLocationChangedEvent.copy(applicationId = appId.fold(ApplicationId.random)(identity), id = EventId.random, eventDateTime = LocalDateTime.now())
