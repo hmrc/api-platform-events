@@ -22,10 +22,10 @@ import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsService
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class SchedulingActor extends Actor with ActorLogging with ApplicationLogger {
 
-  implicit val executionContext = scala.concurrent.ExecutionContext.global
-  
   override def receive: Receive = {
     case message: ScheduledMessage[_] =>
       logger.info(s"Received ${message.getClass.getSimpleName}")
