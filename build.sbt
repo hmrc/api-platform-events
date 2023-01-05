@@ -1,18 +1,19 @@
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-import uk.gov.hmrc.SbtAutoBuildPlugin
 import bloop.integrations.sbt.BloopDefaults
 
-lazy val root = (project in file("."))
+lazy val appName = "api-platform-events"
+
+lazy val microservice = Project(appName, file("."))
   .settings(
-    name := "api-platform-events",
+    name := appName,
     organization := "uk.gov.hmrc",
     scalaVersion := "2.13.8",
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
     publishingSettings,
-    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
@@ -32,12 +33,12 @@ lazy val root = (project in file("."))
   .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(
     Defaults.itSettings,
-    Keys.fork in IntegrationTest := false,
+    IntegrationTest / Keys.fork := false,
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
     IntegrationTest / parallelExecution := false,
-    IntegrationTest / testGrouping := oneForkedJvmPerTest((definedTests in IntegrationTest).value)
+    IntegrationTest / testGrouping := oneForkedJvmPerTest((IntegrationTest / definedTests).value)
   ) 
   .settings(
     routesImport ++= Seq(
