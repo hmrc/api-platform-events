@@ -4,6 +4,16 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-events"
 
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+
+inThisBuild(
+  List(
+    scalaVersion := "2.12.15",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
+
 lazy val microservice = Project(appName, file("."))
   .settings(
     name := appName,
