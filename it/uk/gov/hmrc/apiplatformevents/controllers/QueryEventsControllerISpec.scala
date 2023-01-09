@@ -12,6 +12,7 @@ import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import play.api.libs.json.Json
 
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
@@ -67,8 +68,8 @@ class QueryEventsControllerISpec extends ServerBaseISpec  with AuditService with
         val event1 = makeTeamMemberAddedEvent(Some(appId))
         val event2 = makeApiSubscribedEvent(Some(appId))
         val evts = primeMongo(
-          event1.copy(eventDateTime = LocalDateTime.now.minusDays(2)),
-          event2.copy(eventDateTime = LocalDateTime.now.minusDays(1))
+          event1.copy(eventDateTime = LocalDateTime.now.minusDays(2).truncatedTo(ChronoUnit.MILLIS)),
+          event2.copy(eventDateTime = LocalDateTime.now.minusDays(1).truncatedTo(ChronoUnit.MILLIS))
         )
         
         val result = await(doGet(s"/application-event/${appId.value.toString}"))
