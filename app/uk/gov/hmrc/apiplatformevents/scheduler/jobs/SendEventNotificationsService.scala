@@ -16,23 +16,23 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
+import java.time.{Clock, LocalDateTime}
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future, duration}
+import scala.util.control.NonFatal
+
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{AbstractApplicationEvent, PpnsCallBackUriUpdatedEvent}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
+
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformevents.models.Notification
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockException, UnknownExceptionOccurred}
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
-
-import java.time.{Clock, LocalDateTime}
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future, duration}
-import scala.util.control.NonFatal
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.PpnsCallBackUriUpdatedEvent
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
-import uk.gov.hmrc.apiplatformevents.models.Notification
 
 class SendEventNotificationsService @Inject() (
     appConfig: AppConfig,

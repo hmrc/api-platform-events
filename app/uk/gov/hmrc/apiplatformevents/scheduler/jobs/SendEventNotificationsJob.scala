@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
+import javax.inject.Inject
+
 import akka.actor.ActorSystem
+
 import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
+
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduledJob
 import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.SendEventNotificationServiceActor
-
-import javax.inject.Inject
 
 class SendEventNotificationsJob @Inject() (override val config: Configuration, val service: SendEventNotificationsService, val applicationLifecycle: ApplicationLifecycle)
     extends ScheduledJob {

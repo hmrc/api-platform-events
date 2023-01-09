@@ -18,12 +18,11 @@ package uk.gov.hmrc.apiplatformevents.data
 
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.UUID
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import java.util.UUID
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 trait ApplicationEventTestData {
   val teamMemberAddedModel: TeamMemberAddedEvent = TeamMemberAddedEvent(

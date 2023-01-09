@@ -17,16 +17,17 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{AbstractApplicationEvent, EventTag}
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
+import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
+import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
 object QueryEventsController {
   case class QueryResponse(events: List[AbstractApplicationEvent])

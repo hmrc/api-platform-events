@@ -17,20 +17,20 @@
 package uk.gov.hmrc.apiplatformevents.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
-import play.api.mvc._
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
+
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
+import play.api.mvc._
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import uk.gov.hmrc.apiplatformevents.models.JsErrorResponse
-import uk.gov.hmrc.apiplatformevents.models.ErrorCode
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
+import uk.gov.hmrc.apiplatformevents.models.{ErrorCode, JsErrorResponse}
+import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
+import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
 @Singleton
 class ApplicationEventsController @Inject() (

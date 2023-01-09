@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-import scala.concurrent.{Future, ExecutionContext => ExC}
+import scala.concurrent.{ExecutionContext => ExC, Future}
 
 trait ScheduledService[R] {
   def invoke(implicit ec: ExC): Future[R]

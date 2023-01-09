@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.apiplatformevents.connectors
 
-import com.google.inject.Inject
 import javax.inject.Singleton
+import scala.concurrent.{ExecutionContext, Future}
+
+import com.google.inject.Inject
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 @Singleton
 class ThirdPartyApplicationConnector @Inject() (http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) {

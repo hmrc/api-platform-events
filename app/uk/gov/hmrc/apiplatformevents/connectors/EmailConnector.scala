@@ -16,20 +16,18 @@
 
 package uk.gov.hmrc.apiplatformevents.connectors
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import play.api.http.Status.NOT_FOUND
-
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.NotFoundException
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.http.Status.NOT_FOUND
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
+
+import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 
 @Singleton
 class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {

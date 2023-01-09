@@ -16,19 +16,22 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+
 import uk.gov.hmrc.apiplatformevents.models.Codecs
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 
 object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.localDateTimeFormat)
 

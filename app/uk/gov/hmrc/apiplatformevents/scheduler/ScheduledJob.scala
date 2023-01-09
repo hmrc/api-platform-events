@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
+import scala.concurrent.Future
+
 import akka.actor.{ActorRef, ActorSystem}
 import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
+
 import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
+
 import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-
-import scala.concurrent.Future
 
 trait ScheduledJob extends ApplicationLogger {
 

@@ -16,33 +16,34 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
-import org.mockito.scalatest.MockitoSugar
-import org.mongodb.scala.MongoException
-import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import play.api.Configuration
-import play.api.http.Status.{NOT_FOUND, OK}
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
-import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
-import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.mongo.lock.MongoLockRepository
-import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
-
 import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
-import uk.gov.hmrc.apiplatformevents.models.Notification
+
 import org.mockito.ArgumentMatchersSugar
+import org.mockito.scalatest.MockitoSugar
+import org.mongodb.scala.MongoException
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.PlaySpec
+
+import play.api.Configuration
+import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.mongo.lock.MongoLockRepository
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
+
+import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
+import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification}
+import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
+import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
+import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 
 class SendEventNotificationsServiceSpec
     extends PlaySpec

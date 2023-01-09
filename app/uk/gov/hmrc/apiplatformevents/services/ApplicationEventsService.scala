@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.apiplatformevents.services
 
-import com.google.inject.Singleton
 import javax.inject.Inject
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import com.google.inject.Singleton
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 @Singleton
 class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {

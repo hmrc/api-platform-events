@@ -17,9 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{Collaborator, Collaborators, LaxEmailAddress}
 
 case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
   lazy val admins: Set[Collaborator]         = collaborators.collect { case c @ Collaborators.Administrator(_, _) =>

@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformevents.wiring
 
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 class AppConfigSpec extends AsyncHmrcSpec {

@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import akka.actor.{Actor, ActorLogging, Props}
+
 import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsService
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class SchedulingActor extends Actor with ActorLogging with ApplicationLogger {
 

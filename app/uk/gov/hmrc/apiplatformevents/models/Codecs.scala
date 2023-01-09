@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
+import scala.jdk.CollectionConverters._
+import scala.reflect.runtime.universe._
+
 import org.bson._
 import org.bson.codecs.{Codec, DecoderContext, EncoderContext}
 import org.bson.json.{JsonMode, JsonReader, JsonWriter, JsonWriterSettings}
 import org.bson.types.Decimal128
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
-import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.json._
 import org.mongodb.scala.{Document => ScalaDocument}
-import scala.reflect.runtime.universe._
-import scala.jdk.CollectionConverters._
+import org.slf4j.{Logger, LoggerFactory}
+
+import play.api.libs.json._
 
 trait Codecs {
   outer =>
