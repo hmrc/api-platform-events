@@ -107,6 +107,7 @@ trait Codecs {
 
   def fromBson[A: Reads](bs: BsonValue): A = bsonToJson(bs).as[A]
 
+  // scalastyle:off cyclomatic.complexity
   private def jsonToBson(legacyNumbers: Boolean)(js: JsValue): BsonValue =
     js match {
       case JsNull       => BsonNull.VALUE
@@ -119,17 +120,18 @@ trait Codecs {
       case JsString(s)  => new BsonString(s)
       case JsArray(a)   => new BsonArray(a.map(jsonToBson(legacyNumbers)).asJava)
       case o: JsObject  =>
-        if (o.keys.exists(k => k.startsWith("$") && !List("$numberDecimal", "$numberLong").contains(k)))
+        if (o.keys.exists(k => k.startsWith("$") && !List("$numberDecimal", "$numberLong").contains(k))) {
           // mongo types, identified with $ in `MongoDB Extended JSON format`  (e.g. BsonObjectId, BsonDateTime)
           // should use default conversion to Json. Then PlayJsonReaders will then convert as appropriate
           // The exception are numbers handled above (otherwise precision of $numberDecimal will be lost)
           fromJsonDefault(o)
-        else
+        } else {
           new BsonDocument(
             o.fields.map { case (k, v) =>
               new BsonElement(k, jsonToBson(legacyNumbers)(v))
             }.asJava
           )
+        }
     }
 
   private def bsonToJson(bs: BsonValue): JsValue =
@@ -156,6 +158,7 @@ trait Codecs {
           case _: JsUndefined => logger.debug(s"Could not convert $other to Json"); JsNull
         }
     }
+  // scalastyle:on cyclomatic.complexity
 
   // Following number conversion comes from https://github.com/ReactiveMongo/Play-ReactiveMongo/blob/4071a4fd580d7c6edeccac318d839456f69a847d/src/main/scala/play/modules/reactivemongo/Formatters.scala#L62-L64
   // It will loose precision on BigDecimals which can't be represented as doubles, and incorrectly identify some large Doubles as Long.
