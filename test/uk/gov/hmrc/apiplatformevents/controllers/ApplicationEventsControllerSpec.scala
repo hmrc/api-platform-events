@@ -34,12 +34,11 @@ import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
-class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory
-  with GuiceOneAppPerSuite with BeforeAndAfterEach {
+class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockApplicationsEventService: ApplicationEventsService = mock[ApplicationEventsService]
 
-  val appId = ApplicationId.random
+  val appId     = ApplicationId.random
   val appIdText = appId.value.toString()
 
   override lazy val app: Application = GuiceApplicationBuilder()
@@ -50,15 +49,15 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-  private val teamMemberAddedUri = "/application-events/teamMemberAdded"
-  private val teamMemberRemovedUri = "/application-events/teamMemberRemoved"
-  private val clientSecretAddedUri = "/application-events/clientSecretAdded"
-  private val clientSecretRemovedUri = "/application-events/clientSecretRemoved"
-  private val redirectUrisUpdatedUri = "/application-events/redirectUrisUpdated"
-  private val apiSubscribedUri = "/application-events/apiSubscribed"
-  private val apiUnsubscribedUri = "/application-events/apiUnsubscribed"
-  private val ppnsCallBackUriUpdateddUri = "/application-events/ppnsCallbackUriUpdated"
-  private val handleEventUri = "/application-event"
+  private val teamMemberAddedUri                = "/application-events/teamMemberAdded"
+  private val teamMemberRemovedUri              = "/application-events/teamMemberRemoved"
+  private val clientSecretAddedUri              = "/application-events/clientSecretAdded"
+  private val clientSecretRemovedUri            = "/application-events/clientSecretRemoved"
+  private val redirectUrisUpdatedUri            = "/application-events/redirectUrisUpdated"
+  private val apiSubscribedUri                  = "/application-events/apiSubscribed"
+  private val apiUnsubscribedUri                = "/application-events/apiUnsubscribed"
+  private val ppnsCallBackUriUpdateddUri        = "/application-events/ppnsCallbackUriUpdated"
+  private val handleEventUri                    = "/application-event"
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
 
   "TeamMemberAddedEvent" should {
@@ -353,7 +352,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
   }
 
-
   "PpnsCallBackUriUpdatedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
@@ -451,7 +449,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
       Json.parse(bodyValue)
     } match {
       case Success(value) => Some(value)
-      case Failure(_) => None
+      case Failure(_)     => None
     }
 
     val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)

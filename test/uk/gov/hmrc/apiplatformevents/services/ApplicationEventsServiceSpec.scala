@@ -35,32 +35,32 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val now = LocalDateTime.now()
+  val now            = LocalDateTime.now()
   val nowButLastYear = now.minusYears(1)
-  val year = now.getYear()
-  val lastYear = nowButLastYear.getYear()
+  val year           = now.getYear()
+  val lastYear       = nowButLastYear.getYear()
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    eventDateTime= LocalDateTime.now,
+    eventDateTime = LocalDateTime.now,
     actor = OldStyleActors.GatekeeperUser("iam@admin.com"),
     teamMemberEmail = LaxEmailAddress("bob@bob.com"),
-    teamMemberRole = "ADMIN")
+    teamMemberRole = "ADMIN"
+  )
 
   val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    eventDateTime= LocalDateTime.now,
+    eventDateTime = LocalDateTime.now,
     actor = Actors.GatekeeperUser("gk@example.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   implicit val hc: HeaderCarrier =
-    HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
-      sessionId = Some(SessionId("dummy session id")),
-      requestId = Some(RequestId("dummy request id")))
+    HeaderCarrier(authorization = Some(Authorization("dummy bearer token")), sessionId = Some(SessionId("dummy session id")), requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
     def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: AbstractApplicationEvent) = {
@@ -130,7 +130,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val appId = ApplicationId.random
 
       val evts = primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(Some(appId)),
         makeTeamMemberRemovedEvent(Some(appId)),
         makeClientSecretAddedEvent(Some(appId)),
         makeClientSecretAdded(Some(appId)),

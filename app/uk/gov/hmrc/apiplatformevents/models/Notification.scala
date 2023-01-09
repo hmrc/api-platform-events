@@ -21,15 +21,13 @@ import java.time.LocalDateTime
 import scala.collection.immutable
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain
 
-case class Notification(eventId: domain.models.EventId,
-                        lastUpdated: LocalDateTime,
-                        status: NotificationStatus)
+case class Notification(eventId: domain.models.EventId, lastUpdated: LocalDateTime, status: NotificationStatus)
 
 sealed trait NotificationStatus extends EnumEntry
 
-object NotificationStatus extends  Enum[NotificationStatus] with PlayJsonEnum[NotificationStatus]  {
+object NotificationStatus extends Enum[NotificationStatus] with PlayJsonEnum[NotificationStatus] {
   val values: immutable.IndexedSeq[NotificationStatus] = findValues
 
-  case object SENT extends NotificationStatus
+  case object SENT   extends NotificationStatus
   case object FAILED extends NotificationStatus
 }

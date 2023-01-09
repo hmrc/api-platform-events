@@ -24,12 +24,11 @@ import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.SendEventNotifica
 
 import javax.inject.Inject
 
-class SendEventNotificationsJob @Inject()(override val config: Configuration,
-                                          val service: SendEventNotificationsService,
-                                          val applicationLifecycle: ApplicationLifecycle) extends ScheduledJob {
+class SendEventNotificationsJob @Inject() (override val config: Configuration, val service: SendEventNotificationsService, val applicationLifecycle: ApplicationLifecycle)
+    extends ScheduledJob {
 
-  override val jobName: String = "SendEventNotificationsJob"
-  val actorSystem: ActorSystem = ActorSystem(jobName)
+  override val jobName: String                            = "SendEventNotificationsJob"
+  val actorSystem: ActorSystem                            = ActorSystem(jobName)
   val scheduledMessage: SendEventNotificationServiceActor = SendEventNotificationServiceActor(service)
 
   schedule

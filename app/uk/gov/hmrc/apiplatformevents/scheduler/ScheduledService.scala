@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatformevents.scheduler
 
 import scala.concurrent.{Future, ExecutionContext => ExC}
 
-
 trait ScheduledService[R] {
-  def invoke(implicit ec : ExC) : Future[R]
+  def invoke(implicit ec: ExC): Future[R]
 }

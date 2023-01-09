@@ -33,15 +33,16 @@ import uk.gov.hmrc.apiplatformevents.models.ErrorCode
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters
 
 @Singleton
-class ApplicationEventsController @Inject()(
-  val env: Environment,
-  service: ApplicationEventsService,
-  playBodyParsers: PlayBodyParsers,
-  cc: ControllerComponents
-)(
-  implicit val configuration: Configuration,
-  ec: ExecutionContext
-) extends BackendController(cc) with ApplicationLogger {
+class ApplicationEventsController @Inject() (
+    val env: Environment,
+    service: ApplicationEventsService,
+    playBodyParsers: PlayBodyParsers,
+    cc: ControllerComponents
+)(implicit
+    val configuration: Configuration,
+    ec: ExecutionContext
+) extends BackendController(cc)
+    with ApplicationLogger {
 
   import EventsInterServiceCallJsonFormatters._
 
@@ -106,18 +107,17 @@ class ApplicationEventsController @Inject()(
     }
   }
 
-  override protected def withJsonBody[T]
-  (f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
+  override protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
     withJson(request.body)(f)
   }
 
   private def withJson[T](json: JsValue)(f: T => Future[Result])(implicit reads: Reads[T]): Future[Result] = {
     Try(json.validate[T]) match {
       case Success(JsSuccess(payload, _)) => f(payload)
-      case Success(JsError(errs)) =>
-        errs.foreach(err=> logger.info(err._2.mkString(" ")))
+      case Success(JsError(errs))         =>
+        errs.foreach(err => logger.info(err._2.mkString(" ")))
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, JsError.toJson(errs))))
-      case Failure(e) =>
+      case Failure(e)                     =>
         logger.info(s"Error with request Json ${e.getMessage}")
         Future.successful(UnprocessableEntity(JsErrorResponse(ErrorCode.INVALID_REQUEST_PAYLOAD, e.getMessage)))
     }
@@ -127,13 +127,13 @@ class ApplicationEventsController @Inject()(
     if (result) {
       Created
     } else {
-       logger.error("An unexpected error occurred: false returned from create operation")
+      logger.error("An unexpected error occurred: false returned from create operation")
       InternalServerError
     }
   }
 
-  private def recovery: PartialFunction[Throwable, Result] = {
-    case NonFatal(e) => logger.error("An unexpected error occurred:", e)
-      InternalServerError
+  private def recovery: PartialFunction[Throwable, Result] = { case NonFatal(e) =>
+    logger.error("An unexpected error occurred:", e)
+    InternalServerError
   }
 }

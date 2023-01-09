@@ -30,26 +30,26 @@ object NotificationsRepository {
   import play.api.libs.json.{OFormat, Json}
   import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
 
-  implicit def localDateTimeFormats() = MongoJavatimeFormats.localDateTimeFormat
-    implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
+  implicit def localDateTimeFormats()                    = MongoJavatimeFormats.localDateTimeFormat
+  implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 
 @Singleton
-class NotificationsRepository @Inject()(mongoComponent: MongoComponent)
-                                       (implicit ec: ExecutionContext)
-  extends PlayMongoRepository[Notification](
-
-    mongoComponent,
-    "notifications",
-    NotificationsRepository.formatNotification,
-    indexes = Seq(IndexModel(ascending("eventId"),
-                    IndexOptions()
-                      .name("event_id_index")
-                      .unique(true)
-                      .background(true)
-                  ))
+class NotificationsRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[Notification](
+      mongoComponent,
+      "notifications",
+      NotificationsRepository.formatNotification,
+      indexes = Seq(
+        IndexModel(
+          ascending("eventId"),
+          IndexOptions()
+            .name("event_id_index")
+            .unique(true)
+            .background(true)
+        )
+      )
     ) {
-
 
   def createEntity(notification: Notification): Future[Boolean] =
     collection.insertOne(notification).toFuture().map(wr => wr.wasAcknowledged())

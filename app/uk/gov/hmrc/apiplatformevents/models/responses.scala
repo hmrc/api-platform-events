@@ -23,13 +23,13 @@ object ErrorCode extends Enumeration {
   type ErrorCode = Value
 
   val INVALID_REQUEST_PAYLOAD = Value("INVALID_REQUEST_PAYLOAD")
-  val UNKNOWN_ERROR = Value("UNKNOWN_ERROR")
+  val UNKNOWN_ERROR           = Value("UNKNOWN_ERROR")
 }
 
 object JsErrorResponse {
   def apply(errorCode: ErrorCode.Value, message: JsValueWrapper): JsObject =
     Json.obj(
-      "code" -> errorCode.toString,
+      "code"    -> errorCode.toString,
       "message" -> message
     )
 }

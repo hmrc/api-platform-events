@@ -30,9 +30,9 @@ trait AppConfig {
   val emailUrl: String
 }
 
-class AppConfigImpl @Inject()(val config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
+class AppConfigImpl @Inject() (val config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
 
-  val appName: String = servicesConfig.getString("appName")
+  val appName: String                  = servicesConfig.getString("appName")
   val thirdPartyApplicationUrl: String = servicesConfig.baseUrl("third-party-application")
-  val emailUrl: String = servicesConfig.baseUrl("email")
+  val emailUrl: String                 = servicesConfig.baseUrl("email")
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-
 import akka.actor.{Actor, ActorLogging, Props}
 import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsService
@@ -26,13 +25,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class SchedulingActor extends Actor with ActorLogging with ApplicationLogger {
 
-  override def receive: Receive = {
-    case message: ScheduledMessage[_] =>
-      logger.info(s"Received ${message.getClass.getSimpleName}")
-      message.service.invoke
+  override def receive: Receive = { case message: ScheduledMessage[_] =>
+    logger.info(s"Received ${message.getClass.getSimpleName}")
+    message.service.invoke
   }
 }
-
 
 object SchedulingActor {
 
@@ -42,8 +39,6 @@ object SchedulingActor {
 
   def props: Props = Props[SchedulingActor]()
 
-  case class SendEventNotificationServiceActor(service: SendEventNotificationsService) extends
-    ScheduledMessage[Either[ScheduleStatus.JobFailed, Boolean]] {}
+  case class SendEventNotificationServiceActor(service: SendEventNotificationsService) extends ScheduledMessage[Either[ScheduleStatus.JobFailed, Boolean]] {}
 
 }
-

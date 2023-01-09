@@ -24,7 +24,7 @@ class AppConfigSpec extends AsyncHmrcSpec {
 
   private val mockServiceConfig = mock[ServicesConfig]
   private val mockConfiguration = mock[Configuration]
-  private val appName = "TestAppName"
+  private val appName           = "TestAppName"
 
   trait Setup {
     when(mockServiceConfig.getString("appName")).thenReturn(appName)

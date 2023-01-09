@@ -25,4 +25,3 @@ class ClockModule extends AbstractModule {
     bind(classOf[Clock]).toInstance(Clock.systemUTC())
   }
 }
-

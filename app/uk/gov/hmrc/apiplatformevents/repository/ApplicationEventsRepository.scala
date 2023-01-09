@@ -37,30 +37,35 @@ object ApplicationEventsRepository {
 }
 
 @Singleton
-class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
-                                           (implicit ec: ExecutionContext)
+class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[AbstractApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
-     domainFormat = ApplicationEventsRepository.formatter,
+      domainFormat = ApplicationEventsRepository.formatter,
       indexes = Seq(
-        IndexModel(ascending("id"),
+        IndexModel(
+          ascending("id"),
           IndexOptions()
             .name("id_index")
             .unique(true)
-            .background(true)),
-        IndexModel(ascending("eventType"),
+            .background(true)
+        ),
+        IndexModel(
+          ascending("eventType"),
           IndexOptions()
             .name("eventType_index")
             .unique(false)
-            .background(true)),
-        IndexModel(ascending("applicationId"),
+            .background(true)
+        ),
+        IndexModel(
+          ascending("applicationId"),
           IndexOptions()
             .name("applicationId_index")
             .unique(false)
-            .background(true))
+            .background(true)
+        )
       ),
-      extraCodecs  = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
+      extraCodecs = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
       replaceIndexes = true
     ) {
 
@@ -68,19 +73,22 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
   def fetchEventsToNotify[A <: AbstractApplicationEvent](): Future[List[AbstractApplicationEvent]] = {
-    collection.aggregate(
-      Seq(
-        filter(equal("eventType", "PPNS_CALLBACK_URI_UPDATED")),
-        lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
-        filter(size("matched", 0))
+    collection
+      .aggregate(
+        Seq(
+          filter(equal("eventType", "PPNS_CALLBACK_URI_UPDATED")),
+          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
+          filter(size("matched", 0))
+        )
       )
-    ).toFuture()
-    .map(_.toList)
+      .toFuture()
+      .map(_.toList)
   }
 
   def fetchEvents(applicationId: ApplicationId): Future[List[AbstractApplicationEvent]] = {
-    collection.find(equal("applicationId", applicationId.value.toString()))
-    .toFuture()
-    .map(_.toList)
+    collection
+      .find(equal("applicationId", applicationId.value.toString()))
+      .toFuture()
+      .map(_.toList)
   }
 }

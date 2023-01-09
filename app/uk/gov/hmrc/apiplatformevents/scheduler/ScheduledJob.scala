@@ -46,13 +46,13 @@ trait ScheduledJob extends ApplicationLogger {
 
   lazy val schedule: Unit = {
     (enabled, expression.nonEmpty) match {
-      case (true, true) =>
+      case (true, true)  =>
         scheduler.createSchedule(jobName, description, expression)
         scheduler.schedule(jobName, schedulingActorRef, scheduledMessage)
         logger.error(s"Scheduler for $jobName has been started")
       case (true, false) =>
         logger.error(s"Scheduler for $jobName is disabled as there is no quartz expression")
-      case (false, _) =>
+      case (false, _)    =>
         logger.error(s"Scheduler for $jobName is disabled by configuration")
     }
   }

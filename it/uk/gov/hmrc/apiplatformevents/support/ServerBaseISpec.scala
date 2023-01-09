@@ -4,19 +4,18 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 
-abstract class ServerBaseISpec
-  extends BaseISpec with GuiceOneServerPerSuite with TestApplication {
+abstract class ServerBaseISpec extends BaseISpec with GuiceOneServerPerSuite with TestApplication {
 
   override implicit lazy val app: Application = appBuilder.build()
 
-   override protected def appBuilder: GuiceApplicationBuilder =
+  override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
-        "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}",
+        "mongodb.uri"                                 -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}",
         "schedules.SendEventNotificationsJob.enabled" -> false,
-        "services.third-party-application.host" -> wireMockHost,
-        "services.third-party-application.port" -> wireMockPort,
-        "services.email.host" -> wireMockHost,
-        "services.email.port" -> wireMockPort
+        "services.third-party-application.host"       -> wireMockHost,
+        "services.third-party-application.port"       -> wireMockPort,
+        "services.email.host"                         -> wireMockHost,
+        "services.email.port"                         -> wireMockPort
       )
 }

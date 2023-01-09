@@ -38,31 +38,34 @@ object QueryEventsController {
 }
 
 @Singleton
-class QueryEventsController @Inject()(
-  val env: Environment,
-  service: ApplicationEventsService,
-  playBodyParsers: PlayBodyParsers,
-  cc: ControllerComponents
-)(
-  implicit val configuration: Configuration,
-  ec: ExecutionContext
-) extends BackendController(cc) with ApplicationLogger {
+class QueryEventsController @Inject() (
+    val env: Environment,
+    service: ApplicationEventsService,
+    playBodyParsers: PlayBodyParsers,
+    cc: ControllerComponents
+)(implicit
+    val configuration: Configuration,
+    ec: ExecutionContext
+) extends BackendController(cc)
+    with ApplicationLogger {
 
   import QueryEventsController._
 
   def query(applicationId: ApplicationId, eventTag: Option[EventTag]) = Action.async { _ =>
-    service.fetchEventsBy(applicationId, eventTag)
-    .map( seq =>
-      if(seq.isEmpty) {
-        NotFound("No application changes found")
-      } else {
-        Ok(Json.toJson(QueryResponse(seq.sorted)))
-      }
-    )
+    service
+      .fetchEventsBy(applicationId, eventTag)
+      .map(seq =>
+        if (seq.isEmpty) {
+          NotFound("No application changes found")
+        } else {
+          Ok(Json.toJson(QueryResponse(seq.sorted)))
+        }
+      )
   }
 
   def queryValues(applicationId: ApplicationId) = Action.async { _ =>
-    service.fetchEventQueryValues(applicationId)
-    .map[Result](_.fold(NotFound(""))(qv => Ok(Json.toJson(qv))))
+    service
+      .fetchEventQueryValues(applicationId)
+      .map[Result](_.fold(NotFound(""))(qv => Ok(Json.toJson(qv))))
   }
 }

@@ -27,8 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTa
 package object binders {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
+    Try(ju.UUID.fromString(text)).toOption
       .toRight(s"Cannot accept $text as ApplicationId")
       .map(uuid => ApplicationId(uuid))
   }
@@ -56,7 +55,8 @@ package object binders {
   }
 
   private def eventTagFromString(text: String): Either[String, EventTag] = {
-    EventTags.fromString(text)
+    EventTags
+      .fromString(text)
       .toRight(s"Cannot accept $text as EventTag")
   }
 

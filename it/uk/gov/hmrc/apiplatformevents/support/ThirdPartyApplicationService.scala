@@ -10,13 +10,14 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmai
 trait ThirdPartyApplicationService {
   private def applicationUrl(appId: ApplicationId) = s"/application/${appId.value}"
 
-  def primeApplicationEndpoint(status : Int, body: String, applicationId: ApplicationId): StubMapping = {
-    stubFor(get(urlPathEqualTo(applicationUrl(applicationId)))
-      .willReturn(
-        aResponse()
-        .withBody(body)
-        .withStatus(status)
-      )
+  def primeApplicationEndpoint(status: Int, body: String, applicationId: ApplicationId): StubMapping = {
+    stubFor(
+      get(urlPathEqualTo(applicationUrl(applicationId)))
+        .willReturn(
+          aResponse()
+            .withBody(body)
+            .withStatus(status)
+        )
     )
   }
 

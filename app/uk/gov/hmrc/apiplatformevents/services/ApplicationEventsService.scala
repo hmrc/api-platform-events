@@ -26,23 +26,24 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 @Singleton
-class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {
-  def captureEvent[A <: AbstractApplicationEvent](event : A): Future[Boolean] ={
+class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {
+  def captureEvent[A <: AbstractApplicationEvent](event: A): Future[Boolean] = {
     repo.createEntity(event)
   }
 
   def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag]): Future[List[AbstractApplicationEvent]] = eventTag match {
-    case None =>
+    case None      =>
       repo.fetchEvents(applicationId)
     case Some(tag) =>
-      repo.fetchEvents(applicationId)
-      .map(_.filter(EventTags.tag(_) == tag))
+      repo
+        .fetchEvents(applicationId)
+        .map(_.filter(EventTags.tag(_) == tag))
   }
 
   def fetchEventQueryValues(applicationId: ApplicationId): Future[Option[QueryableValues]] = {
     // Not the most efficient but certainly the more readable
     def handleEvents(events: Seq[AbstractApplicationEvent]): Option[QueryableValues] = {
-      if(events.isEmpty) {
+      if (events.isEmpty) {
         None
       } else {
         val distictEventTags = events.map(EventTags.tag(_)).distinct.toList
@@ -52,7 +53,6 @@ class ApplicationEventsService @Inject()(repo: ApplicationEventsRepository)(impl
 
     for {
       events <- repo.fetchEvents(applicationId)
-    }
-    yield handleEvents(events)
+    } yield handleEvents(events)
   }
 }
