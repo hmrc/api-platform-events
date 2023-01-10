@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-
 import akka.actor.Props
 import org.scalatestplus.play.PlaySpec
-
 
 class SchedulingActorSpec extends PlaySpec {
   class Setup {
@@ -29,7 +27,7 @@ class SchedulingActorSpec extends PlaySpec {
   "props" should {
     "return the correct type of props" in new Setup {
       val expectedType = Props[SchedulingActor]()
-      val result = schedulingActorCompanionObject.props
+      val result       = schedulingActorCompanionObject.props
       result mustBe expectedType
     }
   }

@@ -13,7 +13,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
-class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditService with BeforeAndAfterEach {
+class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach {
 
   this: Suite with ServerProvider =>
 
@@ -29,18 +29,18 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val eventId: UUID = EventId.random.value
-  val applicationId = ApplicationId.random
-  val appIdText = applicationId.value.toString()
-  val clientId = ClientId.random
-  val clientIdText = clientId.value
+  val eventId: UUID        = EventId.random.value
+  val applicationId        = ApplicationId.random
+  val appIdText            = applicationId.value.toString()
+  val clientId             = ClientId.random
+  val clientIdText         = clientId.value
   val submissionId: String = ju.UUID.randomUUID.toString
-  val actorId = "123454654"
-  val actorEmail = "actor@example.com"
-  val actorTypeGK = "GATEKEEPER"
-  val actorTypeCollab = "COLLABORATOR"
-  val actorUser = "gatekeeper"
-  val eventDateTimeString = "2014-01-01T13:13:34.441"
+  val actorId              = "123454654"
+  val actorEmail           = "actor@example.com"
+  val actorTypeGK          = "GATEKEEPER"
+  val actorTypeCollab      = "COLLABORATOR"
+  val actorUser            = "gatekeeper"
+  val eventDateTimeString  = "2014-01-01T13:13:34.441"
 
   def validTeamMemberJsonBody(teamMemberEmail: LaxEmailAddress, teamMemberRole: String): String =
     raw"""{"id": "${EventId.random.value}",
@@ -312,12 +312,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
     "POST /teamMemberAdded" should {
       "respond with 201 when valid json is sent" in {
         val teamMemberEmail = LaxEmailAddress("bob@bob.com")
-        val adminRole = "ADMIN"
+        val adminRole       = "ADMIN"
 
         testSuccessScenario("/application-events/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[TeamMemberAddedEvent]
+        val event   = results.head.asInstanceOf[TeamMemberAddedEvent]
 
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
@@ -333,13 +333,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
     "POST /teamMemberRemoved" should {
       "respond with 201 when valid json is sent" in {
         val teamMemberEmail = LaxEmailAddress("bob@bob.com")
-        val adminRole = "ADMIN"
+        val adminRole       = "ADMIN"
 
         testSuccessScenario("/application-events/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[TeamMemberRemovedEvent]
+        val event   = results.head.asInstanceOf[TeamMemberRemovedEvent]
 
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
@@ -358,10 +358,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         testSuccessScenario("/application-events/clientSecretAdded", validClientSecretJsonBody(clientSecretId))
 
-
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ClientSecretAddedEvent]
+        val event   = results.head.asInstanceOf[ClientSecretAddedEvent]
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
@@ -381,7 +380,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ClientSecretRemovedEvent]
+        val event   = results.head.asInstanceOf[ClientSecretRemovedEvent]
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
@@ -402,7 +401,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
+        val event   = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
 
         checkCommonEventValues(event)
         event.oldRedirectUris shouldBe oldRedirectUri
@@ -421,9 +420,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         val apiVersion = "1.0"
 
         testSuccessScenario("/application-events/apiSubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results =await(repo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ApiSubscribedEvent]
+        val event   = results.head.asInstanceOf[ApiSubscribedEvent]
 
         checkCommonEventValues(event)
         event.context shouldBe apiContext
@@ -444,7 +443,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
         testSuccessScenario("/application-events/apiUnsubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ApiUnsubscribedEvent]
+        val event   = results.head.asInstanceOf[ApiUnsubscribedEvent]
 
         checkCommonEventValues(event)
         event.context shouldBe apiContext
@@ -459,16 +458,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
     "POST /ppnsCallbackUriUpdated" should {
       "respond with 201 when valid json is sent" in {
-        val boxId = ju.UUID.randomUUID().toString
-        val boxName = "some##box##name"
+        val boxId          = ju.UUID.randomUUID().toString
+        val boxName        = "some##box##name"
         val oldCallbackUrl = "https://foo.bar/baz"
         val newCallbackUrl = "https://foo.bar/bazbazbaz"
 
         testSuccessScenario("/application-events/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
 
-        val results =await(repo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
+        val event   = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
 
         checkCommonEventValues(event)
         event.boxId shouldBe boxId
@@ -486,15 +485,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
     "POST /application-event" should {
       "respond with 201 when valid prod app name changed json is sent" in {
-        val oldAppName = "old name"
-        val newAppName = "new name"
+        val oldAppName           = "old name"
+        val newAppName           = "new name"
         val requestingAdminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminEmail))
 
-        val results =await(repo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionAppNameChangedEvent]
+        val event   = results.head.asInstanceOf[ProductionAppNameChangedEvent]
 
         checkCommonEventValues(event)
         event.oldAppName shouldBe oldAppName
@@ -506,15 +505,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid prod app privacy policy location changed json is sent" in {
-        val oldUrl = "http://example.com/old"
-        val newUrl = "http://example.com/new"
+        val oldUrl     = "http://example.com/old"
+        val newUrl     = "http://example.com/new"
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionAppPrivacyPolicyLocationChanged]
+        val event   = results.head.asInstanceOf[ProductionAppPrivacyPolicyLocationChanged]
 
         checkCommonEventValues(event)
         event.oldLocation shouldBe PrivacyPolicyLocations.Url(oldUrl)
@@ -523,15 +522,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid legacy prod app privacy policy location changed json is sent" in {
-        val oldUrl = "http://example.com/old"
-        val newUrl = "http://example.com/new"
+        val oldUrl     = "http://example.com/old"
+        val newUrl     = "http://example.com/new"
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
-        val results =await(repo.collection.find().toFuture())
+        val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionLegacyAppPrivacyPolicyLocationChanged]
+        val event   = results.head.asInstanceOf[ProductionLegacyAppPrivacyPolicyLocationChanged]
 
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
@@ -540,15 +539,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid prod app t&cs location changed json is sent" in {
-        val oldUrl = "http://example.com/old"
-        val newUrl = "http://example.com/new"
+        val oldUrl     = "http://example.com/old"
+        val newUrl     = "http://example.com/new"
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionAppTermsConditionsLocationChanged]
+        val event   = results.head.asInstanceOf[ProductionAppTermsConditionsLocationChanged]
 
         checkCommonEventValues(event)
         event.oldLocation shouldBe TermsAndConditionsLocations.Url(oldUrl)
@@ -557,15 +556,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid legacy prod app t&cs location changed json is sent" in {
-        val oldUrl = "http://example.com/old"
-        val newUrl = "http://example.com/new"
+        val oldUrl     = "http://example.com/old"
+        val newUrl     = "http://example.com/new"
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionLegacyAppTermsConditionsLocationChanged]
+        val event   = results.head.asInstanceOf[ProductionLegacyAppTermsConditionsLocationChanged]
 
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
@@ -574,15 +573,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual changed json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validResponsibleIndividualChangedJsonBody(riName, riEmail, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualChanged]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualChanged]
 
         checkCommonEventValues(event)
         event.newResponsibleIndividualName shouldBe riName
@@ -591,16 +590,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual set json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
         val adminEmail = LaxEmailAddress("admin@example.com")
-        val code = "434235934537645394"
+        val code       = "434235934537645394"
 
         testSuccessScenario("/application-event", validResponsibleIndividualSetJsonBody(riName, riEmail, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualSet]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualSet]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
@@ -610,8 +609,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid application state changed json is sent" in {
-        val adminName = "Mr Admin"
-        val adminEmail = LaxEmailAddress("admin@example.com")
+        val adminName   = "Mr Admin"
+        val adminEmail  = LaxEmailAddress("admin@example.com")
         val oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION"
         val newAppState = "PENDING_GATEKEEPER_APPROVAL"
 
@@ -619,7 +618,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ApplicationStateChanged]
+        val event   = results.head.asInstanceOf[ApplicationStateChanged]
 
         checkCommonEventValues(event)
         event.oldAppState shouldBe oldAppState
@@ -628,17 +627,17 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual verification started json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
-        val appName = "app name"
-        val adminName = "ms admin"
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
+        val appName    = "app name"
+        val adminName  = "ms admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validResponsibleIndividualVerificationStartedJsonBody(riName, riEmail, appName, adminName, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualVerificationStarted]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualVerificationStarted]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
@@ -650,14 +649,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual changed to self json is sent" in {
-        val adminName = "Mr Admin"
+        val adminName  = "Mr Admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validResponsibleIndividualChangedToSelfJsonBody(adminName, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualChangedToSelf]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualChangedToSelf]
 
         checkCommonEventValues(event)
         event.requestingAdminName shouldBe adminName
@@ -666,16 +665,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual declined json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
-        val adminName = "Mr Admin"
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
+        val adminName  = "Mr Admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
-        val code = "324523487236548723458"
+        val code       = "324523487236548723458"
         testSuccessScenario("/application-event", validResponsibleIndividualDeclinedJsonBody(riName, riEmail, adminName, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualDeclined]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualDeclined]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
@@ -687,16 +686,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual declined update json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
-        val adminName = "Mr Admin"
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
+        val adminName  = "Mr Admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
-        val code = "324523487236548723458"
+        val code       = "324523487236548723458"
         testSuccessScenario("/application-event", validResponsibleIndividualDeclinedUpdateJsonBody(riName, riEmail, adminName, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualDeclinedUpdate]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualDeclinedUpdate]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
@@ -708,16 +707,16 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid responsible individual did not verify json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
-        val adminName = "Mr Admin"
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
+        val adminName  = "Mr Admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
-        val code = "324523487236548723458"
+        val code       = "324523487236548723458"
         testSuccessScenario("/application-event", validResponsibleIndividualDidNotVerifyJsonBody(riName, riEmail, adminName, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ResponsibleIndividualDidNotVerify]
+        val event   = results.head.asInstanceOf[ResponsibleIndividualDidNotVerify]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
@@ -729,17 +728,17 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid application approval request declined json is sent" in {
-        val riName = "Mr Responsible"
-        val riEmail = LaxEmailAddress("ri@example.com")
-        val adminName = "Mr Admin"
+        val riName     = "Mr Responsible"
+        val riEmail    = LaxEmailAddress("ri@example.com")
+        val adminName  = "Mr Admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
-        val reasons = "reasons text" +
+        val reasons    = "reasons text" +
           ""
         testSuccessScenario("/application-event", validApplicationApprovalRequestDeclinedJsonBody(riName, riEmail, adminName, adminEmail, reasons))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ApplicationApprovalRequestDeclined]
+        val event   = results.head.asInstanceOf[ApplicationApprovalRequestDeclined]
 
         checkCommonEventValues(event)
         event.decliningUserName shouldBe riName
@@ -752,13 +751,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
       "respond with 201 when valid application deleted json is sent" in {
         val wso2AppName = "wso2AppName"
-        val adminEmail = LaxEmailAddress("admin@example.com")
-        val reasons = "reasons text"
+        val adminEmail  = LaxEmailAddress("admin@example.com")
+        val reasons     = "reasons text"
         testSuccessScenario("/application-event", validApplicationDeletedJsonBody(adminEmail, wso2AppName, reasons))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ApplicationDeleted]
+        val event   = results.head.asInstanceOf[ApplicationDeleted]
 
         checkCommonEventValues(event)
         event.actor shouldBe Actors.Collaborator(adminEmail)
@@ -768,15 +767,15 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       }
 
       "respond with 201 when valid application deleted by gatekeeper json is sent" in {
-        val wso2AppName = "wso2AppName"
-        val adminEmail = LaxEmailAddress("admin@example.com")
-        val reasons = "reasons text"
+        val wso2AppName      = "wso2AppName"
+        val adminEmail       = LaxEmailAddress("admin@example.com")
+        val reasons          = "reasons text"
         val requestedByEmail = LaxEmailAddress("requester@example.com")
         testSuccessScenario("/application-event", validApplicationDeletedByGatekeeperJsonBody(adminEmail, wso2AppName, reasons, requestedByEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ApplicationDeletedByGatekeeper]
+        val event   = results.head.asInstanceOf[ApplicationDeletedByGatekeeper]
 
         checkCommonEventValues(event)
         event.actor shouldBe Actors.Collaborator(adminEmail)
@@ -788,13 +787,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
 
       "respond with 201 when valid production credentials application deleted json is sent" in {
         val wso2AppName = "wso2AppName"
-        val adminEmail = LaxEmailAddress("admin@example.com")
-        val reasons = "reasons text"
+        val adminEmail  = LaxEmailAddress("admin@example.com")
+        val reasons     = "reasons text"
         testSuccessScenario("/application-event", validProductionCredentialsApplicationDeletedJsonBody(adminEmail, wso2AppName, reasons))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
-        val event = results.head.asInstanceOf[ProductionCredentialsApplicationDeleted]
+        val event   = results.head.asInstanceOf[ProductionCredentialsApplicationDeleted]
 
         checkCommonEventValues(event)
         event.actor shouldBe Actors.Collaborator(adminEmail)
@@ -814,7 +813,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec  with AuditServic
       result.status shouldBe 201
       result.body shouldBe ""
     }
-
 
     def testErrorScenarios(uriToTest: String): Unit = {
       // val result = await(doPost(uriToTest, "i'm not JSON", "Content-Type" -> "application/json"))

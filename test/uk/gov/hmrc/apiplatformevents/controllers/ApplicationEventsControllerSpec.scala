@@ -16,9 +16,13 @@
 
 package uk.gov.hmrc.apiplatformevents.controllers
 
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
 import org.mockito.Mockito.verifyNoInteractions
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -26,20 +30,17 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
-import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
-
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
-class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory
-  with GuiceOneAppPerSuite with BeforeAndAfterEach {
+import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+
+class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerComponentsFactory with StubPlayBodyParsersFactory with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockApplicationsEventService: ApplicationEventsService = mock[ApplicationEventsService]
 
-  val appId = ApplicationId.random
+  val appId     = ApplicationId.random
   val appIdText = appId.value.toString()
 
   override lazy val app: Application = GuiceApplicationBuilder()
@@ -50,15 +51,15 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-  private val teamMemberAddedUri = "/application-events/teamMemberAdded"
-  private val teamMemberRemovedUri = "/application-events/teamMemberRemoved"
-  private val clientSecretAddedUri = "/application-events/clientSecretAdded"
-  private val clientSecretRemovedUri = "/application-events/clientSecretRemoved"
-  private val redirectUrisUpdatedUri = "/application-events/redirectUrisUpdated"
-  private val apiSubscribedUri = "/application-events/apiSubscribed"
-  private val apiUnsubscribedUri = "/application-events/apiUnsubscribed"
-  private val ppnsCallBackUriUpdateddUri = "/application-events/ppnsCallbackUriUpdated"
-  private val handleEventUri = "/application-event"
+  private val teamMemberAddedUri                = "/application-events/teamMemberAdded"
+  private val teamMemberRemovedUri              = "/application-events/teamMemberRemoved"
+  private val clientSecretAddedUri              = "/application-events/clientSecretAdded"
+  private val clientSecretRemovedUri            = "/application-events/clientSecretRemoved"
+  private val redirectUrisUpdatedUri            = "/application-events/redirectUrisUpdated"
+  private val apiSubscribedUri                  = "/application-events/apiSubscribed"
+  private val apiUnsubscribedUri                = "/application-events/apiUnsubscribed"
+  private val ppnsCallBackUriUpdateddUri        = "/application-events/ppnsCallbackUriUpdated"
+  private val handleEventUri                    = "/application-event"
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
 
   "TeamMemberAddedEvent" should {
@@ -353,7 +354,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
   }
 
-
   "PpnsCallBackUriUpdatedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
@@ -451,7 +451,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
       Json.parse(bodyValue)
     } match {
       case Success(value) => Some(value)
-      case Failure(_) => None
+      case Failure(_)     => None
     }
 
     val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)

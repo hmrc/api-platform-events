@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
+import scala.jdk.CollectionConverters._
+import scala.reflect.runtime.universe._
+
 import org.bson._
 import org.bson.codecs.{Codec, DecoderContext, EncoderContext}
 import org.bson.json.{JsonMode, JsonReader, JsonWriter, JsonWriterSettings}
 import org.bson.types.Decimal128
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
-import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.json._
 import org.mongodb.scala.{Document => ScalaDocument}
-import scala.reflect.runtime.universe._
-import scala.jdk.CollectionConverters._
+import org.slf4j.{Logger, LoggerFactory}
+
+import play.api.libs.json._
 
 trait Codecs {
   outer =>
@@ -34,19 +36,17 @@ trait Codecs {
   private val bsonDocumentCodec = DEFAULT_CODEC_REGISTRY.get(classOf[BsonDocument])
   private val bsonValueCodec    = DEFAULT_CODEC_REGISTRY.get(classOf[BsonValue])
 
-  /** @param legacyNumbers `true` will preserve the Number modifications which occured with simple-reactivemongo when storing
-    * extremely large and small numbers.
-    * The default value `false` should be preferred in most cases. This does change the previous behaviour from reactivemongo,
-    * but only for extreme values not within typical usage (e.g. 4.648216657858037E+74). This ensures that should numbers in
-    * this extreme range occur, they will be stored and retrieved accurately, whereas with the legacy behaviour they may be
-    * modified in unexpected ways.
+  /** @param legacyNumbers
+    *   `true` will preserve the Number modifications which occured with simple-reactivemongo when storing extremely large and small numbers. The default value `false` should be
+    *   preferred in most cases. This does change the previous behaviour from reactivemongo, but only for extreme values not within typical usage (e.g. 4.648216657858037E+74). This
+    *   ensures that should numbers in this extreme range occur, they will be stored and retrieved accurately, whereas with the legacy behaviour they may be modified in unexpected
+    *   ways.
     */
 
   def forcedPlayFormatCodec[S <: P, P](
       format: OFormat[P],
       legacyNumbers: Boolean = false
   )(implicit clazz: Class[_]): Codec[S] = new Codec[S] {
-
 
     override def getEncoderClass: Class[S] = {
       clazz.asInstanceOf[Class[S]]
@@ -70,38 +70,36 @@ trait Codecs {
       }
     }
   }
-  
+
   def unionCodecs[P](
-    format: OFormat[P],
-    legacyNumbers: Boolean = false
+      format: OFormat[P],
+      legacyNumbers: Boolean = false
   )(implicit tt: TypeTag[P]): Seq[Codec[_]] = {
 
     def descend(clazz: ClassSymbol): Set[ClassSymbol] = {
-      if(clazz.isCaseClass) {
+      if (clazz.isCaseClass) {
         Set(clazz)
-      }
-      else if(clazz.isTrait && clazz.isSealed) {
-        clazz.knownDirectSubclasses.collect {
-          case c : ClassSymbol => c
-        }
-        .flatMap(sc => descend(sc))
-      }
-      else {
+      } else if (clazz.isTrait && clazz.isSealed) {
+        clazz.knownDirectSubclasses
+          .collect { case c: ClassSymbol =>
+            c
+          }
+          .flatMap(sc => descend(sc))
+      } else {
         Set()
       }
     }
 
-    val clazz: ClassSymbol =  tt.tpe.typeSymbol.asClass
+    val clazz: ClassSymbol = tt.tpe.typeSymbol.asClass
     require(clazz.isSealed)
     require(clazz.isTrait)
 
     val symbols = descend(clazz)
-    val mirror = tt.mirror
+    val mirror  = tt.mirror
     symbols.toSeq.map { cs =>
       forcedPlayFormatCodec(format, legacyNumbers)(mirror.runtimeClass(cs))
     }
   }
-
 
   // $COVERAGE-OFF$
   def toBson[A: Writes](a: A, legacyNumbers: Boolean = false): BsonValue =
@@ -109,6 +107,7 @@ trait Codecs {
 
   def fromBson[A: Reads](bs: BsonValue): A = bsonToJson(bs).as[A]
 
+  // scalastyle:off cyclomatic.complexity
   private def jsonToBson(legacyNumbers: Boolean)(js: JsValue): BsonValue =
     js match {
       case JsNull       => BsonNull.VALUE
@@ -118,21 +117,21 @@ trait Codecs {
       case JsNumber(n)  =>
         if (legacyNumbers) toBsonNumberLegacy(n)
         else toBsonNumber(n)
-      case JsString(s) => new BsonString(s)
-      case JsArray(a)  => new BsonArray(a.map(jsonToBson(legacyNumbers)).asJava)
-      case o: JsObject =>
-        if (o.keys.exists(k => k.startsWith("$") && !List("$numberDecimal", "$numberLong").contains(k)))
+      case JsString(s)  => new BsonString(s)
+      case JsArray(a)   => new BsonArray(a.map(jsonToBson(legacyNumbers)).asJava)
+      case o: JsObject  =>
+        if (o.keys.exists(k => k.startsWith("$") && !List("$numberDecimal", "$numberLong").contains(k))) {
           // mongo types, identified with $ in `MongoDB Extended JSON format`  (e.g. BsonObjectId, BsonDateTime)
           // should use default conversion to Json. Then PlayJsonReaders will then convert as appropriate
           // The exception are numbers handled above (otherwise precision of $numberDecimal will be lost)
           fromJsonDefault(o)
-        else
+        } else {
           new BsonDocument(
-            o.fields.map {
-              case (k, v) =>
-                new BsonElement(k, jsonToBson(legacyNumbers)(v))
+            o.fields.map { case (k, v) =>
+              new BsonElement(k, jsonToBson(legacyNumbers)(v))
             }.asJava
           )
+        }
     }
 
   private def bsonToJson(bs: BsonValue): JsValue =
@@ -145,20 +144,21 @@ trait Codecs {
       case bd: BsonDecimal128 => // throws ArithmeticException if the Decimal128 value is NaN, Infinity, -Infinity, or -0, none of which can be represented as a BigDecimal
         // Should be OK since these values will not have been written to db from BigDecimal.
         JsNumber(bd.getValue.bigDecimalValue)
-      case s: BsonString => JsString(s.getValue)
-      case d: BsonDocument =>
+      case s: BsonString      => JsString(s.getValue)
+      case d: BsonDocument    =>
         JsObject {
           // Implementation attempts to preserve order as in BSON document (which relies on play's JSON implementation).
           // Note, this however is not necessarily the orginal order, since `_id` always comes first.
           d.entrySet.asScala.toList.map(e => (e.getKey, bsonToJson(e.getValue)))
         }
-      case a: BsonArray => JsArray(a.getValues.asScala.map(bsonToJson))
-      case other => // other types, attempt to convert to json object (Extended = `MongoDB Extended JSON format`)
+      case a: BsonArray       => JsArray(a.getValues.asScala.map(bsonToJson))
+      case other              => // other types, attempt to convert to json object (Extended = `MongoDB Extended JSON format`)
         toJsonDefault(other, JsonMode.EXTENDED) match {
           case JsDefined(s)   => s
           case _: JsUndefined => logger.debug(s"Could not convert $other to Json"); JsNull
         }
     }
+  // scalastyle:on cyclomatic.complexity
 
   // Following number conversion comes from https://github.com/ReactiveMongo/Play-ReactiveMongo/blob/4071a4fd580d7c6edeccac318d839456f69a847d/src/main/scala/play/modules/reactivemongo/Formatters.scala#L62-L64
   // It will loose precision on BigDecimals which can't be represented as doubles, and incorrectly identify some large Doubles as Long.
@@ -177,8 +177,8 @@ trait Codecs {
 
   private def toJsonDefault(bs: BsonValue, mode: JsonMode): JsLookupResult = {
     // wrap value in a document inorder to reuse the document -> JsonString, then extract
-    val writer = new java.io.StringWriter
-    val doc    = new BsonDocument("tempKey", bs)
+    val writer         = new java.io.StringWriter
+    val doc            = new BsonDocument("tempKey", bs)
     val writerSettings = JsonWriterSettings.builder.outputMode(mode).build
     bsonDocumentCodec.encode(new JsonWriter(writer, writerSettings), doc, EncoderContext.builder.build)
     Json.parse(writer.toString) \ "tempKey"

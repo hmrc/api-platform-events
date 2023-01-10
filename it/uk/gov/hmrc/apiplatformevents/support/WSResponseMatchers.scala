@@ -13,8 +13,7 @@ trait WSResponseMatchers {
     override def apply(left: WSResponse): MatchResult =
       MatchResult(
         left.status == status,
-        s"Request returned ${statusType(left.status)} ${left.status} ${left.statusText} while we expected $status ${statusType(
-          status)}, details: ${details(left)}",
+        s"Request returned ${statusType(left.status)} ${left.status} ${left.statusText} while we expected $status ${statusType(status)}, details: ${details(left)}",
         s"Got ${statusType(left.status)} ${left.status} ${left.statusText} as expected"
       )
 
@@ -40,8 +39,8 @@ trait WSResponseMatchers {
       override def apply(left: WSResponse): MatchResult = Try(left.json) match {
         case Success(o: JsObject) =>
           matchers.foldLeft(MatchResult(true, "", ""))((a, b) => if (a.matches) b(o) else a)
-        case Success(_) => MatchResult(true, "", "Have valid JSON body")
-        case Failure(e) =>
+        case Success(_)           => MatchResult(true, "", "Have valid JSON body")
+        case Failure(e)           =>
           MatchResult(false, s"Could not parse.tolerantJson body because of $e", "")
       }
     }
@@ -51,8 +50,8 @@ trait WSResponseMatchers {
       override def apply(left: WSResponse): MatchResult = Try(left.json) match {
         case Success(o: JsArray) =>
           matchers.foldLeft(MatchResult(true, "", ""))((a, b) => if (a.matches) b(o) else a)
-        case Success(x) => MatchResult(false, s"JSON value should be an array but was $x", "")
-        case Failure(e) =>
+        case Success(x)          => MatchResult(false, s"JSON value should be an array but was $x", "")
+        case Failure(e)          =>
           MatchResult(false, s"Could not parse.tolerantJson body because of $e", "")
       }
     }

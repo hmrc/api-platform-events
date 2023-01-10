@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
+import scala.concurrent.Future
+
 import akka.actor.{ActorRef, ActorSystem}
 import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
+
 import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
+
 import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-
-import scala.concurrent.Future
 
 trait ScheduledJob extends ApplicationLogger {
 
@@ -46,13 +48,13 @@ trait ScheduledJob extends ApplicationLogger {
 
   lazy val schedule: Unit = {
     (enabled, expression.nonEmpty) match {
-      case (true, true) =>
+      case (true, true)  =>
         scheduler.createSchedule(jobName, description, expression)
         scheduler.schedule(jobName, schedulingActorRef, scheduledMessage)
         logger.error(s"Scheduler for $jobName has been started")
       case (true, false) =>
         logger.error(s"Scheduler for $jobName is disabled as there is no quartz expression")
-      case (false, _) =>
+      case (false, _)    =>
         logger.error(s"Scheduler for $jobName is disabled by configuration")
     }
   }

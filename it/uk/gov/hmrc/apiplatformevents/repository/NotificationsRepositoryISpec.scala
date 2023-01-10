@@ -37,14 +37,13 @@ class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongo
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  protected def repository: PlayMongoRepository[Notification]= new NotificationsRepository(mongoComponent)
-  val repo: NotificationsRepository = repository.asInstanceOf[NotificationsRepository]
+  protected def repository: PlayMongoRepository[Notification] = new NotificationsRepository(mongoComponent)
+  val repo: NotificationsRepository                           = repository.asInstanceOf[NotificationsRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     await(repo.ensureIndexes)
   }
-
 
   "createEntity" should {
     "create an entity" in {

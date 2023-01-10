@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-
 object ScheduleStatus {
 
   sealed trait JobFailed
   case class UnknownExceptionOccurred(ex: Throwable) extends JobFailed
-  case class MongoUnlockException(ex: Throwable) extends JobFailed
-
+  case class MongoUnlockException(ex: Throwable)     extends JobFailed
 
 }
-

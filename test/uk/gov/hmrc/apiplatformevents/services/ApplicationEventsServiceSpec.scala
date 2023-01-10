@@ -16,51 +16,52 @@
 
 package uk.gov.hmrc.apiplatformevents.services
 
-import org.mongodb.scala.MongoException
-import org.scalatest.concurrent.Eventually
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.{Authorization, RequestId, SessionId}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import org.mongodb.scala.MongoException
 import org.scalatest.OptionValues
+import org.scalatest.concurrent.Eventually
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
+
+import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with ApplicationEventTestData with OptionValues {
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val now = LocalDateTime.now()
+  val now            = LocalDateTime.now()
   val nowButLastYear = now.minusYears(1)
-  val year = now.getYear()
-  val lastYear = nowButLastYear.getYear()
+  val year           = now.getYear()
+  val lastYear       = nowButLastYear.getYear()
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    eventDateTime= LocalDateTime.now,
+    eventDateTime = LocalDateTime.now,
     actor = OldStyleActors.GatekeeperUser("iam@admin.com"),
     teamMemberEmail = LaxEmailAddress("bob@bob.com"),
-    teamMemberRole = "ADMIN")
+    teamMemberRole = "ADMIN"
+  )
 
   val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    eventDateTime= LocalDateTime.now,
+    eventDateTime = LocalDateTime.now,
     actor = Actors.GatekeeperUser("gk@example.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com"))
+    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+  )
 
   implicit val hc: HeaderCarrier =
-    HeaderCarrier(authorization = Some(Authorization("dummy bearer token")),
-      sessionId = Some(SessionId("dummy session id")),
-      requestId = Some(RequestId("dummy request id")))
+    HeaderCarrier(authorization = Some(Authorization("dummy bearer token")), sessionId = Some(SessionId("dummy session id")), requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
     def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: AbstractApplicationEvent) = {
@@ -130,7 +131,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       val appId = ApplicationId.random
 
       val evts = primeRepo(
-        makeTeamMemberAddedEvent(Some(appId)), 
+        makeTeamMemberAddedEvent(Some(appId)),
         makeTeamMemberRemovedEvent(Some(appId)),
         makeClientSecretAddedEvent(Some(appId)),
         makeClientSecretAdded(Some(appId)),

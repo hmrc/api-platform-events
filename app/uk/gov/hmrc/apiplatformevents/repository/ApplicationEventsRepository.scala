@@ -16,19 +16,22 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import org.mongodb.scala.model.Aggregates._
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+
 import uk.gov.hmrc.apiplatformevents.models.Codecs
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 
 object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.localDateTimeFormat)
 
@@ -37,30 +40,35 @@ object ApplicationEventsRepository {
 }
 
 @Singleton
-class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
-                                           (implicit ec: ExecutionContext)
+class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[AbstractApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
-     domainFormat = ApplicationEventsRepository.formatter,
+      domainFormat = ApplicationEventsRepository.formatter,
       indexes = Seq(
-        IndexModel(ascending("id"),
+        IndexModel(
+          ascending("id"),
           IndexOptions()
             .name("id_index")
             .unique(true)
-            .background(true)),
-        IndexModel(ascending("eventType"),
+            .background(true)
+        ),
+        IndexModel(
+          ascending("eventType"),
           IndexOptions()
             .name("eventType_index")
             .unique(false)
-            .background(true)),
-        IndexModel(ascending("applicationId"),
+            .background(true)
+        ),
+        IndexModel(
+          ascending("applicationId"),
           IndexOptions()
             .name("applicationId_index")
             .unique(false)
-            .background(true))
+            .background(true)
+        )
       ),
-      extraCodecs  = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
+      extraCodecs = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
       replaceIndexes = true
     ) {
 
@@ -68,19 +76,22 @@ class ApplicationEventsRepository @Inject()(mongoComponent: MongoComponent)
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
   def fetchEventsToNotify[A <: AbstractApplicationEvent](): Future[List[AbstractApplicationEvent]] = {
-    collection.aggregate(
-      Seq(
-        filter(equal("eventType", "PPNS_CALLBACK_URI_UPDATED")),
-        lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
-        filter(size("matched", 0))
+    collection
+      .aggregate(
+        Seq(
+          filter(equal("eventType", "PPNS_CALLBACK_URI_UPDATED")),
+          lookup(from = "notifications", localField = "id", foreignField = "eventId", as = "matched"),
+          filter(size("matched", 0))
+        )
       )
-    ).toFuture()
-    .map(_.toList)
+      .toFuture()
+      .map(_.toList)
   }
 
   def fetchEvents(applicationId: ApplicationId): Future[List[AbstractApplicationEvent]] = {
-    collection.find(equal("applicationId", applicationId.value.toString()))
-    .toFuture()
-    .map(_.toList)
+    collection
+      .find(equal("applicationId", applicationId.value.toString()))
+      .toFuture()
+      .map(_.toList)
   }
 }

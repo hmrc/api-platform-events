@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
+import javax.inject.Inject
+
 import com.google.inject.ImplementedBy
+
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
-import javax.inject.Inject
 
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
@@ -30,9 +31,9 @@ trait AppConfig {
   val emailUrl: String
 }
 
-class AppConfigImpl @Inject()(val config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
+class AppConfigImpl @Inject() (val config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {
 
-  val appName: String = servicesConfig.getString("appName")
+  val appName: String                  = servicesConfig.getString("appName")
   val thirdPartyApplicationUrl: String = servicesConfig.baseUrl("third-party-application")
-  val emailUrl: String = servicesConfig.baseUrl("email")
+  val emailUrl: String                 = servicesConfig.baseUrl("email")
 }

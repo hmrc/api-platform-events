@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
 
-
 class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
 
   override protected def appBuilder: GuiceApplicationBuilder =
@@ -35,7 +34,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
         "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
 
-  val repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
+  val repo: ApplicationEventsRepository          = app.injector.instanceOf[ApplicationEventsRepository]
   val notificationsRepo: NotificationsRepository = app.injector.instanceOf[NotificationsRepository]
 
   override def beforeEach(): Unit = {
@@ -46,7 +45,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
   }
 
   "createEntity" should {
-   
+
     "create a teamMemberRemoved entity" in {
       await(repo.createEntity(teamMemberRemovedModel))
       await(repo.collection.find().toFuture()) should contain only teamMemberRemovedModel
@@ -186,7 +185,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
 
     "only return events that have not been notified yet" in {
       await(repo.createEntity(ppnsCallBackUriUpdatedEvent))
-      val anotherEvent = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
+      val anotherEvent         = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
       await(repo.createEntity(anotherEvent))
       val alreadyNotifiedEvent = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
       await(repo.createEntity(alreadyNotifiedEvent))

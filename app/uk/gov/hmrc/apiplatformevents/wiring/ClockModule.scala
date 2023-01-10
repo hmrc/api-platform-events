@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
-import com.google.inject.AbstractModule
-
 import java.time.Clock
+
+import com.google.inject.AbstractModule
 
 class ClockModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[Clock]).toInstance(Clock.systemUTC())
   }
 }
-

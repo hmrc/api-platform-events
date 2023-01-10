@@ -16,40 +16,42 @@
 
 package uk.gov.hmrc.apiplatformevents.repository
 
-import org.mongodb.scala.model.Indexes.ascending
-import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import uk.gov.hmrc.apiplatformevents.models.Notification
-import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+
+import uk.gov.hmrc.apiplatformevents.models.Notification
 
 object NotificationsRepository {
   import play.api.libs.json.{OFormat, Json}
   import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
 
-  implicit def localDateTimeFormats() = MongoJavatimeFormats.localDateTimeFormat
-    implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
+  implicit def localDateTimeFormats()                    = MongoJavatimeFormats.localDateTimeFormat
+  implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 
 @Singleton
-class NotificationsRepository @Inject()(mongoComponent: MongoComponent)
-                                       (implicit ec: ExecutionContext)
-  extends PlayMongoRepository[Notification](
-
-    mongoComponent,
-    "notifications",
-    NotificationsRepository.formatNotification,
-    indexes = Seq(IndexModel(ascending("eventId"),
-                    IndexOptions()
-                      .name("event_id_index")
-                      .unique(true)
-                      .background(true)
-                  ))
+class NotificationsRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[Notification](
+      mongoComponent,
+      "notifications",
+      NotificationsRepository.formatNotification,
+      indexes = Seq(
+        IndexModel(
+          ascending("eventId"),
+          IndexOptions()
+            .name("event_id_index")
+            .unique(true)
+            .background(true)
+        )
+      )
     ) {
-
 
   def createEntity(notification: Notification): Future[Boolean] =
     collection.insertOne(notification).toFuture().map(wr => wr.wasAcknowledged())

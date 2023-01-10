@@ -8,16 +8,19 @@ import uk.gov.hmrc.apiplatformevents.connectors.SendEmailRequest
 trait EmailService {
   private val url = "/hmrc/email"
 
-  def primeEmailEndpoint(status : Int, responseBody: String = ""): StubMapping =
-    stubFor(post(urlPathEqualTo(url))
-      .willReturn(
-        aResponse()
-        .withBody(responseBody)
-        .withStatus(status)
-      )
+  def primeEmailEndpoint(status: Int, responseBody: String = ""): StubMapping =
+    stubFor(
+      post(urlPathEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withBody(responseBody)
+            .withStatus(status)
+        )
     )
 
   def verifyRequestBody(expectedRequest: SendEmailRequest) =
-    verify(postRequestedFor(urlPathEqualTo(url))
-      .withRequestBody(equalToJson(Json.toJson(expectedRequest).toString())))
+    verify(
+      postRequestedFor(urlPathEqualTo(url))
+        .withRequestBody(equalToJson(Json.toJson(expectedRequest).toString()))
+    )
 }
