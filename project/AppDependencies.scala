@@ -15,7 +15,7 @@ object AppDependencies {
     "com.enragedginger"       %% "akka-quartz-scheduler"            % "1.9.1-akka-2.6.x",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-28"               % hmrcMongoVersion,
     "org.typelevel"           %% "cats-core"                        % "2.1.0",
-    "uk.gov.hmrc"             %% "api-platform-application-events"  % "0.8.0"
+    "uk.gov.hmrc"             %% "api-platform-application-events"  % "0.9.0"
   )
 
   private lazy val testDependencies = Seq(
