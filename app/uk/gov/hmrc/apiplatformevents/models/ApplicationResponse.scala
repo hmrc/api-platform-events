@@ -23,7 +23,7 @@ case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
   lazy val admins: Set[Collaborator]         = collaborators.collect { case c @ Collaborators.Administrator(_, _) =>
     c
   }
-  lazy val adminEmails: Set[LaxEmailAddress] = admins.map(_.email)
+  lazy val adminEmails: Set[LaxEmailAddress] = admins.map(_.emailAddress)
 }
 
 object ApplicationResponse {
