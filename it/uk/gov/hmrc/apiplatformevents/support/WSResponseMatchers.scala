@@ -10,6 +10,7 @@ import scala.util.{Failure, Success, Try}
 trait WSResponseMatchers {
 
   def haveStatus(status: Int): Matcher[WSResponse] = new Matcher[WSResponse] {
+
     override def apply(left: WSResponse): MatchResult =
       MatchResult(
         left.status == status,
@@ -36,6 +37,7 @@ trait WSResponseMatchers {
 
   def haveValidJsonBody(matchers: Matcher[JsObject]*): Matcher[WSResponse] =
     new Matcher[WSResponse] {
+
       override def apply(left: WSResponse): MatchResult = Try(left.json) match {
         case Success(o: JsObject) =>
           matchers.foldLeft(MatchResult(true, "", ""))((a, b) => if (a.matches) b(o) else a)
@@ -47,6 +49,7 @@ trait WSResponseMatchers {
 
   def haveValidJsonArrayBody(matchers: Matcher[JsArray]*): Matcher[WSResponse] =
     new Matcher[WSResponse] {
+
       override def apply(left: WSResponse): MatchResult = Try(left.json) match {
         case Success(o: JsArray) =>
           matchers.foldLeft(MatchResult(true, "", ""))((a, b) => if (a.matches) b(o) else a)

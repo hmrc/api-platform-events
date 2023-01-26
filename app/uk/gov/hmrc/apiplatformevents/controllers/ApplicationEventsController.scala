@@ -38,10 +38,10 @@ class ApplicationEventsController @Inject() (
     service: ApplicationEventsService,
     playBodyParsers: PlayBodyParsers,
     cc: ControllerComponents
-)(implicit
+  )(implicit
     val configuration: Configuration,
     ec: ExecutionContext
-) extends BackendController(cc)
+  ) extends BackendController(cc)
     with ApplicationLogger {
 
   import EventsInterServiceCallJsonFormatters._

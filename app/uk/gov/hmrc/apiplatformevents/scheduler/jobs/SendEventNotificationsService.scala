@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
-import java.time.Clock
+import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
@@ -33,7 +33,6 @@ import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockExcept
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import java.time.Instant
 
 class SendEventNotificationsService @Inject() (
     appConfig: AppConfig,
@@ -43,7 +42,7 @@ class SendEventNotificationsService @Inject() (
     emailConnector: EmailConnector,
     thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
     clock: Clock
-) extends ScheduledService[Either[ScheduleStatus.JobFailed, Boolean]]
+  ) extends ScheduledService[Either[ScheduleStatus.JobFailed, Boolean]]
     with ApplicationLogger {
   val jobName: String = "SendEventNotificationsJob"
 

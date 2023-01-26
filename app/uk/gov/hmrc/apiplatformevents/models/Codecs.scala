@@ -46,7 +46,8 @@ trait Codecs {
   def forcedPlayFormatCodec[S <: P, P](
       format: OFormat[P],
       legacyNumbers: Boolean = false
-  )(implicit clazz: Class[_]): Codec[S] = new Codec[S] {
+    )(implicit clazz: Class[_]
+    ): Codec[S] = new Codec[S] {
 
     override def getEncoderClass: Class[S] = {
       clazz.asInstanceOf[Class[S]]
@@ -74,7 +75,8 @@ trait Codecs {
   def unionCodecs[P](
       format: OFormat[P],
       legacyNumbers: Boolean = false
-  )(implicit tt: TypeTag[P]): Seq[Codec[_]] = {
+    )(implicit tt: TypeTag[P]
+    ): Seq[Codec[_]] = {
 
     def descend(clazz: ClassSymbol): Set[ClassSymbol] = {
       if (clazz.isCaseClass) {

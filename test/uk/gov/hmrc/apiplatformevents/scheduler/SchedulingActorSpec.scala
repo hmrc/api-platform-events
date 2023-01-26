@@ -20,6 +20,7 @@ import akka.actor.Props
 import org.scalatestplus.play.PlaySpec
 
 class SchedulingActorSpec extends PlaySpec {
+
   class Setup {
     val schedulingActorCompanionObject = SchedulingActor
   }

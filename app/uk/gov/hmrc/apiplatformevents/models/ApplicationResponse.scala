@@ -21,6 +21,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
+
   lazy val admins: Set[Collaborator]         = collaborators.collect { case c @ Collaborators.Administrator(_, _) =>
     c
   }

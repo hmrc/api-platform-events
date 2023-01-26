@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.services
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -24,26 +25,19 @@ import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
 
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
-import java.time.Instant
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import java.time.temporal.ChronoUnit
-import java.time.temporal.ChronoField
 
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with ApplicationEventTestData with OptionValues {
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val now            = Instant.now()
-  // val nowButLastYear = now.minus(1, ChronoUnit.YEARS)
-  // val year           = now.get(ChronoField.YEAR)
-  // val lastYear       = nowButLastYear.get(ChronoField.YEAR)
+  val now = Instant.now()
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
@@ -68,6 +62,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")), sessionId = Some(SessionId("dummy session id")), requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
+
     def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: AbstractApplicationEvent) = {
       if (repoThrowsException) {
         when(mockRepository.createEntity(eqTo(appEvent)))

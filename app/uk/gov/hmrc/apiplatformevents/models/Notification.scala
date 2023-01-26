@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
+import java.time.Instant
 import scala.collection.immutable
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain
-import java.time.Instant
 
 case class Notification(eventId: domain.models.EventId, lastUpdated: Instant, status: NotificationStatus)
 

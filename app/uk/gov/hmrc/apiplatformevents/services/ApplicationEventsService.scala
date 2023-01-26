@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 @Singleton
 class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {
+
   def captureEvent[A <: AbstractApplicationEvent](event: A): Future[Boolean] = {
     repo.createEntity(event)
   }

@@ -22,15 +22,15 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import uk.gov.hmrc.apiplatformevents.models.Notification
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 
 object NotificationsRepository {
-  import play.api.libs.json.{OFormat, Json}
+  import play.api.libs.json.{Json, OFormat}
 
   implicit val eventIdJf = Json.valueFormat[EventId]
 
