@@ -8,7 +8,7 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 
 inThisBuild(
   List(
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.8",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
@@ -18,11 +18,10 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     name := appName,
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.8",
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
-    publishingSettings,
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
