@@ -12,6 +12,9 @@ import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import java.time._
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach {
 
@@ -304,7 +307,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   def checkCommonEventValues(event: AbstractApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
-    event.eventDateTime.toString shouldBe eventDateTimeString
+    event.eventDateTime shouldBe Instant.from(LocalDateTime.parse(eventDateTimeString).atOffset(ZoneOffset.UTC))
   }
 
   "ApplicationEventsController" when {

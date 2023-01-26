@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
+import java.time.{Clock, Instant, ZoneOffset}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -44,6 +44,9 @@ import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class SendEventNotificationsServiceSpec
     extends PlaySpec
@@ -55,6 +58,7 @@ class SendEventNotificationsServiceSpec
     with BeforeAndAfterEach {
 
   val finiteDuration: FiniteDuration = Duration(4, TimeUnit.MINUTES)
+  val userId = UserId.random
 
   class Setup {
     val mockAppConfig: AppConfig                                       = mock[AppConfig]
@@ -88,7 +92,7 @@ class SendEventNotificationsServiceSpec
     val event: AbstractApplicationEvent = PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
-      LocalDateTime.now(),
+      Instant.now(),
       OldStyleActors.GatekeeperUser("iam@admin.com"),
       "boxId",
       "boxName",
@@ -104,7 +108,7 @@ class SendEventNotificationsServiceSpec
     }
 
     val adminEmail  = "jd@exmample.com"
-    val application = ApplicationResponse("test app", Set(Collaborators.Administrator("id", LaxEmailAddress(adminEmail))))
+    val application = ApplicationResponse("test app", Set(Collaborators.Administrator(userId, LaxEmailAddress(adminEmail))))
 
     def primeApplicationConnectorSuccess(): Unit = {
       when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
@@ -141,7 +145,7 @@ class SendEventNotificationsServiceSpec
       primeApplicationConnectorSuccess()
       primeEmailConnectorSuccess()
 
-      val notification = Notification(event.id, LocalDateTime.now(clock), SENT)
+      val notification = Notification(event.id, Instant.now(clock), SENT)
 
       primeNotificationsRepositorySuccess(notification)
 
@@ -177,7 +181,7 @@ class SendEventNotificationsServiceSpec
       primeLockRepository()
       primeApplicationConnectorFailed()
 
-      val notification = Notification(event.id, LocalDateTime.now(clock), FAILED)
+      val notification = Notification(event.id, Instant.now(clock), FAILED)
 
       primeNotificationsRepositorySuccess(notification)
 

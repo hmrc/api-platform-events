@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.apiplatformevents.connectors
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
 
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import java.time.Instant
+import java.time.ZoneOffset
 
 @Singleton
 class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
@@ -35,9 +36,11 @@ class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(im
   val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: LocalDateTime, recipients: Set[LaxEmailAddress])(implicit
+  def sendPpnsCallbackUrlChangedNotification(applicationName: String, eventDateTime: Instant, recipients: Set[LaxEmailAddress])(implicit
       hc: HeaderCarrier
   ): Future[HttpResponse] = {
+
+    val dateTimeOfChange = eventDateTime.atOffset(ZoneOffset.UTC)
     post(
       SendEmailRequest(
         recipients,
@@ -69,6 +72,5 @@ case class SendEmailRequest(
 )
 
 object SendEmailRequest {
-  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
   implicit val sendEmailRequestFmt: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }

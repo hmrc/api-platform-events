@@ -8,9 +8,11 @@ import uk.gov.hmrc.apiplatformevents.support.{EmailService, MetricsTestSupport, 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with EmailService {
 
@@ -32,7 +34,8 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
 
   "sendPpnsCallbackUrlChangedNotification" should {
     val applicationName: String         = "foobar app"
-    val dateTimeOfChange: LocalDateTime = LocalDateTime.now()
+    val instantOfChange = Instant.now()
+    val dateTimeOfChange: LocalDateTime = LocalDateTime.ofInstant(instantOfChange, ZoneOffset.UTC)
     val recipients                      = Set("john.doe@example.com").map(LaxEmailAddress(_))
 
     val expectedRequestBody = SendEmailRequest(
@@ -48,7 +51,7 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
     "send the notification using the email service" in new SetUp() {
       primeEmailEndpoint(OK)
 
-      val result: HttpResponse = await(objInTest.sendPpnsCallbackUrlChangedNotification(applicationName, dateTimeOfChange, recipients))
+      val result: HttpResponse = await(objInTest.sendPpnsCallbackUrlChangedNotification(applicationName, instantOfChange, recipients))
 
       result.status shouldBe OK
       verifyRequestBody(expectedRequestBody)
@@ -58,7 +61,7 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
       primeEmailEndpoint(NOT_FOUND)
 
       intercept[NotFoundException] {
-        await(objInTest.sendPpnsCallbackUrlChangedNotification(applicationName, dateTimeOfChange, recipients))
+        await(objInTest.sendPpnsCallbackUrlChangedNotification(applicationName, instantOfChange, recipients))
       }
 
       verifyRequestBody(expectedRequestBody)

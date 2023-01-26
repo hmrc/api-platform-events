@@ -27,12 +27,14 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import uk.gov.hmrc.apiplatformevents.models.Notification
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 
 object NotificationsRepository {
   import play.api.libs.json.{OFormat, Json}
-  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
 
-  implicit def localDateTimeFormats()                    = MongoJavatimeFormats.localDateTimeFormat
+  implicit val eventIdJf = Json.valueFormat[EventId]
+
+  implicit def localDateTimeFormats()                    = MongoJavatimeFormats.localDateTimeFormat // TODO - change to instant
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 

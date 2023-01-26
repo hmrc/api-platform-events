@@ -9,7 +9,7 @@ import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsServic
 import uk.gov.hmrc.apiplatformevents.support.{EmailService, MongoHelpers, ServerBaseISpec, ThirdPartyApplicationService}
 import uk.gov.hmrc.mongo.lock.MongoLockRepository
 
-import java.time.LocalDateTime
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SendEventNotificationsJobISpec extends ServerBaseISpec with MongoHelpers with ThirdPartyApplicationService with EmailService with ApplicationEventTestData {
@@ -105,7 +105,7 @@ class SendEventNotificationsJobISpec extends ServerBaseISpec with MongoHelpers w
 
     "return right true and create notification when event of correct type exist but has already been notified" in new Setup {
       count(notificationsRepository) shouldBe 0
-      insert(notificationsRepository, Notification(ppnsCallBackUriUpdatedEvent.id, LocalDateTime.now(), NotificationStatus.SENT))
+      insert(notificationsRepository, Notification(ppnsCallBackUriUpdatedEvent.id, Instant.now(), NotificationStatus.SENT))
 
       count(notificationsRepository) shouldBe 1
       insert(applicationEventsRepository, teamMemberAddedModel)
