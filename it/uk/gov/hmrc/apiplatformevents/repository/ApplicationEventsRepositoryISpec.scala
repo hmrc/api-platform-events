@@ -27,6 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
 
 class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
+  
 
   override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -52,8 +53,8 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "create a collaboratorRemoved entity" in {
-      await(repo.createEntity(collaboratorRemoved))
-      await(repo.collection.find().toFuture()) should contain only collaboratorRemoved
+      await(repo.createEntity(collaboratorRemovedV2))
+      await(repo.collection.find().toFuture()) should contain only collaboratorRemovedV2
     }
 
     "create a teamMemberAdded entity" in {
@@ -62,8 +63,8 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "create a collaboratorAdded entity" in {
-      await(repo.createEntity(collaboratorAdded))
-      await(repo.collection.find().toFuture()) should contain only collaboratorAdded
+      await(repo.createEntity(collaboratorAddedV2))
+      await(repo.collection.find().toFuture()) should contain only collaboratorAddedV2
     }
 
     "create a clientSecretAdded entity" in {

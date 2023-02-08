@@ -33,7 +33,7 @@ import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import uk.gov.hmrc.apiplatformevents.models.Codecs
 
-object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.localDateTimeFormat)
+object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.instantFormat)
 
 object ApplicationEventsRepository {
   lazy val formatter = MongoEventsJsonFormatters.abstractApplicationEventFormats

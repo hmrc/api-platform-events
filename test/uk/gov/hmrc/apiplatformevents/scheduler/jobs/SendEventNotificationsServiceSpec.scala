@@ -44,6 +44,9 @@ import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class SendEventNotificationsServiceSpec
     extends PlaySpec
@@ -88,7 +91,7 @@ class SendEventNotificationsServiceSpec
     val event: AbstractApplicationEvent = PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
-      LocalDateTime.now(),
+      Instant.now(),
       OldStyleActors.GatekeeperUser("iam@admin.com"),
       "boxId",
       "boxName",
@@ -104,7 +107,7 @@ class SendEventNotificationsServiceSpec
     }
 
     val adminEmail  = "jd@exmample.com"
-    val application = ApplicationResponse("test app", Set(Collaborators.Administrator("id", LaxEmailAddress(adminEmail))))
+    val application = ApplicationResponse("test app", Set(Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail))))
 
     def primeApplicationConnectorSuccess(): Unit = {
       when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))

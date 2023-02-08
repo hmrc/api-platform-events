@@ -17,7 +17,8 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{Collaborator, Collaborators, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
   lazy val admins: Set[Collaborator]         = collaborators.collect { case c @ Collaborators.Administrator(_, _) =>
@@ -27,6 +28,6 @@ case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
 }
 
 object ApplicationResponse {
-  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CollaboratorJsonFormatters._
+  import uk.gov.hmrc.apiplatform.modules.applications.domain.services.CollaboratorJsonFormatters._
   implicit val applicationFmt: OFormat[ApplicationResponse] = Json.format[ApplicationResponse]
 }
