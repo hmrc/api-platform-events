@@ -43,7 +43,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     Collaborators.Administrator(UserId.random, LaxEmailAddress("jkhkhk")),
     verifiedAdminsToEmail = Set(LaxEmailAddress("email"))
   )
@@ -69,7 +69,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     Collaborators.Administrator(UserId.random, LaxEmailAddress("jkhkhk")),
     verifiedAdminsToEmail = Set("email1", "email2", "email3").map(LaxEmailAddress(_))
   )
@@ -94,7 +94,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     clientSecretId = "jkhkhk",
     clientSecretName = "****hkhk"
   )
@@ -123,7 +123,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     clientSecretId = "jkhkhk",
     clientSecretName = "****hkhk"
   )
@@ -165,7 +165,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldRedirectUris = List("oldru"),
     newRedirectUris = List("newru", "newuri2")
   )
@@ -191,7 +191,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     ApiIdentifier(ApiContext("apicontext"), ApiVersion("1.0"))
   )
 
@@ -216,7 +216,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     ApiIdentifier(ApiContext("apicontext"), ApiVersion("1.0"))
   )
 
@@ -251,7 +251,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldAppName = "old app name",
     newAppName = "new app name",
     requestingAdminEmail = LaxEmailAddress("admin@example.com")
@@ -269,7 +269,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = PrivacyPolicyLocations.InDesktopSoftware,
     newLocation = PrivacyPolicyLocations.Url("http://example.com")
   )
@@ -286,7 +286,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
     newUrl = "http://example.com/new"
   )
@@ -299,7 +299,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = TermsAndConditionsLocations.InDesktopSoftware,
     newLocation = TermsAndConditionsLocations.Url("http://example.com")
   )
@@ -312,7 +312,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
     newUrl = "http://example.com/new"
   )
@@ -329,7 +329,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     previousResponsibleIndividualName = "Mr Old Responsible",
     previousResponsibleIndividualEmail = LaxEmailAddress("old-ri@example.com"),
     newResponsibleIndividualName = "Mr Responsible",
@@ -353,7 +353,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     previousResponsibleIndividualName = "Mr Old Responsible",
     previousResponsibleIndividualEmail = LaxEmailAddress("old-ri@example.com"),
     submissionId = SubmissionId.random,
@@ -374,7 +374,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
     responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = SubmissionId.random,
@@ -396,7 +396,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION",
     newAppState = "PENDING_GATEKEEPER_APPROVAL",
     requestingAdminName = "Mr Admin",
@@ -416,7 +416,7 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     applicationName = "my app",
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     requestingAdminName = "Mr Admin",
     requestingAdminEmail = LaxEmailAddress("admin@example.com"),
     responsibleIndividualName = "Mr Responsible",
@@ -438,7 +438,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
     responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = SubmissionId.random,
@@ -460,7 +460,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
     responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = SubmissionId.random,
@@ -482,7 +482,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     responsibleIndividualName = "Mr Responsible",
     responsibleIndividualEmail = LaxEmailAddress("ri@example.com"),
     submissionId = SubmissionId.random,
@@ -504,7 +504,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     decliningUserName = "Mr Responsible",
     decliningUserEmail = LaxEmailAddress("ri@example.com"),
     submissionId = SubmissionId.random,
@@ -526,7 +526,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     clientId = ClientId("clientid"),
     wso2ApplicationName = "wso2applicationname",
     reasons = "reason text"
@@ -544,7 +544,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.GatekeeperUser("gatekeeperUser"),
     clientId = ClientId("clientid"),
     wso2ApplicationName = "wso2applicationname",
     reasons = "reason text",
@@ -563,7 +563,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
+    actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     clientId = ClientId("clientid"),
     wso2ApplicationName = "wso2applicationname",
     reasons = "reason text"

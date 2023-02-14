@@ -28,6 +28,5 @@ case class ApplicationResponse(name: String, collaborators: Set[Collaborator]) {
 }
 
 object ApplicationResponse {
-  import uk.gov.hmrc.apiplatform.modules.applications.domain.services.CollaboratorJsonFormatters._
   implicit val applicationFmt: OFormat[ApplicationResponse] = Json.format[ApplicationResponse]
 }
