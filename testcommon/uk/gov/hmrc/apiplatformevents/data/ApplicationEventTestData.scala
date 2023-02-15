@@ -192,7 +192,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    ApiIdentifier(ApiContext("apicontext"), ApiVersion("1.0"))
+    ApiContext("apicontext"),
+    ApiVersion("1.0")
   )
 
   def makeApiSubscribedEvent(appId: Option[ApplicationId] = None): ApiSubscribedEvent = {
@@ -217,7 +218,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    ApiIdentifier(ApiContext("apicontext"), ApiVersion("1.0"))
+    ApiContext("apicontext"),
+    ApiVersion("1.0")
   )
 
   def makeApiUnsubscribedEvent(appId: Option[ApplicationId] = None): ApiUnsubscribedEvent = {
