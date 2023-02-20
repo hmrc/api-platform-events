@@ -23,14 +23,14 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{AbstractApplicationEvent, EventTag}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventTag}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
 object QueryEventsController {
-  case class QueryResponse(events: List[AbstractApplicationEvent])
+  case class QueryResponse(events: List[ApplicationEvent])
 
   object QueryResponse {
     import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._

@@ -305,7 +305,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
       .post(body)
   }
 
-  def checkCommonEventValues(event: AbstractApplicationEvent): Unit = {
+  def checkCommonEventValues(event: ApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
     event.eventDateTime.toString shouldBe expectedEventInstantString
   }
@@ -325,7 +325,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -347,7 +347,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -367,7 +367,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -387,7 +387,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -409,7 +409,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldRedirectUris shouldBe oldRedirectUri
         event.newRedirectUris shouldBe newRedirectUri
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -430,7 +430,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -451,7 +451,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -477,7 +477,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         event.oldCallbackUrl shouldBe oldCallbackUrl
         event.newCallbackUrl shouldBe newCallbackUrl
         event.boxName shouldBe boxName
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {

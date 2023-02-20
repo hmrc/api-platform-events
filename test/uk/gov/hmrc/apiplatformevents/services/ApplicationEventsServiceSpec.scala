@@ -48,7 +48,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = Instant.now,
-    actor = OldStyleActors.GatekeeperUser("iam@admin.com"),
+    actor = Actors.GatekeeperUser("Gatekeeper Admin"),
     teamMemberEmail = LaxEmailAddress("bob@bob.com"),
     teamMemberRole = "ADMIN"
   )
@@ -67,7 +67,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")), sessionId = Some(SessionId("dummy session id")), requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
-    def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: AbstractApplicationEvent) = {
+    def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: ApplicationEvent) = {
       if (repoThrowsException) {
         when(mockRepository.createEntity(eqTo(appEvent)))
           .thenReturn(Future.failed(new MongoException("some mongo error")))
@@ -125,7 +125,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
   }
 
   "fetch events by" should {
-    def primeRepo(events: AbstractApplicationEvent*): List[AbstractApplicationEvent] = {
+    def primeRepo(events: ApplicationEvent*): List[ApplicationEvent] = {
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(events.toList))
       events.toList
     }
@@ -175,7 +175,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(List.empty))
     }
 
-    def primeRepo(events: AbstractApplicationEvent*): List[AbstractApplicationEvent] = {
+    def primeRepo(events: ApplicationEvent*): List[ApplicationEvent] = {
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(events.toList))
       events.toList
     }

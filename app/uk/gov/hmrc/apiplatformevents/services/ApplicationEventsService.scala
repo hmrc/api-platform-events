@@ -28,11 +28,11 @@ import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 @Singleton
 class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {
-  def captureEvent[A <: AbstractApplicationEvent](event: A): Future[Boolean] = {
+  def captureEvent[A <: ApplicationEvent](event: A): Future[Boolean] = {
     repo.createEntity(event)
   }
 
-  def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag]): Future[List[AbstractApplicationEvent]] = eventTag match {
+  def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag]): Future[List[ApplicationEvent]] = eventTag match {
     case None      =>
       repo.fetchEvents(applicationId)
     case Some(tag) =>
@@ -43,7 +43,7 @@ class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(imp
 
   def fetchEventQueryValues(applicationId: ApplicationId): Future[Option[QueryableValues]] = {
     // Not the most efficient but certainly the more readable
-    def handleEvents(events: Seq[AbstractApplicationEvent]): Option[QueryableValues] = {
+    def handleEvents(events: Seq[ApplicationEvent]): Option[QueryableValues] = {
       if (events.isEmpty) {
         None
       } else {

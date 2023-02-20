@@ -12,7 +12,7 @@ import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
@@ -49,9 +49,9 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
   val inputInstantString  = "2014-01-01T13:13:34.441"
   val appId                = ApplicationId.random
 
-  private def primeMongo(events: AbstractApplicationEvent*): List[AbstractApplicationEvent] = {
+  private def primeMongo(events: ApplicationEvent*): List[ApplicationEvent] = {
     await(Future.sequence(events.toList.map(repo.createEntity(_))))
-    events.toList.sorted(AbstractApplicationEvent.orderEvents)
+    events.toList.sorted(ApplicationEvent.orderEvents)
   }
 
   "QueryEventsController" when {
@@ -73,7 +73,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.sorted(AbstractApplicationEvent.orderEvents))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.sorted(ApplicationEvent.orderEvents))))
         result.body shouldBe expectedText
       }
     }

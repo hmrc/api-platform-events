@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.data
 
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
@@ -26,6 +26,7 @@ import java.time.Instant
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import java.time.temporal.ChronoUnit
+import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
 
 trait ApplicationEventTestData {
   def nowMillis() = Instant.now().truncatedTo(ChronoUnit.MILLIS)
@@ -34,7 +35,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     teamMemberEmail = LaxEmailAddress("jkhkhk"),
     teamMemberRole = "ADMIN"
   )
@@ -60,7 +61,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     teamMemberEmail = LaxEmailAddress("jkhkhk"),
     teamMemberRole = "ADMIN"
   )
@@ -86,7 +87,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     clientSecretId = "jkhkhk"
   )
 
@@ -115,7 +116,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     clientSecretId = "jkhkhk"
   )
 
@@ -148,7 +149,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     oldRedirectUris = "oldru",
     newRedirectUris = "newru"
   )
@@ -182,7 +183,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     context = "apicontext",
     version = "1.0"
   )
@@ -208,7 +209,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     context = "apicontext",
     version = "1.0"
   )
@@ -234,7 +235,7 @@ trait ApplicationEventTestData {
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
-    OldStyleActors.GatekeeperUser("iam@admin.com"),
+    Actors.GatekeeperUser("Gatekeeper Admin"),
     boxId = "boxId",
     boxName = "boxName",
     oldCallbackUrl = "some/url/",

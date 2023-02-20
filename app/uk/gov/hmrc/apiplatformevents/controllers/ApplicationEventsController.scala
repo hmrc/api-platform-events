@@ -47,7 +47,7 @@ class ApplicationEventsController @Inject() (
   import EventsInterServiceCallJsonFormatters._
 
   def handleEvent(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[AbstractApplicationEvent] { event =>
+    withJsonBody[ApplicationEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
   }

@@ -47,6 +47,7 @@ import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class SendEventNotificationsServiceSpec
     extends PlaySpec
@@ -88,11 +89,11 @@ class SendEventNotificationsServiceSpec
     val mongoLockId               = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event: AbstractApplicationEvent = PpnsCallBackUriUpdatedEvent(
+    val event: ApplicationEvent = PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
       Instant.now(),
-      OldStyleActors.GatekeeperUser("iam@admin.com"),
+      Actors.GatekeeperUser("Gatekeeper Admin"),
       "boxId",
       "boxName",
       "https://example.com/old",
@@ -125,7 +126,7 @@ class SendEventNotificationsServiceSpec
       when(notificationsRepository.createEntity(eqTo(expectedNotification))).thenReturn(successful(true))
     }
 
-    def primeApplicationEventsRepositorySuccess(events: AbstractApplicationEvent*): Unit = {
+    def primeApplicationEventsRepositorySuccess(events: ApplicationEvent*): Unit = {
       when(applicationEventsRepository.fetchEventsToNotify())
         .thenReturn(Future.successful(events.toList))
     }
