@@ -32,9 +32,9 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
   }
 
   "sendPpnsCallbackUrlChangedNotification" should {
-    val applicationName: String         = "foobar app"
-    val dateTimeOfChange: Instant       = Instant.now()
-    val recipients                      = Set("john.doe@example.com").map(LaxEmailAddress(_))
+    val applicationName: String   = "foobar app"
+    val dateTimeOfChange: Instant = Instant.now()
+    val recipients                = Set("john.doe@example.com").map(LaxEmailAddress(_))
 
     val expectedRequestBody = SendEmailRequest(
       recipients,

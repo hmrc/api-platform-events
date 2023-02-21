@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatformevents.connectors
 
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -27,8 +28,6 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
 
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import java.time.Instant
-import java.time.ZoneOffset
 
 @Singleton
 class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {

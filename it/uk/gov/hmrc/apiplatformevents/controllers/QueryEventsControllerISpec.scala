@@ -46,7 +46,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
   val actorId              = "123454654"
   val actorEmail           = LaxEmailAddress("actor@example.com")
   val actorUser            = "gatekeeper"
-  val inputInstantString  = "2014-01-01T13:13:34.441"
+  val inputInstantString   = "2014-01-01T13:13:34.441"
   val appId                = ApplicationId.random
 
   private def primeMongo(events: ApplicationEvent*): List[ApplicationEvent] = {

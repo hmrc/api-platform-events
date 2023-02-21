@@ -27,7 +27,6 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 
 class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
-  
 
   override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.services
 
+import java.time.{Instant, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -24,16 +25,13 @@ import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
 
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
-import java.time.Instant
-import java.time.ZoneOffset
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with ApplicationEventTestData with OptionValues {
 

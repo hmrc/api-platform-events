@@ -31,19 +31,19 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val eventId: UUID        = EventId.random.value
-  val applicationId        = ApplicationId.random
-  val appIdText            = applicationId.value.toString()
-  val clientId             = ClientId.random
-  val clientIdText         = clientId.value
-  val submissionId: String = ju.UUID.randomUUID.toString
-  val actorId              = "123454654"
-  val actorEmail           = "actor@example.com"
-  val actorTypeGK          = "GATEKEEPER"
-  val actorTypeCollab      = "COLLABORATOR"
-  val actorUser            = "gatekeeper"
-  val inputInstantString  = "2014-01-01T13:13:34.441"
-  val expectedEventInstantString  = s"${inputInstantString}Z"
+  val eventId: UUID              = EventId.random.value
+  val applicationId              = ApplicationId.random
+  val appIdText                  = applicationId.value.toString()
+  val clientId                   = ClientId.random
+  val clientIdText               = clientId.value
+  val submissionId: String       = ju.UUID.randomUUID.toString
+  val actorId                    = "123454654"
+  val actorEmail                 = "actor@example.com"
+  val actorTypeGK                = "GATEKEEPER"
+  val actorTypeCollab            = "COLLABORATOR"
+  val actorUser                  = "gatekeeper"
+  val inputInstantString         = "2014-01-01T13:13:34.441"
+  val expectedEventInstantString = s"${inputInstantString}Z"
 
   def validTeamMemberJsonBody(teamMemberEmail: LaxEmailAddress, teamMemberRole: String): String =
     raw"""{"id": "${EventId.random.value}",
