@@ -25,7 +25,7 @@ import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -33,7 +33,7 @@ import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import uk.gov.hmrc.apiplatformevents.models.Codecs
 
-object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.localDateTimeFormat)
+object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.instantFormat)
 
 object ApplicationEventsRepository {
   lazy val formatter = MongoEventsJsonFormatters.abstractApplicationEventFormats
@@ -41,7 +41,7 @@ object ApplicationEventsRepository {
 
 @Singleton
 class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
-    extends PlayMongoRepository[AbstractApplicationEvent](
+    extends PlayMongoRepository[ApplicationEvent](
       mongoComponent = mongoComponent,
       collectionName = "application-events",
       domainFormat = ApplicationEventsRepository.formatter,
@@ -72,10 +72,10 @@ class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(imp
       replaceIndexes = true
     ) {
 
-  def createEntity(event: AbstractApplicationEvent): Future[Boolean] =
+  def createEntity(event: ApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
 
-  def fetchEventsToNotify[A <: AbstractApplicationEvent](): Future[List[AbstractApplicationEvent]] = {
+  def fetchEventsToNotify[A <: ApplicationEvent](): Future[List[ApplicationEvent]] = {
     collection
       .aggregate(
         Seq(
@@ -88,7 +88,7 @@ class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(imp
       .map(_.toList)
   }
 
-  def fetchEvents(applicationId: ApplicationId): Future[List[AbstractApplicationEvent]] = {
+  def fetchEvents(applicationId: ApplicationId): Future[List[ApplicationEvent]] = {
     collection
       .find(equal("applicationId", applicationId.value.toString()))
       .toFuture()

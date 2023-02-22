@@ -24,7 +24,7 @@ import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 
 class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
 
@@ -52,8 +52,8 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "create a collaboratorRemoved entity" in {
-      await(repo.createEntity(collaboratorRemoved))
-      await(repo.collection.find().toFuture()) should contain only collaboratorRemoved
+      await(repo.createEntity(collaboratorRemovedV2))
+      await(repo.collection.find().toFuture()) should contain only collaboratorRemovedV2
     }
 
     "create a teamMemberAdded entity" in {
@@ -62,8 +62,8 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "create a collaboratorAdded entity" in {
-      await(repo.createEntity(collaboratorAdded))
-      await(repo.collection.find().toFuture()) should contain only collaboratorAdded
+      await(repo.createEntity(collaboratorAddedV2))
+      await(repo.collection.find().toFuture()) should contain only collaboratorAddedV2
     }
 
     "create a clientSecretAdded entity" in {
@@ -178,7 +178,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.createEntity(clientSecretAddedModel))
       await(repo.createEntity(ppnsCallBackUriUpdatedEvent))
 
-      val result: List[AbstractApplicationEvent] = await(repo.fetchEventsToNotify())
+      val result: List[ApplicationEvent] = await(repo.fetchEventsToNotify())
 
       result should contain only ppnsCallBackUriUpdatedEvent
     }
@@ -191,7 +191,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.createEntity(alreadyNotifiedEvent))
       await(notificationsRepo.createEntity(Notification(alreadyNotifiedEvent.id, LocalDateTime.now(), SENT)))
 
-      val result: List[AbstractApplicationEvent] = await(repo.fetchEventsToNotify())
+      val result: List[ApplicationEvent] = await(repo.fetchEventsToNotify())
 
       result should contain theSameElementsAs List(ppnsCallBackUriUpdatedEvent, anotherEvent)
     }

@@ -32,7 +32,9 @@ import org.scalatestplus.play.PlaySpec
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.lock.MongoLockRepository
@@ -85,11 +87,11 @@ class SendEventNotificationsServiceSpec
     val mongoLockId               = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event: AbstractApplicationEvent = PpnsCallBackUriUpdatedEvent(
+    val event: ApplicationEvent = PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
-      LocalDateTime.now(),
-      OldStyleActors.GatekeeperUser("iam@admin.com"),
+      Instant.now(),
+      Actors.GatekeeperUser("Gatekeeper Admin"),
       "boxId",
       "boxName",
       "https://example.com/old",
@@ -104,7 +106,7 @@ class SendEventNotificationsServiceSpec
     }
 
     val adminEmail  = "jd@exmample.com"
-    val application = ApplicationResponse("test app", Set(Collaborators.Administrator("id", LaxEmailAddress(adminEmail))))
+    val application = ApplicationResponse("test app", Set(Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail))))
 
     def primeApplicationConnectorSuccess(): Unit = {
       when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
@@ -122,7 +124,7 @@ class SendEventNotificationsServiceSpec
       when(notificationsRepository.createEntity(eqTo(expectedNotification))).thenReturn(successful(true))
     }
 
-    def primeApplicationEventsRepositorySuccess(events: AbstractApplicationEvent*): Unit = {
+    def primeApplicationEventsRepositorySuccess(events: ApplicationEvent*): Unit = {
       when(applicationEventsRepository.fetchEventsToNotify())
         .thenReturn(Future.successful(events.toList))
     }

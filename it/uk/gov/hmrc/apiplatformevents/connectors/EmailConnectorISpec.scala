@@ -8,9 +8,10 @@ import uk.gov.hmrc.apiplatformevents.support.{EmailService, MetricsTestSupport, 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import java.time.Instant
+import java.time.ZoneOffset
 
 class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with EmailService {
 
@@ -31,17 +32,17 @@ class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceO
   }
 
   "sendPpnsCallbackUrlChangedNotification" should {
-    val applicationName: String         = "foobar app"
-    val dateTimeOfChange: LocalDateTime = LocalDateTime.now()
-    val recipients                      = Set("john.doe@example.com").map(LaxEmailAddress(_))
+    val applicationName: String   = "foobar app"
+    val dateTimeOfChange: Instant = Instant.now()
+    val recipients                = Set("john.doe@example.com").map(LaxEmailAddress(_))
 
     val expectedRequestBody = SendEmailRequest(
       recipients,
       "ppnsCallbackUrlChangedNotification",
       Map(
         "applicationName" -> applicationName,
-        "dateOfChange"    -> DateTimeFormatter.ofPattern("dd MMMM yyyy").format(dateTimeOfChange),
-        "timeOfChange"    -> DateTimeFormatter.ofPattern("HH:mm").format(dateTimeOfChange)
+        "dateOfChange"    -> DateTimeFormatter.ofPattern("dd MMMM yyyy").format(dateTimeOfChange.atZone(ZoneOffset.UTC)),
+        "timeOfChange"    -> DateTimeFormatter.ofPattern("HH:mm").format(dateTimeOfChange.atZone(ZoneOffset.UTC))
       )
     )
 

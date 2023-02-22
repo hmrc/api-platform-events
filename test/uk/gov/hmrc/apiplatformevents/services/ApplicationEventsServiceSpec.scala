@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.services
 
-import java.time.LocalDateTime
+import java.time.{Instant, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -25,6 +25,7 @@ import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
 
@@ -36,16 +37,16 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
-  val now            = LocalDateTime.now()
-  val nowButLastYear = now.minusYears(1)
-  val year           = now.getYear()
-  val lastYear       = nowButLastYear.getYear()
+  val now            = Instant.now()
+  val nowButLastYear = now.atOffset(ZoneOffset.UTC).minusYears(1).toInstant()
+  val year           = now.atOffset(ZoneOffset.UTC).getYear()
+  val lastYear       = nowButLastYear.atOffset(ZoneOffset.UTC).getYear()
 
   val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    eventDateTime = LocalDateTime.now,
-    actor = OldStyleActors.GatekeeperUser("iam@admin.com"),
+    eventDateTime = Instant.now,
+    actor = Actors.GatekeeperUser("Gatekeeper Admin"),
     teamMemberEmail = LaxEmailAddress("bob@bob.com"),
     teamMemberRole = "ADMIN"
   )
@@ -53,7 +54,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
   val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    eventDateTime = LocalDateTime.now,
+    eventDateTime = Instant.now,
     actor = Actors.GatekeeperUser("gk@example.com"),
     oldAppName = "old app name",
     newAppName = "new app name",
@@ -64,7 +65,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     HeaderCarrier(authorization = Some(Authorization("dummy bearer token")), sessionId = Some(SessionId("dummy session id")), requestId = Some(RequestId("dummy request id")))
 
   trait Setup {
-    def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: AbstractApplicationEvent) = {
+    def primeService(repoResult: Boolean, repoThrowsException: Boolean, appEvent: ApplicationEvent) = {
       if (repoThrowsException) {
         when(mockRepository.createEntity(eqTo(appEvent)))
           .thenReturn(Future.failed(new MongoException("some mongo error")))
@@ -122,7 +123,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
   }
 
   "fetch events by" should {
-    def primeRepo(events: AbstractApplicationEvent*): List[AbstractApplicationEvent] = {
+    def primeRepo(events: ApplicationEvent*): List[ApplicationEvent] = {
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(events.toList))
       events.toList
     }
@@ -172,7 +173,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(List.empty))
     }
 
-    def primeRepo(events: AbstractApplicationEvent*): List[AbstractApplicationEvent] = {
+    def primeRepo(events: ApplicationEvent*): List[ApplicationEvent] = {
       when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(events.toList))
       events.toList
     }

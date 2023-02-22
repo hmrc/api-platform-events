@@ -21,7 +21,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
 
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{AbstractApplicationEvent, PpnsCallBackUriUpdatedEvent}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
 
@@ -95,13 +95,13 @@ class SendEventNotificationsService @Inject() (
     }
   }
 
-  private def processEvents(events: Seq[AbstractApplicationEvent])(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
+  private def processEvents(events: Seq[ApplicationEvent])(implicit ec: ExecutionContext, hc: HeaderCarrier) = {
     Future.sequence {
       events.map(sendEventNotification)
     }
   }
 
-  private def sendEventNotification(event: AbstractApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
+  private def sendEventNotification(event: ApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
     logger.info(s"processing event: ${event.id}")
     event match {
       case ppnsEvent: PpnsCallBackUriUpdatedEvent =>

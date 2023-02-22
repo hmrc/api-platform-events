@@ -11,13 +11,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import play.api.libs.json.Json
 
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import java.time.ZoneOffset
 
 class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach with ApplicationEventTestData {
 
@@ -47,12 +46,12 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
   val actorId              = "123454654"
   val actorEmail           = LaxEmailAddress("actor@example.com")
   val actorUser            = "gatekeeper"
-  val eventDateTimeString  = "2014-01-01T13:13:34.441"
+  val inputInstantString   = "2014-01-01T13:13:34.441"
   val appId                = ApplicationId.random
 
-  private def primeMongo(events: AbstractApplicationEvent*): List[AbstractApplicationEvent] = {
+  private def primeMongo(events: ApplicationEvent*): List[ApplicationEvent] = {
     await(Future.sequence(events.toList.map(repo.createEntity(_))))
-    events.toList.sorted(AbstractApplicationEvent.orderEvents)
+    events.toList.sorted(ApplicationEvent.orderEvents)
   }
 
   "QueryEventsController" when {
@@ -68,13 +67,13 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
         val event1 = makeTeamMemberAddedEvent(Some(appId))
         val event2 = makeApiSubscribedEvent(Some(appId))
         val evts   = primeMongo(
-          event1.copy(eventDateTime = LocalDateTime.now.minusDays(2).truncatedTo(ChronoUnit.MILLIS)),
-          event2.copy(eventDateTime = LocalDateTime.now.minusDays(1).truncatedTo(ChronoUnit.MILLIS))
+          event1.copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant),
+          event2.copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant)
         )
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.sorted(AbstractApplicationEvent.orderEvents))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.sorted(ApplicationEvent.orderEvents))))
         result.body shouldBe expectedText
       }
     }

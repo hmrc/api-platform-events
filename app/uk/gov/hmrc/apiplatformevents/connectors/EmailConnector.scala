@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.apiplatformevents.connectors
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
 
@@ -35,14 +35,16 @@ class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(im
   val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-  def sendPpnsCallbackUrlChangedNotification(applicationName: String, dateTimeOfChange: LocalDateTime, recipients: Set[LaxEmailAddress])(implicit
+  def sendPpnsCallbackUrlChangedNotification(applicationName: String, instantOfChange: Instant, recipients: Set[LaxEmailAddress])(implicit
       hc: HeaderCarrier
   ): Future[HttpResponse] = {
+    val dateTimeOfChange = instantOfChange.atZone(ZoneOffset.UTC)
+
     post(
       SendEmailRequest(
         recipients,
         "ppnsCallbackUrlChangedNotification",
-        Map("applicationName" -> applicationName, "dateOfChange" -> dateTimeOfChange.format(dateFormatter), "timeOfChange" -> dateTimeOfChange.format(timeFormatter))
+        Map("applicationName" -> applicationName, "dateOfChange" -> dateFormatter.format(dateTimeOfChange), "timeOfChange" -> timeFormatter.format(dateTimeOfChange))
       )
     )
   }
@@ -69,6 +71,5 @@ case class SendEmailRequest(
 )
 
 object SendEmailRequest {
-  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.CommonJsonFormatters._
   implicit val sendEmailRequestFmt: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }

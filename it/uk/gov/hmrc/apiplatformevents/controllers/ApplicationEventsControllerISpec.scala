@@ -12,6 +12,8 @@ import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach {
 
@@ -29,38 +31,39 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  val eventId: UUID        = EventId.random.value
-  val applicationId        = ApplicationId.random
-  val appIdText            = applicationId.value.toString()
-  val clientId             = ClientId.random
-  val clientIdText         = clientId.value
-  val submissionId: String = ju.UUID.randomUUID.toString
-  val actorId              = "123454654"
-  val actorEmail           = "actor@example.com"
-  val actorTypeGK          = "GATEKEEPER"
-  val actorTypeCollab      = "COLLABORATOR"
-  val actorUser            = "gatekeeper"
-  val eventDateTimeString  = "2014-01-01T13:13:34.441"
+  val eventId: UUID              = EventId.random.value
+  val applicationId              = ApplicationId.random
+  val appIdText                  = applicationId.value.toString()
+  val clientId                   = ClientId.random
+  val clientIdText               = clientId.value
+  val submissionId: String       = ju.UUID.randomUUID.toString
+  val actorId                    = "123454654"
+  val actorEmail                 = "actor@example.com"
+  val actorTypeGK                = "GATEKEEPER"
+  val actorTypeCollab            = "COLLABORATOR"
+  val actorUser                  = "gatekeeper"
+  val inputInstantString         = "2014-01-01T13:13:34.441"
+  val expectedEventInstantString = s"${inputInstantString}Z"
 
   def validTeamMemberJsonBody(teamMemberEmail: LaxEmailAddress, teamMemberRole: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
-         |"teamMemberEmail": "${teamMemberEmail.value}",
+         |"teamMemberEmail": "${teamMemberEmail.text}",
          |"teamMemberRole": "$teamMemberRole"}""".stripMargin
 
   def validClientSecretJsonBody(clientSecretId: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"clientSecretId": "$clientSecretId"}""".stripMargin
 
   def validRedirectUrisUpdatedJsonBody(oldRedirectUri: String, newRedirectUri: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"oldRedirectUris": "$oldRedirectUri",
          |"newRedirectUris": "$newRedirectUri"}""".stripMargin
@@ -68,7 +71,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   def validApiSubscriptionJsonBody(apiContext: String, apiVersion: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"context": "$apiContext",
          |"version": "$apiVersion"}""".stripMargin
@@ -76,7 +79,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"boxId": "$boxId",
          |"boxName": "$boxName",
@@ -86,118 +89,118 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "PROD_APP_NAME_CHANGED",
          |"actor": { "user": "$actorUser", "actorType": "$actorTypeGK" },
          |"oldAppName": "$oldAppName",
          |"newAppName": "$newAppName",
-         |"requestingAdminEmail": "${requestingAdminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${requestingAdminEmail.text}"}""".stripMargin
 
   def validProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "PROD_APP_PRIVACY_POLICY_LOCATION_CHANGED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"newLocation": {"privacyPolicyType":"url", "value":"$newUrl"},
          |"oldLocation": {"privacyPolicyType":"url", "value":"$oldUrl"},
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "PROD_LEGACY_APP_PRIVACY_POLICY_LOCATION_CHANGED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"newUrl": "$newUrl",
          |"oldUrl": "$oldUrl",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "PROD_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"newLocation": {"termsAndConditionsType":"url", "value":"$newUrl"},
          |"oldLocation": {"termsAndConditionsType":"url", "value":"$oldUrl"},
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl: String, newUrl: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "PROD_LEGACY_APP_TERMS_CONDITIONS_LOCATION_CHANGED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"newUrl": "$newUrl",
          |"oldUrl": "$oldUrl",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validResponsibleIndividualChangedJsonBody(riName: String, riEmail: LaxEmailAddress, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"previousResponsibleIndividualName": "Old RI Name",
          |"previousResponsibleIndividualEmail": "old-ri@example.com",
          |"newResponsibleIndividualName": "$riName",
-         |"newResponsibleIndividualEmail": "${riEmail.value}",
+         |"newResponsibleIndividualEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "123456789",
          |"requestingAdminName": "Mr Admin",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validResponsibleIndividualChangedToSelfJsonBody(adminName: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_CHANGED_TO_SELF",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"previousResponsibleIndividualName": "Old RI Name",
          |"previousResponsibleIndividualEmail": "old-ri@example.com",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validResponsibleIndividualSetJsonBody(riName: String, riEmail: LaxEmailAddress, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_SET",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "${riEmail.value}",
+         |"responsibleIndividualEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "Mr Admin",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validApplicationStateChangedJsonBody(adminName: String, adminEmail: LaxEmailAddress, oldAppState: String, newAppState: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "APPLICATION_STATE_CHANGED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"oldAppState": "$oldAppState",
          |"newAppState": "$newAppState",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: LaxEmailAddress, appName: String, adminName: String, adminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
          |"applicationName": "$appName",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_VERIFICATION_STARTED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}",
+         |"requestingAdminEmail": "${adminEmail.text}",
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "${riEmail.value}",
+         |"responsibleIndividualEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"verificationId": "${UUID.randomUUID().toString}"}""".stripMargin
@@ -205,86 +208,86 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   def validResponsibleIndividualDeclinedJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_DECLINED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "${riEmail.value}",
+         |"responsibleIndividualEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validResponsibleIndividualDeclinedUpdateJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_DECLINED_UPDATE",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "${riEmail.value}",
+         |"responsibleIndividualEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validResponsibleIndividualDidNotVerifyJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, code: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "RESPONSIBLE_INDIVIDUAL_DID_NOT_VERIFY",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"responsibleIndividualName": "$riName",
-         |"responsibleIndividualEmail": "${riEmail.value}",
+         |"responsibleIndividualEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"code": "$code",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validApplicationApprovalRequestDeclinedJsonBody(riName: String, riEmail: LaxEmailAddress, adminName: String, adminEmail: LaxEmailAddress, reasons: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "APPLICATION_APPROVAL_REQUEST_DECLINED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"decliningUserName": "$riName",
-         |"decliningUserEmail": "${riEmail.value}",
+         |"decliningUserEmail": "${riEmail.text}",
          |"submissionId": "$submissionId",
          |"submissionIndex": 1,
          |"reasons": "$reasons",
          |"requestingAdminName": "$adminName",
-         |"requestingAdminEmail": "${adminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
   def validApplicationDeletedJsonBody(adminEmail: LaxEmailAddress, wso2ApplicationName: String, reasons: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "APPLICATION_DELETED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"clientId": "$clientIdText",
          |"wso2ApplicationName": "$wso2ApplicationName",
          |"reasons": "$reasons"}""".stripMargin
 
-  def validApplicationDeletedByGatekeeperJsonBody(adminEmail: LaxEmailAddress, wso2ApplicationName: String, reasons: String, requestingAdminEmail: LaxEmailAddress): String =
+  def validApplicationDeletedByGatekeeperJsonBody(gatekeeperUser: String, wso2ApplicationName: String, reasons: String, requestingAdminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "APPLICATION_DELETED_BY_GATEKEEPER",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "user": "$gatekeeperUser" },
          |"clientId": "$clientIdText",
          |"wso2ApplicationName": "$wso2ApplicationName",
          |"reasons": "$reasons",
-         |"requestingAdminEmail": "${requestingAdminEmail.value}"}""".stripMargin
+         |"requestingAdminEmail": "${requestingAdminEmail.text}"}""".stripMargin
 
   def validProductionCredentialsApplicationDeletedJsonBody(adminEmail: LaxEmailAddress, wso2ApplicationName: String, reasons: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
-         |"eventDateTime": "$eventDateTimeString",
+         |"eventDateTime": "$inputInstantString",
          |"eventType": "PRODUCTION_CREDENTIALS_APPLICATION_DELETED",
-         |"actor": { "email": "${adminEmail.value}", "actorType": "$actorTypeCollab" },
+         |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
          |"clientId": "$clientIdText",
          |"wso2ApplicationName": "$wso2ApplicationName",
          |"reasons": "$reasons"}""".stripMargin
@@ -302,9 +305,9 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
       .post(body)
   }
 
-  def checkCommonEventValues(event: AbstractApplicationEvent): Unit = {
+  def checkCommonEventValues(event: ApplicationEvent): Unit = {
     event.applicationId shouldBe applicationId
-    event.eventDateTime.toString shouldBe eventDateTimeString
+    event.eventDateTime.toString shouldBe expectedEventInstantString
   }
 
   "ApplicationEventsController" when {
@@ -322,7 +325,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -344,7 +347,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.teamMemberEmail shouldBe teamMemberEmail
         event.teamMemberRole shouldBe adminRole
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -364,7 +367,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -384,7 +387,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
         checkCommonEventValues(event)
         event.clientSecretId shouldBe clientSecretId
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -406,7 +409,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldRedirectUris shouldBe oldRedirectUri
         event.newRedirectUris shouldBe newRedirectUri
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -427,7 +430,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -448,7 +451,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.context shouldBe apiContext
         event.version shouldBe apiVersion
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -474,7 +477,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         event.oldCallbackUrl shouldBe oldCallbackUrl
         event.newCallbackUrl shouldBe newCallbackUrl
         event.boxName shouldBe boxName
-        event.actor shouldBe OldStyleActors.GatekeeperUser(actorId)
+        event.actor shouldBe Actors.GatekeeperUser(actorId)
       }
 
       "handle error scenarios correctly" in {
@@ -518,7 +521,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldLocation shouldBe PrivacyPolicyLocations.Url(oldUrl)
         event.newLocation shouldBe PrivacyPolicyLocations.Url(newUrl)
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid legacy prod app privacy policy location changed json is sent" in {
@@ -535,7 +538,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
         event.newUrl shouldBe newUrl
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid prod app t&cs location changed json is sent" in {
@@ -552,7 +555,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldLocation shouldBe TermsAndConditionsLocations.Url(oldUrl)
         event.newLocation shouldBe TermsAndConditionsLocations.Url(newUrl)
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid legacy prod app t&cs location changed json is sent" in {
@@ -569,7 +572,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldUrl shouldBe oldUrl
         event.newUrl shouldBe newUrl
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid responsible individual changed json is sent" in {
@@ -586,7 +589,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.newResponsibleIndividualName shouldBe riName
         event.newResponsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid responsible individual set json is sent" in {
@@ -605,7 +608,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
         event.code shouldBe code
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid application state changed json is sent" in {
@@ -623,7 +626,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.oldAppState shouldBe oldAppState
         event.newAppState shouldBe newAppState
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
       "respond with 201 when valid responsible individual verification started json is sent" in {
@@ -643,7 +646,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
         event.applicationName shouldBe appName
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
       }
@@ -660,7 +663,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
         checkCommonEventValues(event)
         event.requestingAdminName shouldBe adminName
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.requestingAdminEmail shouldBe adminEmail
       }
 
@@ -679,7 +682,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.code shouldBe code
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -700,7 +703,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.code shouldBe code
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -721,7 +724,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.code shouldBe code
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -743,7 +746,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.decliningUserName shouldBe riName
         event.decliningUserEmail shouldBe riEmail
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.reasons shouldBe reasons
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -760,7 +763,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         val event   = results.head.asInstanceOf[ApplicationDeleted]
 
         checkCommonEventValues(event)
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.reasons shouldBe reasons
         event.wso2ApplicationName shouldBe wso2AppName
         event.clientId shouldBe clientId
@@ -768,17 +771,17 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
       "respond with 201 when valid application deleted by gatekeeper json is sent" in {
         val wso2AppName      = "wso2AppName"
-        val adminEmail       = LaxEmailAddress("admin@example.com")
+        val gatekeeperUser   = "bob smith"
         val reasons          = "reasons text"
         val requestedByEmail = LaxEmailAddress("requester@example.com")
-        testSuccessScenario("/application-event", validApplicationDeletedByGatekeeperJsonBody(adminEmail, wso2AppName, reasons, requestedByEmail))
+        testSuccessScenario("/application-event", validApplicationDeletedByGatekeeperJsonBody(gatekeeperUser, wso2AppName, reasons, requestedByEmail))
 
         val results = await(repo.collection.find().toFuture())
         results.size shouldBe 1
         val event   = results.head.asInstanceOf[ApplicationDeletedByGatekeeper]
 
         checkCommonEventValues(event)
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.GatekeeperUser(gatekeeperUser)
         event.reasons shouldBe reasons
         event.wso2ApplicationName shouldBe wso2AppName
         event.clientId shouldBe clientId
@@ -796,7 +799,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         val event   = results.head.asInstanceOf[ProductionCredentialsApplicationDeleted]
 
         checkCommonEventValues(event)
-        event.actor shouldBe Actors.Collaborator(adminEmail)
+        event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.reasons shouldBe reasons
         event.wso2ApplicationName shouldBe wso2AppName
         event.clientId shouldBe clientId
