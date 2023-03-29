@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -46,6 +45,7 @@ import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
 class SendEventNotificationsServiceSpec
     extends PlaySpec
@@ -58,7 +58,7 @@ class SendEventNotificationsServiceSpec
 
   val finiteDuration: FiniteDuration = Duration(4, TimeUnit.MINUTES)
 
-  class Setup {
+  class Setup extends FixedClock {
     val mockAppConfig: AppConfig                                       = mock[AppConfig]
     val mockConfiguration                                              = mock[Configuration]
     val mockLockRepository: MongoLockRepository                        = mock[MongoLockRepository]
@@ -66,7 +66,6 @@ class SendEventNotificationsServiceSpec
     val notificationsRepository: NotificationsRepository               = mock[NotificationsRepository]
     val emailConnector: EmailConnector                                 = mock[EmailConnector]
     val thirdPartyApplicationConnector: ThirdPartyApplicationConnector = mock[ThirdPartyApplicationConnector]
-    val clock: Clock                                                   = Clock.fixed(Instant.now(), ZoneOffset.UTC)
     reset(mockAppConfig)
     reset(mockLockRepository)
     when(mockAppConfig.config).thenReturn(mockConfiguration)
@@ -90,7 +89,7 @@ class SendEventNotificationsServiceSpec
     val event: ApplicationEvent = PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
-      Instant.now(),
+      instant(),
       Actors.GatekeeperUser("Gatekeeper Admin"),
       "boxId",
       "boxName",
@@ -143,7 +142,7 @@ class SendEventNotificationsServiceSpec
       primeApplicationConnectorSuccess()
       primeEmailConnectorSuccess()
 
-      val notification = Notification(event.id, LocalDateTime.now(clock), SENT)
+      val notification = Notification(event.id, now(), SENT)
 
       primeNotificationsRepositorySuccess(notification)
 
@@ -179,7 +178,7 @@ class SendEventNotificationsServiceSpec
       primeLockRepository()
       primeApplicationConnectorFailed()
 
-      val notification = Notification(event.id, LocalDateTime.now(clock), FAILED)
+      val notification = Notification(event.id, now(), FAILED)
 
       primeNotificationsRepositorySuccess(notification)
 

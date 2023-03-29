@@ -19,14 +19,14 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
 import uk.gov.hmrc.apiplatformevents.models._
 
-import java.time.LocalDateTime
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
-class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData {
+class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAfterEach with ApplicationEventTestData with FixedClock {
 
   override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -189,7 +189,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.createEntity(anotherEvent))
       val alreadyNotifiedEvent = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
       await(repo.createEntity(alreadyNotifiedEvent))
-      await(notificationsRepo.createEntity(Notification(alreadyNotifiedEvent.id, LocalDateTime.now(), SENT)))
+      await(notificationsRepo.createEntity(Notification(alreadyNotifiedEvent.id, now(), SENT)))
 
       val result: List[ApplicationEvent] = await(repo.fetchEventsToNotify())
 

@@ -56,6 +56,14 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.apiplatformevents.controllers.binders._"
     )
   )
+  .settings(
+    scalacOptions ++= Seq(
+    "-Wconf:cat=unused&src=views/.*\\.scala:s",
+    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+    )
+  )
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>

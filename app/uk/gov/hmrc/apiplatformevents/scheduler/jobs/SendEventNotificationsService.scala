@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler.jobs
 
-import java.time.{Clock, LocalDateTime}
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
@@ -33,6 +33,7 @@ import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockExcept
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 
 class SendEventNotificationsService @Inject() (
     appConfig: AppConfig,
@@ -41,8 +42,9 @@ class SendEventNotificationsService @Inject() (
     notificationsRepository: NotificationsRepository,
     emailConnector: EmailConnector,
     thirdPartyApplicationConnector: ThirdPartyApplicationConnector,
-    clock: Clock
+    val clock: Clock
 ) extends ScheduledService[Either[ScheduleStatus.JobFailed, Boolean]]
+    with ClockNow
     with ApplicationLogger {
   val jobName: String = "SendEventNotificationsJob"
 
@@ -108,10 +110,10 @@ class SendEventNotificationsService @Inject() (
         (for {
           app <- thirdPartyApplicationConnector.getApplication(ppnsEvent.applicationId)
           _   <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, ppnsEvent.eventDateTime, app.adminEmails)
-          _   <- notificationsRepository.createEntity(Notification(ppnsEvent.id, LocalDateTime.now(clock), SENT))
+          _   <- notificationsRepository.createEntity(Notification(ppnsEvent.id, now(), SENT))
         } yield ()) recoverWith { case NonFatal(e) =>
           logger.error(s"Failed to send email notification for event ID ${ppnsEvent.id}", e)
-          notificationsRepository.createEntity(Notification(ppnsEvent.id, LocalDateTime.now(clock), FAILED)).map(_ => ())
+          notificationsRepository.createEntity(Notification(ppnsEvent.id, now(), FAILED)).map(_ => ())
         }
       case _                                      => Future.successful(logger.error(s"Event not of correct type to send notification ${event.getClass.getSimpleName}"))
     }

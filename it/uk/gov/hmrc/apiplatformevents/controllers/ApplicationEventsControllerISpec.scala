@@ -45,13 +45,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   val inputInstantString         = "2014-01-01T13:13:34.441"
   val expectedEventInstantString = s"${inputInstantString}Z"
 
-  def validTeamMemberJsonBody(teamMemberEmail: LaxEmailAddress, teamMemberRole: String): String =
-    raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$appIdText",
-         |"eventDateTime": "$inputInstantString",
-         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
-         |"teamMemberEmail": "${teamMemberEmail.text}",
-         |"teamMemberRole": "$teamMemberRole"}""".stripMargin
 
   def validClientSecretJsonBody(clientSecretId: String): String =
     raw"""{"id": "${EventId.random.value}",
@@ -312,48 +305,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   "ApplicationEventsController" when {
 
-    "POST /teamMemberAdded" should {
-      "respond with 201 when valid json is sent" in {
-        val teamMemberEmail = LaxEmailAddress("bob@bob.com")
-        val adminRole       = "ADMIN"
-
-        testSuccessScenario("/application-events/teamMemberAdded", validTeamMemberJsonBody(teamMemberEmail, adminRole))
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[TeamMemberAddedEvent]
-
-        checkCommonEventValues(event)
-        event.teamMemberEmail shouldBe teamMemberEmail
-        event.teamMemberRole shouldBe adminRole
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/teamMemberAdded")
-      }
-    }
-
-    "POST /teamMemberRemoved" should {
-      "respond with 201 when valid json is sent" in {
-        val teamMemberEmail = LaxEmailAddress("bob@bob.com")
-        val adminRole       = "ADMIN"
-
-        testSuccessScenario("/application-events/teamMemberRemoved", validTeamMemberJsonBody(teamMemberEmail, adminRole))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[TeamMemberRemovedEvent]
-
-        checkCommonEventValues(event)
-        event.teamMemberEmail shouldBe teamMemberEmail
-        event.teamMemberRole shouldBe adminRole
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/teamMemberRemoved")
-      }
-    }
 
     "POST /clientSecretAdded" should {
       "respond with 201 when valid json is sent" in {

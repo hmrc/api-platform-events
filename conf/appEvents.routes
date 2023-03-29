@@ -1,7 +1,5 @@
 # microservice specific routes
 
-POST        /teamMemberAdded                  @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.teamMemberAdded()
-POST        /teamMemberRemoved                @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.teamMemberRemoved()
 POST        /clientSecretAdded                @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.clientSecretAdded()
 POST        /clientSecretRemoved              @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.clientSecretRemoved()
 POST        /redirectUrisUpdated              @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.redirectUrisUpdated()
