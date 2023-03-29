@@ -58,20 +58,6 @@ class ApplicationEventsController @Inject() (
     }
   }
 
-  @deprecated("please pass CollaboratorAdded to handleEvent endpoint", "Oct 2022")
-  def teamMemberAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[TeamMemberAddedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
-  @deprecated("please pass CollaboratorRemoved to handleEvent endpoint", "Oct 2022")
-  def teamMemberRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[TeamMemberRemovedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
   @deprecated("please pass ClientSecretAdded to handleEvent endpoint", "Oct 2022")
   def clientSecretAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ClientSecretAddedEvent] { event =>

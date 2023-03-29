@@ -51,8 +51,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-  private val teamMemberAddedUri                = "/application-events/teamMemberAdded"
-  private val teamMemberRemovedUri              = "/application-events/teamMemberRemoved"
   private val clientSecretAddedUri              = "/application-events/clientSecretAdded"
   private val clientSecretRemovedUri            = "/application-events/clientSecretRemoved"
   private val redirectUrisUpdatedUri            = "/application-events/redirectUrisUpdated"
@@ -61,91 +59,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   private val ppnsCallBackUriUpdateddUri        = "/application-events/ppnsCallbackUriUpdated"
   private val handleEventUri                    = "/application-event"
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
-
-  "TeamMemberAddedEvent" should {
-    val jsonBody =
-      raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "$appIdText",
-           |"eventDateTime": "2014-01-01T13:13:34.441Z",
-           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-           |"teamMemberEmail": "bob@bob.com",
-           |"teamMemberRole": "ADMIN"}""".stripMargin
-
-    "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberAddedEvent]))
-        .thenReturn(Future.successful(true))
-
-      val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
-      status(result) shouldBe CREATED
-    }
-
-    "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberAddedEvent]))
-        .thenReturn(Future.successful(false))
-
-      val result = doPost(teamMemberAddedUri, validHeaders, jsonBody)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return 400 when post request is invalid json" in {
-      val result = doPost(teamMemberAddedUri, validHeaders, "Not JSON")
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "return 422 when content type header is missing" in {
-      val result = doPost(teamMemberAddedUri, Map.empty, "{}")
-      status(result) shouldBe UNPROCESSABLE_ENTITY
-    }
-
-    "return 415 when content type isn't json" in {
-      val result = doPost(teamMemberAddedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
-    }
-  }
-
-  "TeamMemberRemovedEvent" should {
-    val jsonBody =
-      raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "$appIdText",
-           |"eventDateTime": "2014-01-01T13:13:34.441Z",
-           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-           |"teamMemberEmail": "bob@bob.com",
-           |"teamMemberRole": "ADMIN"}""".stripMargin
-
-    "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberRemovedEvent]))
-        .thenReturn(Future.successful(true))
-
-      val result = doPost(teamMemberRemovedUri, validHeaders, jsonBody)
-      status(result) shouldBe CREATED
-
-    }
-
-    "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[TeamMemberRemovedEvent]))
-        .thenReturn(Future.successful(false))
-
-      val result = doPost(teamMemberRemovedUri, validHeaders, jsonBody)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-
-    }
-
-    "return 400 when post request is invalid json" in {
-      val result = doPost(teamMemberRemovedUri, validHeaders, "Not JSON")
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "return 422 when content type header is missing" in {
-
-      val result = doPost(teamMemberRemovedUri, Map.empty, "{}")
-      status(result) shouldBe UNPROCESSABLE_ENTITY
-    }
-
-    "return 415 when content type isn't json" in {
-      val result = doPost(teamMemberRemovedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
-    }
-  }
 
   "ClientSecretAddedEvent" should {
     val jsonBody =
