@@ -53,7 +53,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
   private val clientSecretAddedUri              = "/application-events/clientSecretAdded"
   private val clientSecretRemovedUri            = "/application-events/clientSecretRemoved"
-  private val redirectUrisUpdatedUri            = "/application-events/redirectUrisUpdated"
   private val apiSubscribedUri                  = "/application-events/apiSubscribed"
   private val apiUnsubscribedUri                = "/application-events/apiUnsubscribed"
   private val ppnsCallBackUriUpdateddUri        = "/application-events/ppnsCallbackUriUpdated"
@@ -137,48 +136,6 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
 
     "return 415 when content type isn't json" in {
       val result = doPost(clientSecretRemovedUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
-    }
-  }
-
-  "RedirectUrisUpdatedEvent" should {
-    val jsonBody =
-      raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "$appIdText",
-           |"eventDateTime": "2014-01-01T13:13:34.441Z",
-           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-           |"oldRedirectUris": "oldrdu",
-           |"newRedirectUris": "newrdu"}""".stripMargin
-
-    "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[RedirectUrisUpdatedEvent]))
-        .thenReturn(Future.successful(true))
-
-      val result = doPost(redirectUrisUpdatedUri, validHeaders, jsonBody)
-      status(result) shouldBe CREATED
-    }
-
-    "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[RedirectUrisUpdatedEvent]))
-        .thenReturn(Future.successful(false))
-
-      val result = doPost(redirectUrisUpdatedUri, validHeaders, jsonBody)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return 400 when post request is invalid json" in {
-      val result = doPost(redirectUrisUpdatedUri, validHeaders, "Not JSON")
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "return 422 when content type header is missing" in {
-
-      val result = doPost(redirectUrisUpdatedUri, Map.empty, "{}")
-      status(result) shouldBe UNPROCESSABLE_ENTITY
-    }
-
-    "return 415 when content type isn't json" in {
-      val result = doPost(redirectUrisUpdatedUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
     }
   }

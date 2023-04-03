@@ -45,7 +45,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   val inputInstantString         = "2014-01-01T13:13:34.441"
   val expectedEventInstantString = s"${inputInstantString}Z"
 
-
   def validClientSecretJsonBody(clientSecretId: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
@@ -305,7 +304,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   "ApplicationEventsController" when {
 
-
     "POST /clientSecretAdded" should {
       "respond with 201 when valid json is sent" in {
         val clientSecretId = ju.UUID.randomUUID().toString
@@ -343,28 +341,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
       "handle error scenarios correctly" in {
         testErrorScenarios("/application-events/clientSecretRemoved")
-      }
-    }
-
-    "POST /redirectUrisUpdated" should {
-      "respond with 201 when valid json is sent" in {
-        val oldRedirectUri = "oldrdu"
-        val newRedirectUri = "newrdu"
-
-        testSuccessScenario("/application-events/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody(oldRedirectUri, newRedirectUri))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
-
-        checkCommonEventValues(event)
-        event.oldRedirectUris shouldBe oldRedirectUri
-        event.newRedirectUris shouldBe newRedirectUri
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/redirectUrisUpdated")
       }
     }
 
