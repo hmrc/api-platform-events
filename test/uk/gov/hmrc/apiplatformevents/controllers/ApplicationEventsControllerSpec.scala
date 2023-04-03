@@ -140,7 +140,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
   }
 
-   "ApiSubscribedEvent" should {
+  "ApiSubscribedEvent" should {
     val jsonBody =
       raw"""{"id": "${EventId.random.value}",
            |"applicationId": "$appIdText",

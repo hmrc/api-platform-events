@@ -21,6 +21,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, PpnsCallBackUriUpdatedEvent}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
@@ -33,7 +34,6 @@ import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockExcept
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 
 class SendEventNotificationsService @Inject() (
     appConfig: AppConfig,

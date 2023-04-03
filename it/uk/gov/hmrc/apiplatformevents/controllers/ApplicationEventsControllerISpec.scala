@@ -45,7 +45,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   val inputInstantString         = "2014-01-01T13:13:34.441"
   val expectedEventInstantString = s"${inputInstantString}Z"
 
-
   def validClientSecretJsonBody(clientSecretId: String): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
@@ -304,7 +303,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   }
 
   "ApplicationEventsController" when {
-
 
     "POST /clientSecretAdded" should {
       "respond with 201 when valid json is sent" in {
