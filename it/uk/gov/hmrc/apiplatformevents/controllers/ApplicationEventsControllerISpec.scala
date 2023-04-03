@@ -346,28 +346,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
       }
     }
 
-    "POST /redirectUrisUpdated" should {
-      "respond with 201 when valid json is sent" in {
-        val oldRedirectUri = "oldrdu"
-        val newRedirectUri = "newrdu"
-
-        testSuccessScenario("/application-events/redirectUrisUpdated", validRedirectUrisUpdatedJsonBody(oldRedirectUri, newRedirectUri))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[RedirectUrisUpdatedEvent]
-
-        checkCommonEventValues(event)
-        event.oldRedirectUris shouldBe oldRedirectUri
-        event.newRedirectUris shouldBe newRedirectUri
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/redirectUrisUpdated")
-      }
-    }
-
     "POST /apiSubscribed" should {
       "respond with 201 when valid json is sent" in {
         val apiContext = "apicontext"

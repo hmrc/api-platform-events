@@ -7,6 +7,7 @@ object ScoverageSettings {
       """uk\.gov\.hmrc\.BuildInfo""" ,
       """.*\.Routes""" ,
       """.*\.RoutesPrefix""" ,
+      """uk\.gov\.hmrc\.apiplatformevents\.scheduler\..*""",
       """.*Filters?""" ,
       """MicroserviceAuditConnector""" ,
       """Module""" ,

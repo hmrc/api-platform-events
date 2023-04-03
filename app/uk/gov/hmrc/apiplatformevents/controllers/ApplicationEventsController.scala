@@ -72,13 +72,6 @@ class ApplicationEventsController @Inject() (
     }
   }
 
-  @deprecated("please pass RedirectUrisUpdated to handleEvent endpoint", "Oct 2022")
-  def redirectUrisUpdated(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[RedirectUrisUpdatedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
   @deprecated("please pass ApiSubscribed to handleEvent endpoint", "Oct 2022")
   def apiSubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ApiSubscribedEvent] { event =>
