@@ -48,6 +48,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
   val actorUser            = "gatekeeper"
   val inputInstantString   = "2014-01-01T13:13:34.441"
   val appId                = ApplicationId.random
+  val otherAppId           = ApplicationId.random
 
   private def primeMongo(events: ApplicationEvent*): List[ApplicationEvent] = {
     await(Future.sequence(events.toList.map(repo.createEntity(_))))
@@ -66,15 +67,38 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
       "return all relevant events" in {
         val event1 = makeTeamMemberAddedEvent(Some(appId))
         val event2 = makeApiSubscribedEvent(Some(appId))
+        val event3 = makeApiSubscribedEvent(Some(otherAppId))
         val evts   = primeMongo(
           event1.copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant),
-          event2.copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant)
+          event2.copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant),
+          event3.copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(0).toInstant)
         )
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.sorted(ApplicationEvent.orderEvents))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.drop(1).sorted(ApplicationEvent.orderEvents))))
         result.body shouldBe expectedText
+      }
+
+      "return all relevant events with eventTag" in {
+        val event1a = makeTeamMemberAddedEvent(Some(appId))
+        val event1b = makeTeamMemberAddedEvent(Some(appId))
+        val event1c = makeTeamMemberAddedEvent(Some(appId))
+        val event2a = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant)
+        val event2b = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant)
+        
+        primeMongo(
+          event1a, event1b, event1c, 
+          event2a, event2b
+        )
+
+        val expectedEvts = List(event2a, event2b)
+
+        val result       = await(doGet(s"/application-event/${appId.value.toString}?eventTag=SUBSCRIPTION"))
+        result.status shouldBe 200
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted(ApplicationEvent.orderEvents))))
+        result.body shouldBe expectedText
+
       }
     }
   }

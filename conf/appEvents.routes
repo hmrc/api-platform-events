@@ -1,7 +1,3 @@
 # microservice specific routes
 
-POST        /clientSecretAdded                @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.clientSecretAdded()
-POST        /clientSecretRemoved              @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.clientSecretRemoved()
-POST        /apiSubscribed                    @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.apiSubscribed()
-POST        /apiUnsubscribed                  @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.apiUnsubscribed()
 POST        /ppnsCallbackUriUpdated           @uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.ppnsCallbackUriUpdated()
