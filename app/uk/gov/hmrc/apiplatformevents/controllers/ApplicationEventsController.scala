@@ -57,35 +57,7 @@ class ApplicationEventsController @Inject() (
       service.captureEvent(event) map mapResult recover recovery
     }
   }
-
-  @deprecated("please pass ClientSecretAdded to handleEvent endpoint", "Oct 2022")
-  def clientSecretAdded(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ClientSecretAddedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
-  @deprecated("please pass ClientSecretRemoved to handleEvent endpoint", "Oct 2022")
-  def clientSecretRemoved(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ClientSecretRemovedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
-  @deprecated("please pass ApiSubscribed to handleEvent endpoint", "Oct 2022")
-  def apiSubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ApiSubscribedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
-  @deprecated("please pass ApiUnsubscribed to handleEvent endpoint", "Oct 2022")
-  def apiUnsubscribed(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    withJsonBody[ApiUnsubscribedEvent] { event =>
-      service.captureEvent(event) map mapResult recover recovery
-    }
-  }
-
+  
   override protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
     withJson(request.body)(f)
   }

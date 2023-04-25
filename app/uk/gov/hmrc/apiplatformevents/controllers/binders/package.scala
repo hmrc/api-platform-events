@@ -42,17 +42,6 @@ package object binders {
     }
   }
 
-  implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApplicationId] {
-
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApplicationId]] = {
-      textBinder.bind(key, params).map(_.flatMap(applicationIdFromString))
-    }
-
-    override def unbind(key: String, applicationId: ApplicationId): String = {
-      textBinder.unbind(key, applicationId.value.toString())
-    }
-  }
-
   private def eventTagFromString(text: String): Either[String, EventTag] = {
     EventTags
       .fromString(text)

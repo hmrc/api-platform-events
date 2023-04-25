@@ -304,88 +304,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   "ApplicationEventsController" when {
 
-    "POST /clientSecretAdded" should {
-      "respond with 201 when valid json is sent" in {
-        val clientSecretId = ju.UUID.randomUUID().toString
-
-        testSuccessScenario("/application-events/clientSecretAdded", validClientSecretJsonBody(clientSecretId))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[ClientSecretAddedEvent]
-
-        checkCommonEventValues(event)
-        event.clientSecretId shouldBe clientSecretId
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/clientSecretAdded")
-      }
-    }
-
-    "POST /clientSecretRemoved" should {
-      "respond with 201 when valid json is sent" in {
-        val clientSecretId = ju.UUID.randomUUID().toString
-
-        testSuccessScenario("/application-events/clientSecretRemoved", validClientSecretJsonBody(clientSecretId))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[ClientSecretRemovedEvent]
-
-        checkCommonEventValues(event)
-        event.clientSecretId shouldBe clientSecretId
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/clientSecretRemoved")
-      }
-    }
-
-    "POST /apiSubscribed" should {
-      "respond with 201 when valid json is sent" in {
-        val apiContext = "apicontext"
-        val apiVersion = "1.0"
-
-        testSuccessScenario("/application-events/apiSubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[ApiSubscribedEvent]
-
-        checkCommonEventValues(event)
-        event.context shouldBe apiContext
-        event.version shouldBe apiVersion
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/apiSubscribed")
-      }
-    }
-
-    "POST /apiUnsubscribed" should {
-      "respond with 201 when valid json is sent" in {
-        val apiContext = "apicontext"
-        val apiVersion = "1.0"
-
-        testSuccessScenario("/application-events/apiUnsubscribed", validApiSubscriptionJsonBody(apiContext, apiVersion))
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[ApiUnsubscribedEvent]
-
-        checkCommonEventValues(event)
-        event.context shouldBe apiContext
-        event.version shouldBe apiVersion
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/apiUnsubscribed")
-      }
-    }
-
     "POST /ppnsCallbackUriUpdated" should {
       "respond with 201 when valid json is sent" in {
         val boxId          = ju.UUID.randomUUID().toString
@@ -745,12 +663,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
     }
 
     def testErrorScenarios(uriToTest: String): Unit = {
-      // val result = await(doPost(uriToTest, "i'm not JSON", "Content-Type" -> "application/json"))
-      // withClue("should respond with 400 when invalid json is sent") {
-      //   result.status shouldBe 400
-      //   result.body shouldBe "{\"statusCode\":400,\"message\":\"bad request\"}"
-      // }
-
       val result2 = await(doPost(uriToTest, "{\"SomeJson\": \"hello\"}", "somHeader" -> "someValue"))
       withClue("should respond with 415 when contentType header is missing") {
         result2.status shouldBe 415
