@@ -86,7 +86,7 @@ class SendEventNotificationsServiceSpec
     val mongoLockId               = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
 
-    val event: ApplicationEvent = PpnsCallBackUriUpdatedEvent(
+    val event: ApplicationEvent = ApplicationEvents.PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
       instant(),

@@ -42,7 +42,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
   val year           = now.atOffset(ZoneOffset.UTC).getYear()
   val lastYear       = nowButLastYear.atOffset(ZoneOffset.UTC).getYear()
 
-  val validAddTeamMemberModel: TeamMemberAddedEvent = TeamMemberAddedEvent(
+  val validAddTeamMemberModel: ApplicationEvents.TeamMemberAddedEvent = ApplicationEvents.TeamMemberAddedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = Instant.now,
@@ -51,7 +51,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     teamMemberRole = "ADMIN"
   )
 
-  val validProdAppNameChange: ProductionAppNameChangedEvent = ProductionAppNameChangedEvent(
+  val validProdAppNameChange: ApplicationEvents.ProductionAppNameChangedEvent = ApplicationEvents.ProductionAppNameChangedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = Instant.now,

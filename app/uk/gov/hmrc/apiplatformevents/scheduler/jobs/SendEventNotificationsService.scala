@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, PpnsCallBackUriUpdatedEvent}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, ApplicationEvents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
 
@@ -78,7 +78,7 @@ class SendEventNotificationsService @Inject() (
       implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
       applicationEventsRepository
-        .fetchEventsToNotify[PpnsCallBackUriUpdatedEvent]()
+        .fetchEventsToNotify[ApplicationEvents.PpnsCallBackUriUpdatedEvent]()
         .flatMap(events =>
           if (events.isEmpty) {
             logger.info("SendEventNotificationsJob no events to process")
@@ -106,7 +106,7 @@ class SendEventNotificationsService @Inject() (
   private def sendEventNotification(event: ApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
     logger.info(s"processing event: ${event.id}")
     event match {
-      case ppnsEvent: PpnsCallBackUriUpdatedEvent =>
+      case ppnsEvent: ApplicationEvents.PpnsCallBackUriUpdatedEvent =>
         (for {
           app <- thirdPartyApplicationConnector.getApplication(ppnsEvent.applicationId)
           _   <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, ppnsEvent.eventDateTime, app.adminEmails)
