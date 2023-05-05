@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventTag}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
