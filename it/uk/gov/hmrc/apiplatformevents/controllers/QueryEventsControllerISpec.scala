@@ -87,10 +87,13 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
         val event1c = makeTeamMemberAddedEvent(Some(appId))
         val event2a = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant)
         val event2b = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant)
-        
+
         primeMongo(
-          event1a, event1b, event1c, 
-          event2a, event2b
+          event1a,
+          event1b,
+          event1c,
+          event2a,
+          event2b
         )
 
         val expectedEvts = List(event2a, event2b)

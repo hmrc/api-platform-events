@@ -24,8 +24,8 @@ import com.google.inject.Singleton
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
-import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.models.QueryableValues
+import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 
 @Singleton
 class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(implicit ec: ExecutionContext) {

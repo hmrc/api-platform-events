@@ -52,9 +52,9 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-  private val ppnsCallBackUriUpdateddUri        = "/application-events/ppnsCallbackUriUpdated"
-  private val handleEventUri                    = "/application-event"
-  
+  private val ppnsCallBackUriUpdateddUri = "/application-events/ppnsCallbackUriUpdated"
+  private val handleEventUri             = "/application-event"
+
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
 
   "PpnsCallBackUriUpdatedEvent" should {

@@ -26,9 +26,9 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import uk.gov.hmrc.apiplatformevents.models.DisplayEvent
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-import uk.gov.hmrc.apiplatformevents.models.DisplayEvent
 
 object QueryEventsController {
   case class QueryResponse(events: List[DisplayEvent])

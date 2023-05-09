@@ -24,9 +24,9 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersio
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 
 trait ApplicationEventTestData {
   def nowMillis() = Instant.now().truncatedTo(ChronoUnit.MILLIS)
