@@ -22,6 +22,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 
 case class DisplayEvent(
     id: EventId,
@@ -35,5 +37,10 @@ case class DisplayEvent(
 
   object DisplayEvent {
     implicit val format = Json.format[DisplayEvent]
+
+    def apply(evt: ApplicationEvent): DisplayEvent = {
+      val (eventType, metaData) = ApplicationEvent.asMetaData(evt)
+
+      DisplayEvent(evt.id, evt.applicationId, evt.eventDateTime, evt.actor, EventTags.tag(evt).description, eventType, metaData)
+    }
   }
-  

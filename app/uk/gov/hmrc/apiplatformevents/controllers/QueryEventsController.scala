@@ -28,8 +28,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.DisplayEvent
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventToDisplay
+import uk.gov.hmrc.apiplatformevents.models.DisplayEvent
 
 object QueryEventsController {
   case class QueryResponse(events: List[DisplayEvent])
@@ -60,7 +59,7 @@ class QueryEventsController @Inject() (
         if (seq.isEmpty) {
           NotFound("No application changes found")
         } else {
-          val displayEvents = seq.sorted.map(EventToDisplay.display(_))
+          val displayEvents = seq.sorted.map(DisplayEvent(_))
           Ok(Json.toJson(QueryResponse(displayEvents)))
         }
       )
