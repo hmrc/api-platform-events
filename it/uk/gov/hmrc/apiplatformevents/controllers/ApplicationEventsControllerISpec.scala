@@ -14,6 +14,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach {
 

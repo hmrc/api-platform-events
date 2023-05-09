@@ -31,6 +31,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
@@ -51,9 +52,9 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-  private val ppnsCallBackUriUpdateddUri        = "/application-events/ppnsCallbackUriUpdated"
-  private val handleEventUri                    = "/application-event"
-  
+  private val ppnsCallBackUriUpdateddUri = "/application-events/ppnsCallbackUriUpdated"
+  private val handleEventUri             = "/application-event"
+
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
 
   "PpnsCallBackUriUpdatedEvent" should {

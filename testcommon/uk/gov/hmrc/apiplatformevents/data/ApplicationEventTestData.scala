@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersio
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
 
@@ -44,8 +45,7 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    Collaborators.Administrator(UserId.random, LaxEmailAddress("jkhkhk")),
-    verifiedAdminsToEmail = Set(LaxEmailAddress("email"))
+    Collaborators.Administrator(UserId.random, LaxEmailAddress("jkhkhk"))
   )
 
   def makeTeamMemberAddedEvent(appId: Option[ApplicationId] = None): TeamMemberAddedEvent = {
@@ -70,8 +70,7 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    Collaborators.Administrator(UserId.random, LaxEmailAddress("jkhkhk")),
-    verifiedAdminsToEmail = Set("email1", "email2", "email3").map(LaxEmailAddress(_))
+    Collaborators.Administrator(UserId.random, LaxEmailAddress("jkhkhk"))
   )
 
   def makeTeamMemberRemovedEvent(appId: Option[ApplicationId] = None): TeamMemberRemovedEvent = {

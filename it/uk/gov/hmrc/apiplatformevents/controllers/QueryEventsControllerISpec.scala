@@ -17,6 +17,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import java.time.ZoneOffset
+import uk.gov.hmrc.apiplatformevents.models.DisplayEvent
 
 class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach with ApplicationEventTestData {
 
@@ -76,7 +77,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.drop(1).sorted(ApplicationEvent.orderEvents))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.drop(1).sorted(ApplicationEvent.orderEvents).map(DisplayEvent(_)))))
         result.body shouldBe expectedText
       }
 
@@ -86,17 +87,20 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
         val event1c = makeTeamMemberAddedEvent(Some(appId))
         val event2a = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant)
         val event2b = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant)
-        
+
         primeMongo(
-          event1a, event1b, event1c, 
-          event2a, event2b
+          event1a,
+          event1b,
+          event1c,
+          event2a,
+          event2b
         )
 
         val expectedEvts = List(event2a, event2b)
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}?eventTag=SUBSCRIPTION"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted(ApplicationEvent.orderEvents))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted(ApplicationEvent.orderEvents).map(DisplayEvent(_)))))
         result.body shouldBe expectedText
 
       }
