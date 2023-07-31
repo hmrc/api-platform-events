@@ -21,12 +21,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
+
 import org.mockito.ArgumentMatchersSugar
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
 import org.mongodb.scala.MongoException
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
+
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
@@ -38,6 +40,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.lock.MongoLockRepository
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
+
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification, NotificationStatus}
@@ -136,7 +139,7 @@ class SendEventNotificationsServiceSpec
       verify(notificationsRepository).createEntity(eventCaptor)
       eventCaptor.value match {
         case Notification(_, _, status) => succeed
-        case n => fail(s"Wrong notification status ${n.status}")
+        case n                          => fail(s"Wrong notification status ${n.status}")
       }
     }
   }
