@@ -21,13 +21,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
-
 import org.mockito.ArgumentMatchersSugar
+import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
 import org.mongodb.scala.MongoException
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
-
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
@@ -39,10 +38,9 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.lock.MongoLockRepository
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
-
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
-import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification}
+import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification, NotificationStatus}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
@@ -132,6 +130,15 @@ class SendEventNotificationsServiceSpec
       when(applicationEventsRepository.fetchEventsToNotify())
         .thenReturn(Future.failed(new MongoException("Something went wrong")))
     }
+
+    def verifyNotificationStatus(status: NotificationStatus) = {
+      val eventCaptor = ArgCaptor[Notification]
+      verify(notificationsRepository).createEntity(eventCaptor)
+      eventCaptor.value match {
+        case Notification(_, _, status) => succeed
+        case n => fail(s"Wrong notification status ${n.status}")
+      }
+    }
   }
 
   "invoke" should {
@@ -155,7 +162,7 @@ class SendEventNotificationsServiceSpec
       verify(applicationEventsRepository).fetchEventsToNotify()
       verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(*)
       verify(emailConnector).sendPpnsCallbackUrlChangedNotification(*, *, *)(*)
-      verify(notificationsRepository).createEntity(*)
+      verifyNotificationStatus(SENT)
     }
 
     "return true when there are no events for application" in new Setup {
@@ -191,7 +198,7 @@ class SendEventNotificationsServiceSpec
       verify(applicationEventsRepository).fetchEventsToNotify()
       verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(*)
       verifyZeroInteractions(emailConnector)
-      verifyZeroInteractions(notificationsRepository)
+      verifyNotificationStatus(FAILED)
     }
 
     // Need failure scenarios here
