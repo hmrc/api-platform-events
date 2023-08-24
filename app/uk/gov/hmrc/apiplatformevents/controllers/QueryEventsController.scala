@@ -23,6 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ActorTypes
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -52,9 +53,9 @@ class QueryEventsController @Inject() (
 
   import QueryEventsController._
 
-  def query(applicationId: ApplicationId, eventTag: Option[EventTag]) = Action.async { _ =>
+  def query(applicationId: ApplicationId, eventTag: Option[EventTag], actorType: Option[String]) = Action.async { _ =>
     service
-      .fetchEventsBy(applicationId, eventTag)
+      .fetchEventsBy(applicationId, eventTag, actorType.flatMap(ActorTypes.fromString))
       .map(seq =>
         if (seq.isEmpty) {
           NotFound("No application changes found")

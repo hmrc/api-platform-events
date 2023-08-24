@@ -17,10 +17,11 @@
 package uk.gov.hmrc.apiplatformevents.models
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventTagJsonFormatters
 
-case class QueryableValues(eventTags: List[EventTag])
+case class QueryableValues(eventTags: List[EventTag], actorTypes: List[ActorType])
 
 object QueryableValues {
   import EventTagJsonFormatters._
