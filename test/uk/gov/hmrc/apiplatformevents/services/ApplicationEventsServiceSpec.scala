@@ -145,7 +145,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeRedirectUrisUpdated(Some(appId))
       )
 
-      val fetchedEvents = await(inTest.fetchEventsBy(appId, None))
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, None, None))
 
       fetchedEvents shouldBe evts
     }
@@ -158,11 +158,11 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeTeamMemberAddedEvent(Some(appId))
       )
 
-      val fetchedEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.TEAM_MEMBER)))
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.TEAM_MEMBER), None))
 
       fetchedEvents should contain theSameElementsAs List(evts(0), evts(1))
 
-      val fetchNoEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.SUBSCRIPTION)))
+      val fetchNoEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.SUBSCRIPTION), None))
 
       fetchNoEvents shouldBe Seq()
     }

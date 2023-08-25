@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.Singleton
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
 import uk.gov.hmrc.apiplatformevents.models.QueryableValues
@@ -33,13 +34,11 @@ class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(imp
     repo.createEntity(event)
   }
 
-  def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag]): Future[List[ApplicationEvent]] = eventTag match {
-    case None      =>
-      repo.fetchEvents(applicationId)
-    case Some(tag) =>
-      repo
-        .fetchEvents(applicationId)
-        .map(_.filter(EventTags.tag(_) == tag))
+  def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag], actorType: Option[ActorType]): Future[List[ApplicationEvent]] = {
+    repo
+      .fetchEvents(applicationId)
+      .map(_.filter(event => eventTag.fold(true)(tag => EventTags.tag(event) == tag)))
+      .map(_.filter(event => actorType.fold(true)(t => ActorTypes.actorType(event.actor) == t)))
   }
 
   def fetchEventQueryValues(applicationId: ApplicationId): Future[Option[QueryableValues]] = {
@@ -48,8 +47,9 @@ class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(imp
       if (events.isEmpty) {
         None
       } else {
-        val distictEventTags = events.map(EventTags.tag(_)).distinct.toList
-        Some(QueryableValues(distictEventTags))
+        val distinctEventTags  = events.map(EventTags.tag).distinct.toList
+        val distinctActorTypes = events.map(_.actor).map(ActorTypes.actorType).distinct.toList
+        Some(QueryableValues(distinctEventTags, distinctActorTypes))
       }
     }
 
