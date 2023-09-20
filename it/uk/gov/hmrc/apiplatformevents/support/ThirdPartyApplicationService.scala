@@ -2,11 +2,10 @@ package uk.gov.hmrc.apiplatformevents.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait ThirdPartyApplicationService {
   private def applicationUrl(appId: ApplicationId) = s"/application/${appId.value}"

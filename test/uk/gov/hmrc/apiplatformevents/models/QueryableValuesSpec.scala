@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatformevents.models
 
 import play.api.libs.json._
 import uk.gov.hmrc.apiplatform.common.domain.services.JsonFormattersSpec
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ActorTypes
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ActorType
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 
 import uk.gov.hmrc.apiplatformevents.models.QueryableValues
@@ -76,7 +76,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with a single actorType" should {
-      val qv   = QueryableValues(List.empty, List(ActorTypes.GATEKEEPER))
+      val qv   = QueryableValues(List.empty, List(ActorType.GATEKEEPER))
       val json = """{"eventTags":[],"actorTypes":[{"description":"Gatekeeper User","type":"GATEKEEPER"}]}"""
 
       "convert to json" in {
@@ -96,7 +96,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with both" should {
-      val qv   = QueryableValues(List(EventTags.SUBSCRIPTION), List(ActorTypes.GATEKEEPER))
+      val qv   = QueryableValues(List(EventTags.SUBSCRIPTION), List(ActorType.GATEKEEPER))
       val json =
         """{"eventTags":[{"description":"API subscription","type":"SUBSCRIPTION"}],"actorTypes":[{"description":"Gatekeeper User","type":"GATEKEEPER"}]}""".stripMargin
 
@@ -119,7 +119,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with multiple actorTypes" should {
-      val qv   = QueryableValues(List.empty, List(ActorTypes.COLLABORATOR, ActorTypes.GATEKEEPER))
+      val qv   = QueryableValues(List.empty, List(ActorType.COLLABORATOR, ActorType.GATEKEEPER))
       val json = """{"eventTags":[],"actorTypes":[{"description":"Application Collaborator","type":"COLLABORATOR"},{"description":"Gatekeeper User","type":"GATEKEEPER"}]}"""
 
       "convert to json" in {

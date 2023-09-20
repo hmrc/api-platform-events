@@ -20,10 +20,8 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
@@ -192,7 +190,7 @@ trait ApplicationEventTestData {
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     ApiContext("apicontext"),
-    ApiVersion("1.0")
+    ApiVersionNbr("1.0")
   )
 
   def makeApiSubscribedEvent(appId: Option[ApplicationId] = None): ApiSubscribedEvent = {
@@ -218,7 +216,7 @@ trait ApplicationEventTestData {
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     ApiContext("apicontext"),
-    ApiVersion("1.0")
+    ApiVersionNbr("1.0")
   )
 
   def makeApiUnsubscribedEvent(appId: Option[ApplicationId] = None): ApiUnsubscribedEvent = {

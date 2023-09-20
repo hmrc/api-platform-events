@@ -8,7 +8,6 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 
 inThisBuild(
   List(
-    scalaVersion := "2.12.15",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
@@ -31,7 +30,6 @@ lazy val microservice = Project(appName, file("."))
 
   .settings(ScoverageSettings())
 
-  .settings(inConfig(Test)(BloopDefaults.configSettings))
   .settings(
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / parallelExecution := false,
@@ -40,7 +38,6 @@ lazy val microservice = Project(appName, file("."))
   )
 
   .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(
     Defaults.itSettings,
     IntegrationTest / Keys.fork := false,
