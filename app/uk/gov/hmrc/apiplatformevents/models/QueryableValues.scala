@@ -36,10 +36,13 @@ object QueryableValues {
     override def reads(json: JsValue): JsResult[ActorType] = {
       (json match {
         case JsString(text) => ActorType.apply(text)
-        case JsObject(obj)  => obj.get("type").flatMap(_ match {
-            case JsString(t) => ActorType.apply(t)
-            case _           => None
-          })
+        case JsObject(obj)  =>
+          obj
+            .get("type")
+            .flatMap(_ match {
+              case JsString(t) => ActorType.apply(t)
+              case _           => None
+            })
         case _              => None
       }).fold[JsResult[ActorType]](JsError(s"Cannot find actor Type"))(JsSuccess(_))
     }
