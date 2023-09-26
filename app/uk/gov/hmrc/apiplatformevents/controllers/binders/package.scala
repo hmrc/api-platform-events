@@ -20,7 +20,7 @@ import java.{util => ju}
 import scala.util.Try
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{EventTag, EventTags}
 
 package object binders {

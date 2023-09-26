@@ -9,7 +9,7 @@ import uk.gov.hmrc.apiplatformevents.support.{MetricsTestSupport, ThirdPartyAppl
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 
 class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with ThirdPartyApplicationService {
 

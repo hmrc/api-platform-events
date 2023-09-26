@@ -24,8 +24,7 @@ import org.mongodb.scala.MongoException
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
 

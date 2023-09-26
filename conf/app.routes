@@ -1,7 +1,7 @@
 # microservice specific routes
 ->          /application-events               appEvents.Routes
 
-GET         /application-event/:id            uk.gov.hmrc.apiplatformevents.controllers.QueryEventsController.query(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId, eventTag: Option[uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag], actorType:Option[String])
-GET         /application-event/:id/values     uk.gov.hmrc.apiplatformevents.controllers.QueryEventsController.queryValues(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
+GET         /application-event/:id            uk.gov.hmrc.apiplatformevents.controllers.QueryEventsController.query(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId, eventTag: Option[uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag], actorType:Option[String])
+GET         /application-event/:id/values     uk.gov.hmrc.apiplatformevents.controllers.QueryEventsController.queryValues(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 POST        /application-event                uk.gov.hmrc.apiplatformevents.controllers.ApplicationEventsController.handleEvent()

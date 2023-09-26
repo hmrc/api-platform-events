@@ -21,7 +21,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.util.control.NonFatal
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, ApplicationEvents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}

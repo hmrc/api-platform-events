@@ -24,7 +24,7 @@ import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 import uk.gov.hmrc.mongo.MongoComponent
