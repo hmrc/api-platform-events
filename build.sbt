@@ -21,7 +21,6 @@ lazy val microservice = Project(appName, file("."))
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
-    publishingSettings,
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     majorVersion := 0
   )
