@@ -56,4 +56,8 @@ class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(imp
       events <- repo.fetchEvents(applicationId)
     } yield handleEvents(events)
   }
+
+  def deleteEventsForApplication(applicationId: ApplicationId): Future[Long] = {
+    repo.deleteEventsForApplication(applicationId)
+  }
 }

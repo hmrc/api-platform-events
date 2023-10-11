@@ -196,4 +196,25 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       result should contain theSameElementsAs List(ppnsCallBackUriUpdatedEvent, anotherEvent)
     }
   }
+
+  "deleteEventsForApplication" should {
+    "delete events for app id" in {
+      val appId = teamMemberAddedModel.applicationId
+      await(repo.createEntity(teamMemberAddedModel))
+      await(repo.createEntity(makeClientSecretAddedEvent(Some(appId))))
+      await(repo.createEntity(clientSecretAddedModel))
+
+      val resultBefore: List[ApplicationEvent] = await(repo.fetchEvents(appId))
+
+      resultBefore.size shouldBe 2
+
+      val numberOfRecordsDeleted: Long = await(repo.deleteEventsForApplication(appId))
+
+      numberOfRecordsDeleted shouldBe 2
+
+      val resultAfter: List[ApplicationEvent] = await(repo.fetchEvents(appId))
+
+      resultAfter.size shouldBe 0
+    }
+  }
 }

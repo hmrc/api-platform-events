@@ -214,4 +214,19 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
       fetchEventQueryValues.value.eventTags should not contain EventTags.PPNS_CALLBACK
     }
   }
+
+  "delete events by appId" should {
+    def primeRepo(appId: ApplicationId) = {
+      when(mockRepository.deleteEventsForApplication(eqTo(appId))).thenReturn(Future.successful(3))
+    }
+
+    "return everything when no queries" in new Setup {
+      val appId = ApplicationId.random
+      primeRepo(appId)
+
+      val nunberOfDeletedRecords = await(inTest.deleteEventsForApplication(appId))
+
+      nunberOfDeletedRecords shouldBe 3
+    }
+  }  
 }
