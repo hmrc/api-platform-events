@@ -228,5 +228,5 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
       nunberOfDeletedRecords shouldBe 3
     }
-  }  
+  }
 }

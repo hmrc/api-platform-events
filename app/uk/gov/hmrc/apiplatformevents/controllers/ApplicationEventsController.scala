@@ -61,7 +61,7 @@ class ApplicationEventsController @Inject() (
   }
 
   // Note that this a test-only route, for use in QA only
-  def deleteEventsForApplication(applicationId: ApplicationId): Action[AnyContent] = Action.async { implicit request =>
+  def deleteEventsForApplication(applicationId: ApplicationId): Action[AnyContent] = Action.async {
     val ET = EitherTHelper.make[Result]
     (
       for {
