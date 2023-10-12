@@ -66,6 +66,7 @@ class ApplicationEventsController @Inject() (
     (
       for {
         result <- ET.liftF(service.deleteEventsForApplication(applicationId))
+        _      =  logger.info(s"test-only: Successfully deleted ${result} event records for application ${applicationId}")
       } yield NoContent
     )
       .fold(identity, identity)
