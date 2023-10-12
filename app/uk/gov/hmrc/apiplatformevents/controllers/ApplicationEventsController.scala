@@ -24,6 +24,7 @@ import scala.util.{Failure, Success, Try}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -56,6 +57,15 @@ class ApplicationEventsController @Inject() (
     withJsonBody[ApplicationEvents.PpnsCallBackUriUpdatedEvent] { event =>
       service.captureEvent(event) map mapResult recover recovery
     }
+  }
+
+  // Note that this a test-only route, for use in QA only
+  def deleteEventsForApplication(applicationId: ApplicationId): Action[AnyContent] = Action.async { _ =>
+    def success(numberOfRecordsDeleted: Long) = {
+      logger.info(s"test-only: Successfully deleted ${numberOfRecordsDeleted} event records for application ${applicationId}")
+      NoContent
+    }
+    service.deleteEventsForApplication(applicationId).map(success)
   }
 
   override protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {

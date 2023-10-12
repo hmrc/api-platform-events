@@ -45,6 +45,9 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   val appIdText = appId.value.toString()
 
   override lazy val app: Application = GuiceApplicationBuilder()
+    .configure(
+      "application.router" -> "testOnlyDoNotUseInAppConf.Routes"
+    )
     .overrides(bind[ApplicationEventsService].to(mockApplicationsEventService))
     .build()
 
@@ -155,6 +158,32 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
       status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
       verifyNoInteractions(mockApplicationsEventService)
     }
+  }
+
+  "DeleteEventsForApplication" should {
+    val appId          = ApplicationId.random
+    val deleteEventUri = s"/test-only/application-event/${appId}/delete"
+
+    "return 204 when post request" in {
+
+      when(mockApplicationsEventService.deleteEventsForApplication(eqTo(appId)))
+        .thenReturn(Future.successful(1))
+
+      val result = doPost(deleteEventUri, validHeaders)
+      status(result) shouldBe NO_CONTENT
+    }
+
+    "return 400 when application id is invalid" in {
+      val deleteEventUri = "/test-only/application-event/invalid-app-id/delete"
+
+      val result = doPost(deleteEventUri, validHeaders)
+      status(result) shouldBe BAD_REQUEST
+    }
+  }
+
+  def doPost(uri: String, headers: Map[String, String]): Future[Result] = {
+    val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
+    route(app, fakeRequest).get
   }
 
   def doPost(uri: String, headers: Map[String, String], bodyValue: String): Future[Result] = {

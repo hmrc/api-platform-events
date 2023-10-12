@@ -94,4 +94,11 @@ class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(imp
       .toFuture()
       .map(_.toList)
   }
+
+  def deleteEventsForApplication(applicationId: ApplicationId): Future[Long] = {
+    collection
+      .deleteMany(equal("applicationId", Codecs.toBson(applicationId)))
+      .toFuture()
+      .map(dr => dr.getDeletedCount())
+  }
 }
