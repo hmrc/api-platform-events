@@ -48,7 +48,6 @@ lazy val microservice = Project(appName, file("."))
   ) 
   .settings(
     routesImport ++= Seq(
-      "uk.gov.hmrc.apiplatform.modules.applications.domain.models._",
       "uk.gov.hmrc.apiplatformevents.controllers.binders._"
     )
   )
@@ -66,3 +65,12 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
     new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
   }
 }
+
+commands ++= Seq(
+  Command.command("run-all-tests") { state => "test" :: "it:test" :: state },
+
+  Command.command("clean-and-test") { state => "clean" :: "compile" :: "run-all-tests" :: state },
+
+  // Coverage does not need compile !
+  Command.command("pre-commit") { state => "clean" :: "scalafmtAll" :: "scalafixAll" ::"coverage" :: "run-all-tests" :: "coverageReport" :: "coverageOff" :: state }
+)

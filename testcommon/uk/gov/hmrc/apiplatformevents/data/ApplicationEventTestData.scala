@@ -20,11 +20,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, SubmissionId, TermsAndConditionsLocations}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
 
 trait ApplicationEventTestData {
   def nowMillis() = Instant.now().truncatedTo(ChronoUnit.MILLIS)
@@ -163,8 +163,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldRedirectUris = List("oldru"),
-    newRedirectUris = List("newru", "newuri2")
+    oldRedirectUris = List(new RedirectUri("oldru")),
+    newRedirectUris = List(RedirectUri.unsafeApply("https://example.com/a"), RedirectUri.unsafeApply("https://example.com/route2"))
   )
 
   def makeRedirectUrisUpdated(appId: Option[ApplicationId] = None): RedirectUrisUpdatedV2 = {
