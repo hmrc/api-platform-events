@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatformevents.models.Notification
 object NotificationsRepository {
   import play.api.libs.json.{OFormat, Json}
 
-  implicit def localDateTimeFormats()                    = MongoJavatimeFormats.localDateTimeFormat
+  import MongoJavatimeFormats.Implicits.jatLocalDateTimeFormat
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 
