@@ -4,20 +4,15 @@ import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-platform-events"
 
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
-
-inThisBuild(
-  List(
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
-  )
-)
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val microservice = Project(appName, file("."))
   .settings(
     name := appName,
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),

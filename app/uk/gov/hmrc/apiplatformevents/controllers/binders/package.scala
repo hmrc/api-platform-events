@@ -48,7 +48,7 @@ package object binders {
       .toRight(s"Cannot accept $text as EventTag")
   }
 
-  implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[EventTag] {
+  implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[EventTag] = new QueryStringBindable[EventTag] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, EventTag]] = {
       textBinder.bind(key, params).map(_.flatMap(eventTagFromString))

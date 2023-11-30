@@ -28,7 +28,7 @@ object QueryableValues {
 
   // Temporary replacement that will be redundant once here and GK use the common domain lib completely
 
-  implicit val formatActorType = new Format[ActorType] {
+  implicit val formatActorType: Format[ActorType] = new Format[ActorType] {
 
     override def writes(o: ActorType): JsValue =
       Json.obj("description" -> o.displayText, "type" -> o.toString)
@@ -48,5 +48,5 @@ object QueryableValues {
     }
   }
 
-  implicit val format = Json.format[QueryableValues]
+  implicit val format: OFormat[QueryableValues] = Json.format[QueryableValues]
 }

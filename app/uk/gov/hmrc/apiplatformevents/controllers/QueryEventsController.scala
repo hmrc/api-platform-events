@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformevents.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -34,7 +34,7 @@ object QueryEventsController {
   case class QueryResponse(events: List[DisplayEvent])
 
   object QueryResponse {
-    implicit val format = Json.format[QueryResponse]
+    implicit val format: OFormat[QueryResponse] = Json.format[QueryResponse]
   }
 }
 
