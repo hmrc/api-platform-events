@@ -24,14 +24,12 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions}
 
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import uk.gov.hmrc.apiplatformevents.models.Notification
 
 object NotificationsRepository {
   import play.api.libs.json.{OFormat, Json}
 
-  import MongoJavatimeFormats.Implicits.jatLocalDateTimeFormat
   implicit val formatNotification: OFormat[Notification] = Json.format[Notification]
 }
 
@@ -51,6 +49,7 @@ class NotificationsRepository @Inject() (mongoComponent: MongoComponent)(implici
         )
       )
     ) {
+  override lazy val requiresTtlIndex: Boolean = false
 
   def createEntity(notification: Notification): Future[Boolean] =
     collection.insertOne(notification).toFuture().map(wr => wr.wasAcknowledged())
