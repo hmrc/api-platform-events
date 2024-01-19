@@ -110,10 +110,10 @@ class SendEventNotificationsService @Inject() (
         (for {
           app <- thirdPartyApplicationConnector.getApplication(ppnsEvent.applicationId)
           _   <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, ppnsEvent.eventDateTime, app.adminEmails)
-          _   <- notificationsRepository.createEntity(Notification(ppnsEvent.id, now(), SENT))
+          _   <- notificationsRepository.createEntity(Notification(ppnsEvent.id, instant(), SENT))
         } yield ()) recoverWith { case NonFatal(e) =>
           logger.error(s"Failed to send email notification for event ID ${ppnsEvent.id}", e)
-          notificationsRepository.createEntity(Notification(ppnsEvent.id, now(), FAILED)).map(_ => ())
+          notificationsRepository.createEntity(Notification(ppnsEvent.id, instant(), FAILED)).map(_ => ())
         }
       case _                                                        => Future.successful(logger.error(s"Event not of correct type to send notification ${event.getClass.getSimpleName}"))
     }

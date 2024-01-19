@@ -37,7 +37,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAdd
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.mongo.lock.MongoLockRepository
+import uk.gov.hmrc.mongo.lock.{Lock, MongoLockRepository}
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
@@ -85,11 +85,12 @@ class SendEventNotificationsServiceSpec
     val mongoLockTimeout          = "20 seconds"
     val mongoLockId               = s"schedules.${job.jobName}"
     val releaseDuration: Duration = Duration.apply(mongoLockTimeout)
+    val fakeLock                  = Some(Lock("", "", instant, instant))
 
     val event: ApplicationEvent = ApplicationEvents.PpnsCallBackUriUpdatedEvent(
       EventId.random,
       ApplicationId.random,
-      instant(),
+      instant,
       Actors.GatekeeperUser("Gatekeeper Admin"),
       "boxId",
       "boxName",
@@ -98,8 +99,7 @@ class SendEventNotificationsServiceSpec
     )
 
     def primeLockRepository() = {
-      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, *))
-        .thenReturn(Future.successful(true))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, *)).thenReturn(Future.successful(fakeLock))
       when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
         .thenReturn(Future.successful(()))
     }
@@ -151,7 +151,7 @@ class SendEventNotificationsServiceSpec
       primeApplicationConnectorSuccess()
       primeEmailConnectorSuccess()
 
-      val notification = Notification(event.id, now(), SENT)
+      val notification = Notification(event.id, instant, SENT)
 
       primeNotificationsRepositorySuccess(notification)
 
@@ -187,7 +187,7 @@ class SendEventNotificationsServiceSpec
       primeLockRepository()
       primeApplicationConnectorFailed()
 
-      val notification = Notification(event.id, now(), FAILED)
+      val notification = Notification(event.id, instant, FAILED)
 
       primeNotificationsRepositorySuccess(notification)
 
@@ -210,8 +210,7 @@ class SendEventNotificationsServiceSpec
 
     "return the result of the future passed in because the lockRepository was able to lock and unlock successfully" in new Setup {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(true))
-      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration)))
-        .thenReturn(Future.successful(true))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))).thenReturn(Future.successful(fakeLock))
       when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
         .thenReturn(Future.successful(()))
 
@@ -223,8 +222,7 @@ class SendEventNotificationsServiceSpec
 
     s"return $Right false if lock returns Future successful false" in new Setup {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(true))
-      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration)))
-        .thenReturn(Future.successful(false))
+      when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))).thenReturn(Future.successful(None))
       await(job.tryLock(future)) mustBe Right(false)
 
       verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))

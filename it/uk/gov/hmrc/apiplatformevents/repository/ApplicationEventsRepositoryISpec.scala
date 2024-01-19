@@ -39,9 +39,9 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
 
   override def beforeEach(): Unit = {
     await(notificationsRepo.collection.drop().toFuture())
-    await(notificationsRepo.ensureIndexes)
+    await(notificationsRepo.ensureIndexes())
     await(repo.collection.drop().toFuture())
-    await(repo.ensureIndexes)
+    await(repo.ensureIndexes())
   }
 
   "createEntity" should {
@@ -189,7 +189,7 @@ class ApplicationEventsRepositoryISpec extends ServerBaseISpec with BeforeAndAft
       await(repo.createEntity(anotherEvent))
       val alreadyNotifiedEvent = ppnsCallBackUriUpdatedEvent.copy(id = EventId.random)
       await(repo.createEntity(alreadyNotifiedEvent))
-      await(notificationsRepo.createEntity(Notification(alreadyNotifiedEvent.id, now(), SENT)))
+      await(notificationsRepo.createEntity(Notification(alreadyNotifiedEvent.id, instant, SENT)))
 
       val result: List[ApplicationEvent] = await(repo.fetchEventsToNotify())
 

@@ -105,7 +105,7 @@ class SendEventNotificationsJobISpec extends ServerBaseISpec with MongoHelpers w
 
     "return right true and create notification when event of correct type exist but has already been notified" in new Setup {
       count(notificationsRepository) shouldBe 0
-      insert(notificationsRepository, Notification(ppnsCallBackUriUpdatedEvent.id, now(), NotificationStatus.SENT))
+      insert(notificationsRepository, Notification(ppnsCallBackUriUpdatedEvent.id, instant, NotificationStatus.SENT))
 
       count(notificationsRepository) shouldBe 1
       insert(applicationEventsRepository, teamMemberAddedModel)
