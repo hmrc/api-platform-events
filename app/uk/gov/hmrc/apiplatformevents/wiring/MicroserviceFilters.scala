@@ -22,5 +22,4 @@ import play.api.http.DefaultHttpFilters
 import uk.gov.hmrc.play.bootstrap.filters.{CacheControlFilter, LoggingFilter}
 
 @Singleton
-class MicroserviceFilters @Inject() (loggingFilter: LoggingFilter, cacheFilter: CacheControlFilter)
-    extends DefaultHttpFilters(loggingFilter, cacheFilter)
+class MicroserviceFilters @Inject() (loggingFilter: LoggingFilter, cacheFilter: CacheControlFilter) extends DefaultHttpFilters(loggingFilter, cacheFilter)
