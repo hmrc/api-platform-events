@@ -10,14 +10,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-abstract class BaseISpec extends AsyncHmrcSpec with WireMockSupport with MetricsTestSupport {
+abstract class BaseISpec extends AsyncHmrcSpec with WireMockSupport {
 
   def app: Application
   protected def appBuilder: GuiceApplicationBuilder
-
-  override def commonStubs(): Unit = {
-    givenCleanMetricRegistry()
-  }
 
   protected implicit def materializer: Materializer = app.materializer
 
