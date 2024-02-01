@@ -5,17 +5,15 @@ import play.api.Application
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
-import uk.gov.hmrc.apiplatformevents.support.{MetricsTestSupport, ThirdPartyApplicationService, WireMockSupport}
+import uk.gov.hmrc.apiplatformevents.support.{ThirdPartyApplicationService, WireMockSupport}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 
-class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with ThirdPartyApplicationService {
+class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with ThirdPartyApplicationService {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
-
-  override def commonStubs(): Unit = givenCleanMetricRegistry()
 
   override implicit lazy val app: Application = appBuilder.build()
 

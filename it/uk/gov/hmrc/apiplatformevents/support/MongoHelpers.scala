@@ -1,6 +1,6 @@
 package uk.gov.hmrc.apiplatformevents.support
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.result.{DeleteResult, InsertOneResult}
 import play.api.test.FutureAwaits

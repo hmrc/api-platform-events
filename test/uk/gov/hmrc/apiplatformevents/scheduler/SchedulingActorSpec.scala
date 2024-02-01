@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-import akka.actor.Props
+import org.apache.pekko.actor.Props
 import org.scalatestplus.play.PlaySpec
 
 class SchedulingActorSpec extends PlaySpec {

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.scheduler
 
-import akka.actor.{Actor, ActorLogging, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, Props}
 
 import uk.gov.hmrc.apiplatformevents.scheduler.SchedulingActor.ScheduledMessage
 import uk.gov.hmrc.apiplatformevents.scheduler.jobs.SendEventNotificationsService

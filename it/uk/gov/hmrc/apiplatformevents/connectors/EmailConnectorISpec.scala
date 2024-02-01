@@ -4,7 +4,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformevents.support.{EmailService, MetricsTestSupport, WireMockSupport}
+import uk.gov.hmrc.apiplatformevents.support.{EmailService, WireMockSupport}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
@@ -13,11 +13,9 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import java.time.Instant
 import java.time.ZoneOffset
 
-class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with MetricsTestSupport with EmailService {
+class EmailConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with EmailService {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
-
-  override def commonStubs(): Unit = givenCleanMetricRegistry()
 
   override implicit lazy val app: Application = appBuilder.build()
 

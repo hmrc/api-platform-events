@@ -18,11 +18,8 @@ package uk.gov.hmrc.apiplatformevents.wiring
 
 import javax.inject.{Inject, Singleton}
 
-import com.kenshoo.play.metrics.MetricsFilter
-
 import play.api.http.DefaultHttpFilters
 import uk.gov.hmrc.play.bootstrap.filters.{CacheControlFilter, LoggingFilter}
 
 @Singleton
-class MicroserviceFilters @Inject() (metricsFilter: MetricsFilter, loggingFilter: LoggingFilter, cacheFilter: CacheControlFilter)
-    extends DefaultHttpFilters(metricsFilter, loggingFilter, cacheFilter)
+class MicroserviceFilters @Inject() (loggingFilter: LoggingFilter, cacheFilter: CacheControlFilter) extends DefaultHttpFilters(loggingFilter, cacheFilter)
