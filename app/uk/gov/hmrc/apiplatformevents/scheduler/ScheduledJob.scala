@@ -18,8 +18,8 @@ package uk.gov.hmrc.apiplatformevents.scheduler
 
 import scala.concurrent.Future
 
-import akka.actor.{ActorRef, ActorSystem}
-import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
+import org.apache.pekko.extension.quartz.QuartzSchedulerExtension
 
 import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
@@ -51,7 +51,7 @@ trait ScheduledJob extends ApplicationLogger {
       case (true, true)  =>
         scheduler.createSchedule(jobName, description, expression)
         scheduler.schedule(jobName, schedulingActorRef, scheduledMessage)
-        logger.error(s"Scheduler for $jobName has been started")
+        logger.info(s"Scheduler for $jobName has been started")
       case (true, false) =>
         logger.error(s"Scheduler for $jobName is disabled as there is no quartz expression")
       case (false, _)    =>
