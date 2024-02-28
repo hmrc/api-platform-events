@@ -23,5 +23,5 @@ object AppDependencies {
     "uk.gov.hmrc.mongo"      %% "hmrc-mongo-test-play-30"         % hmrcMongoVersion,
     "com.github.tomakehurst"  % "wiremock-jre8-standalone"        % "2.35.0",
     "uk.gov.hmrc"            %% "api-platform-test-common-domain" % commonDomainVersion
-  ).map(m => m % "test,it")
+  ).map(m => m % "test")
 }

@@ -1,46 +1,34 @@
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
+import uk.gov.hmrc.DefaultBuildSettings
 import bloop.integrations.sbt.BloopDefaults
+import uk.gov.hmrc.DefaultBuildSettings._
 
 lazy val appName = "api-platform-events"
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / majorVersion := 0
 
 lazy val microservice = Project(appName, file("."))
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin)
+  .settings(ScoverageSettings())
+  .settings(defaultSettings(): _*)
   .settings(
     name := appName,
-    organization := "uk.gov.hmrc",
-    scalaVersion := "2.13.12",
     PlayKeys.playDefaultPort := 6700,
     resolvers += Resolver.typesafeRepo("releases"),
     libraryDependencies ++= AppDependencies(),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
-    majorVersion := 0
   )
-  .enablePlugins(PlayScala, SbtDistributablesPlugin)
-  .disablePlugins(JUnitXmlReportPlugin)
-
-  .settings(ScoverageSettings())
-
   .settings(
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    Test / parallelExecution := false,
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
-
-  .configs(IntegrationTest)
-  .settings(
-    Defaults.itSettings,
-    IntegrationTest / Keys.fork := false,
-    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testcommon",
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it",
-    IntegrationTest / parallelExecution := false,
-    IntegrationTest / testGrouping := oneForkedJvmPerTest((IntegrationTest / definedTests).value)
-  ) 
   .settings(
     routesImport ++= Seq(
       "uk.gov.hmrc.apiplatformevents.controllers.binders._"
@@ -55,17 +43,25 @@ lazy val microservice = Project(appName, file("."))
     )
   )
 
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
-  tests.map { test =>
-    new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
-  }
-}
-
+  lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
+  .settings(DefaultBuildSettings.itSettings())
+  .settings(
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon"
+  )
+ 
 commands ++= Seq(
-  Command.command("run-all-tests") { state => "test" :: "it:test" :: state },
+  Command.command("cleanAll") { state => "clean" :: "it/clean" :: state },
+  Command.command("fmtAll") { state => "scalafmtAll" :: "it/scalafmtAll" :: state },
+  Command.command("fixAll") { state => "scalafixAll" :: "it/scalafixAll" :: state },
+  Command.command("testAll") { state => "test" :: "it/test" :: state },
 
-  Command.command("clean-and-test") { state => "clean" :: "compile" :: "run-all-tests" :: state },
+  Command.command("run-all-tests") { state => "testAll" :: state },
+
+  Command.command("clean-and-test") { state => "cleanAll" :: "compile" :: "run-all-tests" :: state },
 
   // Coverage does not need compile !
-  Command.command("pre-commit") { state => "clean" :: "scalafmtAll" :: "scalafixAll" ::"coverage" :: "run-all-tests" :: "coverageReport" :: "coverageOff" :: state }
+  Command.command("pre-commit") { state => "cleanAll" :: "fmtAll" :: "fixAll" :: "coverage" :: "testAll" :: "coverageOff" :: "coverageAggregate" :: state }
 )
