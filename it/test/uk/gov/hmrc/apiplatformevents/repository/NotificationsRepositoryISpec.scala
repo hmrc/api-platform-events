@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.hmrc.apiplatformevents.repository
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
-import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatformevents.models.Notification
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
+import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
+import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 
 class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongoRepositorySupport[Notification] with FixedClock {
 
