@@ -36,7 +36,7 @@ object DisplayEvent {
   implicit val format: OFormat[DisplayEvent] = Json.format[DisplayEvent]
 
   def apply(evt: ApplicationEvent): DisplayEvent = {
-    val (eventType, metaData) = ApplicationEvent.asMetaData(evt)
+    val (eventType, metaData) = evt.asMetaData()
 
     DisplayEvent(evt.id, evt.applicationId, evt.eventDateTime, evt.actor, EventTags.tag(evt).description, eventType, metaData)
   }

@@ -71,6 +71,7 @@ class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(imp
       extraCodecs = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
       replaceIndexes = true
     ) {
+  override lazy val requiresTtlIndex = false
 
   def createEntity(event: ApplicationEvent): Future[Boolean] =
     collection.insertOne(event).toFuture().map(wr => wr.wasAcknowledged())
