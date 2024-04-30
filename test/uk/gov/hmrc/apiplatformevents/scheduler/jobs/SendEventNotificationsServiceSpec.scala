@@ -167,6 +167,31 @@ class SendEventNotificationsServiceSpec
       verifyNotificationStatus(SENT)
     }
 
+    "return true when an event that does not send notifications is processed" in new Setup {
+      val anEvent                                           = ApplicationEvents.PpnsCallBackUriUpdatedEvent(
+        EventId.random,
+        ApplicationId.random,
+        instant,
+        Actors.GatekeeperUser("Gatekeeper Admin"),
+        "boxId",
+        "boxName",
+        "",
+        ""
+      )
+      primeApplicationEventsRepositorySuccess(anEvent)
+      primeLockRepository()
+      val result: Either[ScheduleStatus.JobFailed, Boolean] = await(job.invoke)
+      result match {
+        case Right(resultVal) => resultVal mustBe true
+        case _                => fail()
+      }
+
+      verify(applicationEventsRepository).fetchEventsToNotify()
+      verifyZeroInteractions(thirdPartyApplicationConnector)
+      verifyZeroInteractions(emailConnector)
+      verifyZeroInteractions(notificationsRepository)
+    }
+
     "return true when there are no events for application" in new Setup {
       primeApplicationEventsRepositorySuccess()
       primeLockRepository()
