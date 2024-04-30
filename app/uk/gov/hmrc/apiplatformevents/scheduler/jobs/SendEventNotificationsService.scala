@@ -107,7 +107,7 @@ class SendEventNotificationsService @Inject() (
     logger.info(s"processing event: ${event.id}")
     event match {
       case ppnsEvent: ApplicationEvents.PpnsCallBackUriUpdatedEvent if (ppnsEvent.newCallbackUrl.isBlank() && ppnsEvent.oldCallbackUrl.isBlank()) =>
-        logger.info("Not sending anything as both are empty")
+        logger.info("Not sending any noptification as both PPNS callback urls are empty")
         Future.successful(())
 
       case ppnsEvent: ApplicationEvents.PpnsCallBackUriUpdatedEvent =>
