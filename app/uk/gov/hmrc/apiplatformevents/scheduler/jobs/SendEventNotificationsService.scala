@@ -106,6 +106,10 @@ class SendEventNotificationsService @Inject() (
   private def sendEventNotification(event: ApplicationEvent)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
     logger.info(s"processing event: ${event.id}")
     event match {
+      case ppnsEvent: ApplicationEvents.PpnsCallBackUriUpdatedEvent if (ppnsEvent.newCallbackUrl.isBlank() && ppnsEvent.oldCallbackUrl.isBlank()) =>
+        logger.info("Not sending any notification as both PPNS callback urls are empty")
+        Future.successful(())
+
       case ppnsEvent: ApplicationEvents.PpnsCallBackUriUpdatedEvent =>
         (for {
           app <- thirdPartyApplicationConnector.getApplication(ppnsEvent.applicationId)
