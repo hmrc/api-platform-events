@@ -13,7 +13,7 @@ object AppDependencies {
     "com.github.blemale"     %% "scaffeine"                       % "5.2.1",
     "io.github.samueleresca" %% "pekko-quartz-scheduler"          % "1.1.0-pekko-1.0.x",
     "uk.gov.hmrc.mongo"      %% "hmrc-mongo-play-30"              % hmrcMongoVersion,
-    "uk.gov.hmrc"            %% "api-platform-application-events" % "0.55.0"
+    "uk.gov.hmrc"            %% "api-platform-application-events" % "0.56.0"
   )
 
   private lazy val testDependencies = Seq(
