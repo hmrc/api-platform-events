@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sbt run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes
+sbt "run -Drun.mode=Dev -Dhttp.port=6700 $*"
