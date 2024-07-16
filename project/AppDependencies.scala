@@ -3,7 +3,7 @@ import sbt._
 object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
-  lazy val bootstrapVersion    = "8.4.0"
+  lazy val bootstrapVersion    = "9.0.0"
   lazy val hmrcMongoVersion    = "1.7.0"
   lazy val commonDomainVersion = "0.13.0"
 
