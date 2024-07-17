@@ -25,12 +25,13 @@ import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, NotFoundException}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, StringContextOps}
 
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 
 @Singleton
-class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
+class EmailConnector @Inject() (httpClient: HttpClientV2, appConfig: AppConfig)(implicit val ec: ExecutionContext) {
 
   val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -51,7 +52,9 @@ class EmailConnector @Inject() (httpClient: HttpClient, appConfig: AppConfig)(im
 
   private def post(payload: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
-      .POST[SendEmailRequest, HttpResponse](s"${appConfig.emailUrl}/hmrc/email", payload)
+      .post(url"${appConfig.emailUrl}/hmrc/email")
+      .withBody(Json.toJson(payload))
+      .execute[HttpResponse]
       .map { response =>
         response.status match {
           case NOT_FOUND => throw new NotFoundException("Endpoint for sending email was not found")

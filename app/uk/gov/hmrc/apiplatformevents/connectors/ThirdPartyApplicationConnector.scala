@@ -23,15 +23,18 @@ import com.google.inject.Inject
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 
 @Singleton
-class ThirdPartyApplicationConnector @Inject() (http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) {
+class ThirdPartyApplicationConnector @Inject() (http: HttpClientV2, appConfig: AppConfig)(implicit ec: ExecutionContext) {
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
-    http.GET[ApplicationResponse](s"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value.toString()}")
+    http
+      .get(url"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value.toString()}")
+      .execute[ApplicationResponse]
   }
 }
