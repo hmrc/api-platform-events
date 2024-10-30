@@ -361,8 +361,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         val event   = results.head.asInstanceOf[ProductionAppNameChangedEvent]
 
         checkCommonEventValues(event)
-        event.oldAppName shouldBe oldAppName
-        event.newAppName shouldBe newAppName
+        event.oldAppName.value shouldBe oldAppName
+        event.newAppName.value shouldBe newAppName
         event.requestingAdminEmail shouldBe requestingAdminEmail
 
         event.actor shouldBe Actors.GatekeeperUser(actorUser)
@@ -507,7 +507,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.applicationName shouldBe appName
+        event.applicationName.value shouldBe appName
         event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
