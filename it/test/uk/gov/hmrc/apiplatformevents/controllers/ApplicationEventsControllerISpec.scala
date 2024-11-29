@@ -24,6 +24,7 @@ import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 
 import play.api.libs.ws.{WSClient, WSResponse}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
@@ -95,7 +96,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
          |"oldCallbackUrl": "$oldCallbackUrl",
          |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
-  def validProductionAppNameChangedJsonBody(oldAppName: String, newAppName: String, requestingAdminEmail: LaxEmailAddress): String =
+  def validProductionAppNameChangedJsonBody(oldAppName: ApplicationName, newAppName: ApplicationName, requestingAdminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
          |"eventDateTime": "$inputInstantString",
@@ -199,7 +200,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
          |"requestingAdminName": "$adminName",
          |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
-  def validResponsibleIndividualVerificationStartedJsonBody(riName: String, riEmail: LaxEmailAddress, appName: String, adminName: String, adminEmail: LaxEmailAddress): String =
+  def validResponsibleIndividualVerificationStartedJsonBody(
+      riName: String,
+      riEmail: LaxEmailAddress,
+      appName: ApplicationName,
+      adminName: String,
+      adminEmail: LaxEmailAddress
+  ): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
          |"applicationName": "$appName",
@@ -350,8 +357,8 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
     "POST /application-event" should {
       "respond with 201 when valid prod app name changed json is sent" in {
-        val oldAppName           = "old name"
-        val newAppName           = "new name"
+        val oldAppName           = ApplicationName("old name")
+        val newAppName           = ApplicationName("new name")
         val requestingAdminEmail = LaxEmailAddress("admin@example.com")
 
         testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminEmail))
@@ -494,7 +501,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
       "respond with 201 when valid responsible individual verification started json is sent" in {
         val riName     = "Mr Responsible"
         val riEmail    = LaxEmailAddress("ri@example.com")
-        val appName    = "app name"
+        val appName    = ApplicationName("app name")
         val adminName  = "ms admin"
         val adminEmail = LaxEmailAddress("admin@example.com")
 

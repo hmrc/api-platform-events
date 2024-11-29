@@ -251,8 +251,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldAppName = "old app name",
-    newAppName = "new app name",
+    oldAppName = ApplicationName("old app name"),
+    newAppName = ApplicationName("new app name"),
     requestingAdminEmail = LaxEmailAddress("admin@example.com")
   )
 
@@ -413,7 +413,7 @@ trait ApplicationEventTestData {
   val responsibleIndividualVerificationStarted: ResponsibleIndividualVerificationStarted = ResponsibleIndividualVerificationStarted(
     id = EventId.random,
     applicationId = ApplicationId.random,
-    applicationName = "my app",
+    applicationName = ApplicationName("my app"),
     eventDateTime = nowMillis(),
     actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
     requestingAdminName = "Mr Admin",

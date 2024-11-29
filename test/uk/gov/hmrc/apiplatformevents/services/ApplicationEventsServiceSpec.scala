@@ -24,6 +24,7 @@ import org.mongodb.scala.MongoException
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
@@ -40,6 +41,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
   val nowButLastYear = now.atOffset(ZoneOffset.UTC).minusYears(1).toInstant()
   val year           = now.atOffset(ZoneOffset.UTC).getYear()
   val lastYear       = nowButLastYear.atOffset(ZoneOffset.UTC).getYear()
+  Actor
 
   val validAddTeamMemberModel: ApplicationEvents.TeamMemberAddedEvent = ApplicationEvents.TeamMemberAddedEvent(
     id = EventId.random,
@@ -55,8 +57,8 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
     applicationId = ApplicationId.random,
     eventDateTime = Instant.now,
     actor = Actors.GatekeeperUser("gk@example.com"),
-    oldAppName = "old app name",
-    newAppName = "new app name",
+    oldAppName = ApplicationName("old app name"),
+    newAppName = ApplicationName("new app name"),
     requestingAdminEmail = LaxEmailAddress("admin@example.com")
   )
 
