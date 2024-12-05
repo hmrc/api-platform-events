@@ -5,8 +5,8 @@ object AppDependencies {
 
   lazy val bootstrapVersion    = "9.0.0"
   lazy val hmrcMongoVersion    = "1.7.0"
-  lazy val commonDomainVersion = "0.17.0"
-  lazy val appEventsVersion    = "0.66.6"
+  lazy val commonDomainVersion = "0.18.0"
+  lazy val appEventsVersion    = "0.68.0"
 
   private lazy val dependencies = Seq(
     "uk.gov.hmrc"            %% "bootstrap-backend-play-30"       % bootstrapVersion,
@@ -15,6 +15,7 @@ object AppDependencies {
     "io.github.samueleresca" %% "pekko-quartz-scheduler"          % "1.1.0-pekko-1.0.x",
     "uk.gov.hmrc.mongo"      %% "hmrc-mongo-play-30"              % hmrcMongoVersion,
     "uk.gov.hmrc"            %% "api-platform-application-events" % appEventsVersion
+
   )
 
   private lazy val testDependencies = Seq(
