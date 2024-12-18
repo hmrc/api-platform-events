@@ -21,6 +21,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
@@ -28,7 +30,12 @@ import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 import uk.gov.hmrc.apiplatformevents.support.{ThirdPartyApplicationService, WireMockSupport}
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSupport with GuiceOneAppPerSuite with ThirdPartyApplicationService {
+class ThirdPartyApplicationConnectorISpec
+    extends AsyncHmrcSpec
+    with WireMockSupport
+    with GuiceOneAppPerSuite
+    with ThirdPartyApplicationService
+    with ApplicationWithCollaboratorsFixtures {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -49,7 +56,14 @@ class ThirdPartyApplicationConnectorISpec extends AsyncHmrcSpec with WireMockSup
     val expectedApp   = ApplicationResponse("foobar app", Set.empty)
 
     "retrieve application record based on provided clientId" in new SetUp() {
-      val jsonResponse: String = raw"""{"id":  "${applicationId.value.toString()}", "name": "${expectedApp.name}", "collaborators": []}"""
+      val jsonResponse: String = Json.prettyPrint(
+        Json.toJson(
+          standardApp
+            .withId(applicationId)
+            .withName(ApplicationName(expectedApp.name))
+            .withCollaborators()
+        )
+      )
       primeApplicationEndpoint(OK, jsonResponse, applicationId)
 
       val result: ApplicationResponse = await(objInTest.getApplication(applicationId))
