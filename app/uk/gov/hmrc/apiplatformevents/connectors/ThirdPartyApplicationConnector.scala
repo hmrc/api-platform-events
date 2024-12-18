@@ -21,6 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import com.google.inject.Inject
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -35,6 +36,7 @@ class ThirdPartyApplicationConnector @Inject() (http: HttpClientV2, appConfig: A
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
     http
       .get(url"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value.toString()}")
-      .execute[ApplicationResponse]
+      .execute[ApplicationWithCollaborators]
+      .map(awc => ApplicationResponse(awc.name.value, awc.collaborators))
   }
 }
