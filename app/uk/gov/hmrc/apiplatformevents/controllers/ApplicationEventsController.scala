@@ -68,7 +68,7 @@ class ApplicationEventsController @Inject() (
     service.deleteEventsForApplication(applicationId).map(success)
   }
 
-  override protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
+  protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
     withJson(request.body)(f)
   }
 
