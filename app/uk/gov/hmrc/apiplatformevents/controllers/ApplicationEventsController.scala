@@ -18,6 +18,7 @@ package uk.gov.hmrc.apiplatformevents.controllers
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -62,13 +63,13 @@ class ApplicationEventsController @Inject() (
   // Note that this a test-only route, for use in QA only
   def deleteEventsForApplication(applicationId: ApplicationId): Action[AnyContent] = Action.async { _ =>
     def success(numberOfRecordsDeleted: Long) = {
-      logger.info(s"test-only: Successfully deleted ${numberOfRecordsDeleted} event records for application ${applicationId}")
+      logger.info(s"test-only: Successfully deleted $numberOfRecordsDeleted event records for application $applicationId")
       NoContent
     }
     service.deleteEventsForApplication(applicationId).map(success)
   }
 
-  protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], m: Manifest[T], reads: Reads[T]): Future[Result] = {
+  override protected def withJsonBody[T](f: T => Future[Result])(implicit request: Request[JsValue], c: ClassTag[T], reads: Reads[T]): Future[Result] = {
     withJson(request.body)(f)
   }
 
