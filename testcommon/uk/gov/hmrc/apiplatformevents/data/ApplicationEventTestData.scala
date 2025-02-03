@@ -141,7 +141,7 @@ trait ApplicationEventTestData {
     )
   }
 
-  val redirectUrisUpdatedModel: RedirectUrisUpdatedEvent = RedirectUrisUpdatedEvent(
+  val redirectUrisUpdatedModel: LoginRedirectUrisUpdatedEvent = LoginRedirectUrisUpdatedEvent(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
@@ -150,7 +150,7 @@ trait ApplicationEventTestData {
     newRedirectUris = "newru"
   )
 
-  def makeRedirectUrisUpdatedEvent(appId: Option[ApplicationId] = None): RedirectUrisUpdatedEvent = {
+  def makeRedirectUrisUpdatedEvent(appId: Option[ApplicationId] = None): LoginRedirectUrisUpdatedEvent = {
     redirectUrisUpdatedModel.copy(
       applicationId = appId.fold(ApplicationId.random)(identity),
       id = EventId.random,
@@ -158,16 +158,16 @@ trait ApplicationEventTestData {
     )
   }
 
-  val redirectUrisUpdatedV2Model: RedirectUrisUpdatedV2 = RedirectUrisUpdatedV2(
+  val redirectUrisUpdatedV2Model: LoginRedirectUrisUpdatedV2 = LoginRedirectUrisUpdatedV2(
     id = EventId.random,
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldRedirectUris = List(new RedirectUri("oldru")),
-    newRedirectUris = List(RedirectUri.unsafeApply("https://example.com/a"), RedirectUri.unsafeApply("https://example.com/route2"))
+    oldRedirectUris = List(new LoginRedirectUri("oldru")),
+    newRedirectUris = List(LoginRedirectUri.unsafeApply("https://example.com/a"), LoginRedirectUri.unsafeApply("https://example.com/route2"))
   )
 
-  def makeRedirectUrisUpdated(appId: Option[ApplicationId] = None): RedirectUrisUpdatedV2 = {
+  def makeRedirectUrisUpdated(appId: Option[ApplicationId] = None): LoginRedirectUrisUpdatedV2 = {
     redirectUrisUpdatedV2Model.copy(
       applicationId = appId.fold(ApplicationId.random)(identity),
       id = EventId.random,
