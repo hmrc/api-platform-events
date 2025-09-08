@@ -3,10 +3,10 @@ import sbt._
 object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
-  lazy val bootstrapVersion    = "9.7.0"
-  lazy val hmrcMongoVersion    = "2.4.0"
-  lazy val appEventsVersion    = "0.75.0" // Ensure this version of the application-events library uses the appDomainVersion below
-  lazy val appDomainVersion    = "0.72.0"
+  lazy val bootstrapVersion    = "9.19.0"
+  lazy val hmrcMongoVersion    = "2.7.0"
+  lazy val appEventsVersion    = "0.83.0" // Ensure this version of the application-events library uses the appDomainVersion below
+  lazy val appDomainVersion    = "0.82.0"
 
   private lazy val dependencies = Seq(
     "uk.gov.hmrc"            %% "bootstrap-backend-play-30"       % bootstrapVersion,

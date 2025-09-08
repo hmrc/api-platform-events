@@ -137,8 +137,8 @@ class SendEventNotificationsServiceSpec
       val eventCaptor = ArgCaptor[Notification]
       verify(notificationsRepository).createEntity(eventCaptor)
       eventCaptor.value match {
-        case Notification(_, _, status) => succeed
-        case n                          => fail(s"Wrong notification status ${n.status}")
+        case Notification(_, _, `status`) => succeed
+        case notification                 => fail(s"Wrong notification status ${notification.status}")
       }
     }
   }
