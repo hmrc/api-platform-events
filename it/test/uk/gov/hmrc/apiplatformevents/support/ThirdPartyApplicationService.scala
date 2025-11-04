@@ -25,11 +25,10 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 
 trait ThirdPartyApplicationService {
-  private def applicationUrl(appId: ApplicationId) = s"/application/${appId.value}"
-
   def primeApplicationEndpoint(status: Int, body: String, applicationId: ApplicationId): StubMapping = {
     stubFor(
-      get(urlPathEqualTo(applicationUrl(applicationId)))
+      get(urlPathEqualTo("/query"))
+        .withQueryParam("applicationId", equalTo(s"$applicationId"))
         .willReturn(
           aResponse()
             .withBody(body)

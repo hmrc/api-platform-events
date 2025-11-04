@@ -35,7 +35,7 @@ class ThirdPartyApplicationConnector @Inject() (http: HttpClientV2, appConfig: A
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationResponse] = {
     http
-      .get(url"${appConfig.thirdPartyApplicationUrl}/application/${applicationId.value.toString()}")
+      .get(url"${appConfig.thirdPartyApplicationUrl}/query?applicationId=${applicationId}")
       .execute[ApplicationWithCollaborators]
       .map(awc => ApplicationResponse(awc.name.value, awc.collaborators))
   }
