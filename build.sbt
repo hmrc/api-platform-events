@@ -6,11 +6,14 @@ import uk.gov.hmrc.DefaultBuildSettings._
 
 lazy val appName = "api-platform-events"
 
-ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / scalaVersion := "2.13.16"
-ThisBuild / majorVersion := 0
+inThisBuild(
+  List(
+    majorVersion := 1,
+    scalaVersion := "3.7.4",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
@@ -31,15 +34,14 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     routesImport ++= Seq(
+      "java.util.UUID",
       "uk.gov.hmrc.apiplatformevents.controllers.binders._"
     )
   )
   .settings(
     scalacOptions ++= Seq(
-    "-Wconf:cat=unused&src=views/.*\\.scala:s",
-    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+      "-encoding", "UTF-8", "-Wunused:imports,privates,locals",
+      "-explain"
     )
   )
 
@@ -50,6 +52,12 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     Test / unmanagedSourceDirectories += baseDirectory.value / "testcommon"
+  )
+  .settings(
+    scalacOptions ++= Seq(
+      "-encoding", "UTF-8", "-Wunused:imports,privates,locals",
+      "-explain"
+    )
   )
  
 commands ++= Seq(

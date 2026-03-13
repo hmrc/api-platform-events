@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.apiplatformevents.utils
 
+import org.scalatestplus.mockito.MockitoSugar
+
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
-abstract class AsyncHmrcSpec extends HmrcSpec with DefaultAwaitTimeout with FutureAwaits
+abstract class AsyncHmrcSpec extends HmrcSpec with DefaultAwaitTimeout with FutureAwaits with MockitoSugar

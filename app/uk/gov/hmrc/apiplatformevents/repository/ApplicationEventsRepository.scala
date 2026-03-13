@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatformevents.repository
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import org.mongodb.scala.model.Aggregates._
+import org.mongodb.scala.model.Aggregates.*
 import org.mongodb.scala.model.Filters.{equal, size}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
@@ -28,15 +28,16 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsJsonFormatters
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
-import uk.gov.hmrc.apiplatformevents.models.Codecs
-
-object MongoEventsJsonFormatters extends EventsJsonFormatters(MongoJavatimeFormats.instantFormat)
+object MongoEventsJsonFormatters extends EventsJsonFormatters(using MongoJavatimeFormats.instantFormat)
 
 object ApplicationEventsRepository {
-  lazy val formatter = MongoEventsJsonFormatters.abstractApplicationEventFormats
+  import MongoEventsJsonFormatters.given
+  import play.api.libs.json.OFormat
+
+  lazy val formatter = summon[OFormat[ApplicationEvent]]
 }
 
 @Singleton
@@ -68,7 +69,6 @@ class ApplicationEventsRepository @Inject() (mongoComponent: MongoComponent)(imp
             .background(true)
         )
       ),
-      extraCodecs = Codecs.unionCodecs(ApplicationEventsRepository.formatter),
       replaceIndexes = true
     ) {
   override lazy val requiresTtlIndex = false

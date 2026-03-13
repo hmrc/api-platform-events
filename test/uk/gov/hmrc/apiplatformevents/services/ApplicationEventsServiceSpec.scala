@@ -20,13 +20,15 @@ import java.time.{Instant, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.*
 import org.mongodb.scala.MongoException
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, RequestId, SessionId}
 
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
@@ -124,7 +126,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
   "fetch events by" should {
     def primeRepo(events: ApplicationEvent*): List[ApplicationEvent] = {
-      when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(events.toList))
+      when(mockRepository.fetchEvents(any[ApplicationId])).thenReturn(Future.successful(events.toList))
       events.toList
     }
 
@@ -158,11 +160,11 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
         makeTeamMemberAddedEvent(Some(appId))
       )
 
-      val fetchedEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.TEAM_MEMBER), None))
+      val fetchedEvents = await(inTest.fetchEventsBy(appId, Some(EventTag.TeamMember), None))
 
       fetchedEvents should contain theSameElementsAs List(evts(0), evts(1))
 
-      val fetchNoEvents = await(inTest.fetchEventsBy(appId, Some(EventTags.SUBSCRIPTION), None))
+      val fetchNoEvents = await(inTest.fetchEventsBy(appId, Some(EventTag.Subscription), None))
 
       fetchNoEvents shouldBe Seq()
     }
@@ -170,11 +172,11 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
   "fetchEventQueryValues" should {
     def primeEmptyRepo(): Unit = {
-      when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(List.empty))
+      when(mockRepository.fetchEvents(any[ApplicationId])).thenReturn(Future.successful(List.empty))
     }
 
     def primeRepo(events: ApplicationEvent*): List[ApplicationEvent] = {
-      when(mockRepository.fetchEvents(*[ApplicationId])).thenReturn(Future.successful(events.toList))
+      when(mockRepository.fetchEvents(any[ApplicationId])).thenReturn(Future.successful(events.toList))
       events.toList
     }
 
@@ -210,15 +212,15 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
       val fetchEventQueryValues = await(inTest.fetchEventQueryValues(appId))
 
-      fetchEventQueryValues.value.eventTags should contain theSameElementsAs List(EventTags.TEAM_MEMBER, EventTags.CLIENT_SECRET, EventTags.SUBSCRIPTION, EventTags.REDIRECT_URIS)
+      fetchEventQueryValues.value.eventTags should contain theSameElementsAs List(EventTag.TeamMember, EventTag.ClientSecret, EventTag.Subscription, EventTag.RedirectUris)
 
-      fetchEventQueryValues.value.eventTags should not contain EventTags.PPNS_CALLBACK
+      fetchEventQueryValues.value.eventTags should not contain EventTag.PpnsCallback
     }
   }
 
   "delete events by appId" should {
     def primeRepo(appId: ApplicationId) = {
-      when(mockRepository.deleteEventsForApplication(eqTo(appId))).thenReturn(Future.successful(3))
+      when(mockRepository.deleteEventsForApplication(eqTo(appId))).thenReturn(Future.successful(3L))
     }
 
     "return everything when no queries" in new Setup {
@@ -227,7 +229,7 @@ class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with Ap
 
       val nunberOfDeletedRecords = await(inTest.deleteEventsForApplication(appId))
 
-      nunberOfDeletedRecords shouldBe 3
+      nunberOfDeletedRecords shouldBe 3L
     }
   }
 }

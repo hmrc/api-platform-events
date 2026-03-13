@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.support
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.ClassTag
 
 import org.apache.pekko.util.Timeout
@@ -23,9 +24,11 @@ import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.result.{DeleteResult, InsertOneResult}
 
 import play.api.test.FutureAwaits
+import uk.gov.hmrc.mongo.logging.ObservableFutureImplicits.{ObservableFuture, SingleObservableFuture}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-trait MongoHelpers { _: FutureAwaits =>
+trait MongoHelpers {
+  self: FutureAwaits =>
 
   def count[A](repo: => PlayMongoRepository[A])(implicit timeout: Timeout): Long =
     await(repo.collection.countDocuments().toFuture())

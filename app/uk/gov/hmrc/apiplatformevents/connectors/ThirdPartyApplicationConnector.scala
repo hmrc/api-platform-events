@@ -23,7 +23,7 @@ import com.google.inject.Inject
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
@@ -37,6 +37,6 @@ class ThirdPartyApplicationConnector @Inject() (http: HttpClientV2, appConfig: A
     http
       .get(url"${appConfig.thirdPartyApplicationUrl}/query?applicationId=${applicationId}")
       .execute[ApplicationWithCollaborators]
-      .map(awc => ApplicationResponse(awc.name.value, awc.collaborators))
+      .map(awc => ApplicationResponse(awc.name, awc.collaborators))
   }
 }

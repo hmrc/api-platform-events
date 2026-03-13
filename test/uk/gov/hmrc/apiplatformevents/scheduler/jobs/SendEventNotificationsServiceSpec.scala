@@ -22,39 +22,32 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
-import org.mockito.ArgumentMatchersSugar
-import org.mockito.captor.ArgCaptor
-import org.mockito.scalatest.MockitoSugar
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any as `*`, eq as eqTo}
+import org.mockito.Mockito.{verifyNoInteractions, *}
 import org.mongodb.scala.MongoException
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, *}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.lock.{Lock, MongoLockRepository}
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification, NotificationStatus}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 
-class SendEventNotificationsServiceSpec
-    extends PlaySpec
-    with MockitoSugar
-    with ArgumentMatchersSugar
-    with FutureAwaits
-    with DefaultAwaitTimeout
-    with LogCapturing
-    with BeforeAndAfterEach {
+class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with FutureAwaits with DefaultAwaitTimeout with LogCapturing with BeforeAndAfterEach {
 
   val finiteDuration: FiniteDuration = Duration(4, TimeUnit.MINUTES)
 
@@ -70,7 +63,7 @@ class SendEventNotificationsServiceSpec
     reset(mockLockRepository)
     when(mockAppConfig.config).thenReturn(mockConfiguration)
 
-    when(mockConfiguration.get[String](eqTo(s"schedules.SendEventNotificationsJob.mongoLockTimeout"))(*)).thenReturn("20seconds")
+    when(mockConfiguration.get[String](eqTo(s"schedules.SendEventNotificationsJob.mongoLockTimeout"))(using *)).thenReturn("20seconds")
 
     val job = new SendEventNotificationsService(
       mockAppConfig,
@@ -108,15 +101,15 @@ class SendEventNotificationsServiceSpec
     val application = ApplicationResponse("test app", Set(Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail))))
 
     def primeApplicationConnectorSuccess(): Unit = {
-      when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(successful(application))
+      when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(using *)).thenReturn(successful(application))
     }
 
     def primeApplicationConnectorFailed(): Unit = {
-      when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(*)).thenReturn(failed(UpstreamErrorResponse("", NOT_FOUND)))
+      when(thirdPartyApplicationConnector.getApplication(eqTo(event.applicationId))(using *)).thenReturn(failed(UpstreamErrorResponse("", NOT_FOUND)))
     }
 
     def primeEmailConnectorSuccess() = {
-      when(emailConnector.sendPpnsCallbackUrlChangedNotification(*, *, *)(*)).thenReturn(successful(HttpResponse(OK, body = "")))
+      when(emailConnector.sendPpnsCallbackUrlChangedNotification(*, *, *)(using *)).thenReturn(successful(HttpResponse(OK, body = "")))
     }
 
     def primeNotificationsRepositorySuccess(expectedNotification: Notification) = {
@@ -134,9 +127,9 @@ class SendEventNotificationsServiceSpec
     }
 
     def verifyNotificationStatus(status: NotificationStatus) = {
-      val eventCaptor = ArgCaptor[Notification]
+      val eventCaptor: ArgumentCaptor[Notification] = ArgumentCaptor.forClass(classOf[Notification])
       verify(notificationsRepository).createEntity(eventCaptor)
-      eventCaptor.value match {
+      eventCaptor.getValue() match {
         case Notification(_, _, `status`) => succeed
         case notification                 => fail(s"Wrong notification status ${notification.status}")
       }
@@ -151,7 +144,7 @@ class SendEventNotificationsServiceSpec
       primeApplicationConnectorSuccess()
       primeEmailConnectorSuccess()
 
-      val notification = Notification(event.id, instant, SENT)
+      val notification = Notification(event.id, instant, NotificationStatus.Sent)
 
       primeNotificationsRepositorySuccess(notification)
 
@@ -162,9 +155,9 @@ class SendEventNotificationsServiceSpec
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
-      verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(*)
-      verify(emailConnector).sendPpnsCallbackUrlChangedNotification(*, *, *)(*)
-      verifyNotificationStatus(SENT)
+      verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(using *)
+      verify(emailConnector).sendPpnsCallbackUrlChangedNotification(*, *, *)(using *)
+      verifyNotificationStatus(NotificationStatus.Sent)
     }
 
     "return true when an event that does not send notifications is processed" in new Setup {
@@ -187,9 +180,9 @@ class SendEventNotificationsServiceSpec
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
-      verifyZeroInteractions(thirdPartyApplicationConnector)
-      verifyZeroInteractions(emailConnector)
-      verifyZeroInteractions(notificationsRepository)
+      verifyNoInteractions(thirdPartyApplicationConnector)
+      verifyNoInteractions(emailConnector)
+      verifyNoInteractions(notificationsRepository)
     }
 
     "return true when there are no events for application" in new Setup {
@@ -202,9 +195,9 @@ class SendEventNotificationsServiceSpec
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
-      verifyZeroInteractions(thirdPartyApplicationConnector)
-      verifyZeroInteractions(emailConnector)
-      verifyZeroInteractions(notificationsRepository)
+      verifyNoInteractions(thirdPartyApplicationConnector)
+      verifyNoInteractions(emailConnector)
+      verifyNoInteractions(notificationsRepository)
     }
 
     "return true when there are events but no matching applications" in new Setup {
@@ -212,7 +205,7 @@ class SendEventNotificationsServiceSpec
       primeLockRepository()
       primeApplicationConnectorFailed()
 
-      val notification = Notification(event.id, instant, FAILED)
+      val notification = Notification(event.id, instant, NotificationStatus.Failed)
 
       primeNotificationsRepositorySuccess(notification)
 
@@ -223,9 +216,9 @@ class SendEventNotificationsServiceSpec
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
-      verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(*)
-      verifyZeroInteractions(emailConnector)
-      verifyNotificationStatus(FAILED)
+      verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(using *)
+      verifyNoInteractions(emailConnector)
+      verifyNotificationStatus(NotificationStatus.Failed)
     }
 
     // Need failure scenarios here

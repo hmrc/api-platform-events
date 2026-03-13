@@ -22,11 +22,11 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventId
+import uk.gov.hmrc.mongo.logging.ObservableFutureImplicits.ObservableFuture
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
-import uk.gov.hmrc.apiplatformevents.models.Notification
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.SENT
+import uk.gov.hmrc.apiplatformevents.models.{Notification, NotificationStatus}
 import uk.gov.hmrc.apiplatformevents.support.ServerBaseISpec
 
 class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongoRepositorySupport[Notification] with FixedClock {
@@ -49,7 +49,7 @@ class NotificationsRepositoryISpec extends ServerBaseISpec with DefaultPlayMongo
 
   "createEntity" should {
     "create an entity" in {
-      val notification = Notification(EventId.random, instant, SENT)
+      val notification = Notification(EventId.random, instant, NotificationStatus.Sent)
 
       await(repo.createEntity(notification))
 

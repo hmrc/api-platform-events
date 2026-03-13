@@ -16,31 +16,30 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import play.api.libs.json._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import play.api.libs.json.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventTagJsonFormatters
 
 case class QueryableValues(eventTags: List[EventTag], actorTypes: List[ActorType])
 
 object QueryableValues {
-  import EventTagJsonFormatters._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 
   // Temporary replacement that will be redundant once here and GK use the common domain lib completely
 
   implicit val formatActorType: Format[ActorType] = new Format[ActorType] {
 
     override def writes(o: ActorType): JsValue =
-      Json.obj("description" -> o.displayText, "type" -> o.toString)
+      Json.obj("description" -> o.displayText, "type" -> o.asScreamingSnakeCase)
 
     override def reads(json: JsValue): JsResult[ActorType] = {
       (json match {
-        case JsString(text) => ActorType.apply(text)
+        case JsString(text) => ActorType.apply(fromScreamingSnakeCase(text))
         case JsObject(obj)  =>
           obj
             .get("type")
             .flatMap(_ match {
-              case JsString(t) => ActorType.apply(t)
+              case JsString(t) => ActorType.apply(fromScreamingSnakeCase(t))
               case _           => None
             })
         case _              => None

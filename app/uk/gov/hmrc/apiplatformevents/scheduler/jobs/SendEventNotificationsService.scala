@@ -28,7 +28,7 @@ import uk.gov.hmrc.mongo.lock.{LockService, MongoLockRepository}
 
 import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyApplicationConnector}
 import uk.gov.hmrc.apiplatformevents.models.Notification
-import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{FAILED, SENT}
+import uk.gov.hmrc.apiplatformevents.models.NotificationStatus.{Failed, Sent}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus.{MongoUnlockException, UnknownExceptionOccurred}
 import uk.gov.hmrc.apiplatformevents.scheduler.{ScheduleStatus, ScheduledService}
@@ -114,10 +114,10 @@ class SendEventNotificationsService @Inject() (
         (for {
           app <- thirdPartyApplicationConnector.getApplication(ppnsEvent.applicationId)
           _   <- emailConnector.sendPpnsCallbackUrlChangedNotification(app.name, ppnsEvent.eventDateTime, app.adminEmails)
-          _   <- notificationsRepository.createEntity(Notification(ppnsEvent.id, instant(), SENT))
+          _   <- notificationsRepository.createEntity(Notification(ppnsEvent.id, instant, Sent))
         } yield ()) recoverWith { case NonFatal(e) =>
           logger.error(s"Failed to send email notification for event ID ${ppnsEvent.id}", e)
-          notificationsRepository.createEntity(Notification(ppnsEvent.id, instant(), FAILED)).map(_ => ())
+          notificationsRepository.createEntity(Notification(ppnsEvent.id, instant, Failed)).map(_ => ())
         }
       case _                                                        => Future.successful(logger.error(s"Event not of correct type to send notification ${event.getClass.getSimpleName}"))
     }

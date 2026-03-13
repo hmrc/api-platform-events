@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatformevents.util.ApplicationLogger
 
 trait ScheduledJob extends ApplicationLogger {
 
-  val scheduledMessage: ScheduledMessage[_]
+  val scheduledMessage: ScheduledMessage[?]
   val config: Configuration
   val actorSystem: ActorSystem
   val jobName: String

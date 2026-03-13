@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatform.common.domain.services
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 trait JsonFormattersSpec extends AnyWordSpec with Matchers {
 

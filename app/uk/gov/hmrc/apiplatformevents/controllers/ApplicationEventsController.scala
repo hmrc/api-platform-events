@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.apiplatformevents.controllers
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -23,10 +24,10 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -46,7 +47,7 @@ class ApplicationEventsController @Inject() (
 ) extends BackendController(cc)
     with ApplicationLogger {
 
-  import EventsInterServiceCallJsonFormatters._
+  import EventsInterServiceCallJsonFormatters.given
 
   def handleEvent(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     withJsonBody[ApplicationEvent] { event =>
@@ -61,7 +62,8 @@ class ApplicationEventsController @Inject() (
   }
 
   // Note that this a test-only route, for use in QA only
-  def deleteEventsForApplication(applicationId: ApplicationId): Action[AnyContent] = Action.async { _ =>
+  def deleteEventsForApplication(rawApplicationId: UUID): Action[AnyContent] = Action.async { _ =>
+    val applicationId                         = ApplicationId(rawApplicationId)
     def success(numberOfRecordsDeleted: Long) = {
       logger.info(s"test-only: Successfully deleted $numberOfRecordsDeleted event records for application $applicationId")
       NoContent

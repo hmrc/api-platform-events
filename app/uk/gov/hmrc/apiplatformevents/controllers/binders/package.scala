@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.apiplatformevents.controllers
 
-import java.{util => ju}
+import java.util as ju
 import scala.util.Try
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{EventTag, EventTags}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 
 package object binders {
 
@@ -43,9 +43,7 @@ package object binders {
   }
 
   private def eventTagFromString(text: String): Either[String, EventTag] = {
-    EventTags
-      .fromString(text)
-      .toRight(s"Cannot accept $text as EventTag")
+    EventTag.apply(text).toRight(s"Cannot accept $text as EventTag")
   }
 
   implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[EventTag] = new QueryStringBindable[EventTag] {

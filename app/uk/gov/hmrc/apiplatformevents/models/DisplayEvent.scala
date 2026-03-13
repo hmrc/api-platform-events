@@ -20,7 +20,7 @@ import java.time.Instant
 
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, ApplicationId}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventId, EventTags}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventId, EventTag}
 
 case class DisplayEvent(
     id: EventId,
@@ -33,11 +33,12 @@ case class DisplayEvent(
 )
 
 object DisplayEvent {
+  import Actor.given
   implicit val format: OFormat[DisplayEvent] = Json.format[DisplayEvent]
 
   def apply(evt: ApplicationEvent): DisplayEvent = {
     val (eventType, metaData) = evt.asMetaData()
 
-    DisplayEvent(evt.id, evt.applicationId, evt.eventDateTime, evt.actor, EventTags.tag(evt).description, eventType, metaData)
+    DisplayEvent(evt.id, evt.applicationId, evt.eventDateTime, evt.actor, EventTag.tag(evt).description, eventType, metaData)
   }
 }
