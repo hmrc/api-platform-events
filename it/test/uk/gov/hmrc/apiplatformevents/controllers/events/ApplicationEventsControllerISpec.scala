@@ -333,33 +333,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   "ApplicationEventsController" when {
 
-    "POST /ppnsCallbackUriUpdated" should {
-      "respond with 201 when valid json is sent" in {
-        val boxId          = ju.UUID.randomUUID().toString
-        val boxName        = "some##box##name"
-        val oldCallbackUrl = "https://foo.bar/baz"
-        val newCallbackUrl = "https://foo.bar/bazbazbaz"
-
-        testSuccessScenario("/application-events/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1L
-        val event   = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
-
-        checkCommonEventValues(event)
-        event.boxId shouldBe boxId
-        event.oldCallbackUrl shouldBe oldCallbackUrl
-        event.newCallbackUrl shouldBe newCallbackUrl
-        event.boxName shouldBe boxName
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/ppnsCallbackUriUpdated")
-      }
-
-    }
-
     "POST /application-event" should {
       "respond with 201 when valid prod app name changed json is sent" in {
         val oldAppName           = ApplicationName("old name")
