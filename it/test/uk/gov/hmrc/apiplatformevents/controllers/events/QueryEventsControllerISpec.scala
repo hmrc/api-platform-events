@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
 import java.time.ZoneOffset
 import java.util.UUID

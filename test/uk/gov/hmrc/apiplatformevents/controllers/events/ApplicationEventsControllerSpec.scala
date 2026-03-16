@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}

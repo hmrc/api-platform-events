@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
