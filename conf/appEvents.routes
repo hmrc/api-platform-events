@@ -1,3 +1,7 @@
 # microservice specific routes
+->          /application-events               ppnsEvents.Routes
 
-POST        /ppnsCallbackUriUpdated           @uk.gov.hmrc.apiplatformevents.controllers.ppns.PpnsEventsController.ppnsCallbackUriUpdated()
+GET         /application-event/:id            uk.gov.hmrc.apiplatformevents.controllers.events.QueryEventsController.query(id: UUID, eventTag: Option[uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag], actorType:Option[String])
+GET         /application-event/:id/values     uk.gov.hmrc.apiplatformevents.controllers.events.QueryEventsController.queryValues(id: UUID)
+
+POST        /application-event                uk.gov.hmrc.apiplatformevents.controllers.events.ApplicationEventsController.handleEvent()

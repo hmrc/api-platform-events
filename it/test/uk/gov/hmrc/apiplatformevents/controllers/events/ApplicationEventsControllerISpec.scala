@@ -90,16 +90,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
          |"context": "$apiContext",
          |"version": "$apiVersion"}""".stripMargin
 
-  def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
-    raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$appIdText",
-         |"eventDateTime": "$inputInstantString",
-         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
-         |"boxId": "$boxId",
-         |"boxName": "$boxName",
-         |"oldCallbackUrl": "$oldCallbackUrl",
-         |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
-
   def validProductionAppNameChangedJsonBody(oldAppName: ApplicationName, newAppName: ApplicationName, requestingAdminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
