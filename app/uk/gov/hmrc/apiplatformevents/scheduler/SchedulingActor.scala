@@ -26,7 +26,7 @@ class SchedulingActor extends Actor with ActorLogging with ApplicationLogger {
 
   override def receive: Receive = { case message: ScheduledMessage[_] =>
     logger.info(s"Received ${message.getClass.getSimpleName}")
-    message.service.invoke(context.dispatcher)
+    message.service.invoke(using context.dispatcher)
   }
 }
 

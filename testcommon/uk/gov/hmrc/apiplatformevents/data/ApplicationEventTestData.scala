@@ -20,11 +20,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, SubmissionId, TermsAndConditionsLocations}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocation, SubmissionId, TermsAndConditionsLocation}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents.*
 
 trait ApplicationEventTestData {
   def nowMillis() = Instant.now().truncatedTo(ChronoUnit.MILLIS)
@@ -163,7 +163,7 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldRedirectUris = List(new LoginRedirectUri("oldru")),
+    oldRedirectUris = List(LoginRedirectUri.unsafeApply("https://bob.com/xxx")),
     newRedirectUris = List(LoginRedirectUri.unsafeApply("https://example.com/a"), LoginRedirectUri.unsafeApply("https://example.com/route2"))
   )
 
@@ -269,8 +269,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldLocation = PrivacyPolicyLocations.InDesktopSoftware,
-    newLocation = PrivacyPolicyLocations.Url("http://example.com")
+    oldLocation = PrivacyPolicyLocation.InDesktopSoftware,
+    newLocation = PrivacyPolicyLocation.Url("http://example.com")
   )
 
   def makeProductionAppPrivacyPolicyLocationChangedEvent(appId: Option[ApplicationId] = None): ProductionAppPrivacyPolicyLocationChanged = {
@@ -299,8 +299,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldLocation = TermsAndConditionsLocations.InDesktopSoftware,
-    newLocation = TermsAndConditionsLocations.Url("http://example.com")
+    oldLocation = TermsAndConditionsLocation.InDesktopSoftware,
+    newLocation = TermsAndConditionsLocation.Url("http://example.com")
   )
 
   def makeProductionAppTermsConditionsLocationChanged(appId: Option[ApplicationId] = None): ProductionAppTermsConditionsLocationChanged = {
@@ -396,8 +396,8 @@ trait ApplicationEventTestData {
     applicationId = ApplicationId.random,
     eventDateTime = nowMillis(),
     actor = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com")),
-    oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION",
-    newAppState = "PENDING_GATEKEEPER_APPROVAL",
+    oldAppState = State.PendingResponsibleIndividualVerification,
+    newAppState = State.PendingGatekeeperApproval,
     requestingAdminName = "Mr Admin",
     requestingAdminEmail = LaxEmailAddress("admin@example.com")
   )

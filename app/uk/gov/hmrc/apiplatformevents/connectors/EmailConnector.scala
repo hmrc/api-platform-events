@@ -22,9 +22,9 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status.NOT_FOUND
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException, StringContextOps}
 
@@ -51,6 +51,7 @@ class EmailConnector @Inject() (httpClient: HttpClientV2, appConfig: AppConfig)(
   }
 
   private def post(payload: SendEmailRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
     httpClient
       .post(url"${appConfig.emailUrl}/hmrc/email")
       .withBody(Json.toJson(payload))
@@ -62,17 +63,4 @@ class EmailConnector @Inject() (httpClient: HttpClientV2, appConfig: AppConfig)(
         }
       }
   }
-}
-
-case class SendEmailRequest(
-    to: Set[LaxEmailAddress],
-    templateId: String,
-    parameters: Map[String, String],
-    force: Boolean = false,
-    auditData: Map[String, String] = Map.empty,
-    eventUrl: Option[String] = None
-)
-
-object SendEmailRequest {
-  implicit val sendEmailRequestFmt: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }

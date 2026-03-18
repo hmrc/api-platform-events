@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.wiring
+package uk.gov.hmrc.apiplatformevents.connectors
 
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-import uk.gov.hmrc.apiplatformevents.scheduler.jobs.{SendEventNotificationsJob, SendEventNotificationsService}
+case class SendEmailRequest(
+    to: Set[LaxEmailAddress],
+    templateId: String,
+    parameters: Map[String, String],
+    force: Boolean = false,
+    auditData: Map[String, String] = Map.empty,
+    eventUrl: Option[String] = None
+)
 
-class SchedulerModule extends Module {
-
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[?]] = Seq(
-    bind[SendEventNotificationsService].toSelf.eagerly(),
-    bind[SendEventNotificationsJob].toSelf.eagerly()
-  )
+object SendEmailRequest {
+  given OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }

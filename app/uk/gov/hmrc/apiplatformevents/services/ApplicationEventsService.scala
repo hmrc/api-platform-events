@@ -21,8 +21,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import com.google.inject.Singleton
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
 
 import uk.gov.hmrc.apiplatformevents.models.QueryableValues
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
@@ -36,8 +36,8 @@ class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(imp
   def fetchEventsBy(applicationId: ApplicationId, eventTag: Option[EventTag], actorType: Option[ActorType]): Future[List[ApplicationEvent]] = {
     repo
       .fetchEvents(applicationId)
-      .map(_.filter(event => eventTag.fold(true)(tag => EventTags.tag(event) == tag)))
-      .map(_.filter(event => actorType.fold(true)(t => ActorType.actorType(event.actor) == t)))
+      .map(_.filter(event => eventTag.fold(true)(tag => EventTag.tag(event) == tag)))
+      .map(_.filter(event => actorType.fold(true)(_ == event.actor.actorType)))
   }
 
   def fetchEventQueryValues(applicationId: ApplicationId): Future[Option[QueryableValues]] = {
@@ -46,8 +46,8 @@ class ApplicationEventsService @Inject() (repo: ApplicationEventsRepository)(imp
       if (events.isEmpty) {
         None
       } else {
-        val distinctEventTags  = events.map(EventTags.tag).distinct.toList
-        val distinctActorTypes = events.map(_.actor).map(ActorType.actorType).distinct.toList
+        val distinctEventTags  = events.map(EventTag.tag).distinct.toList
+        val distinctActorTypes = events.map(_.actor).map(_.actorType).distinct.toList
         Some(QueryableValues(distinctEventTags, distinctActorTypes))
       }
     }

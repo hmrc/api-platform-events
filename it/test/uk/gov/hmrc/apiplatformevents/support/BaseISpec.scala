@@ -40,7 +40,7 @@ abstract class BaseISpec extends AsyncHmrcSpec with WireMockSupport {
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
 
-  implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier =
+  implicit def hc(implicit request: FakeRequest[?]): HeaderCarrier =
     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
 }

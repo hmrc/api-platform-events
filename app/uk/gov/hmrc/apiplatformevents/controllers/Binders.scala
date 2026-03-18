@@ -16,36 +16,13 @@
 
 package uk.gov.hmrc.apiplatformevents.controllers
 
-import java.{util => ju}
-import scala.util.Try
+import play.api.mvc.QueryStringBindable
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 
-import play.api.mvc.{PathBindable, QueryStringBindable}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{EventTag, EventTags}
-
-package object binders {
-
-  private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
-    Try(ju.UUID.fromString(text)).toOption
-      .toRight(s"Cannot accept $text as ApplicationId")
-      .map(uuid => ApplicationId(uuid))
-  }
-
-  implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
-
-    override def bind(key: String, value: String): Either[String, ApplicationId] = {
-      textBinder.bind(key, value).flatMap(applicationIdFromString)
-    }
-
-    override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.value.toString()
-    }
-  }
+object Binders {
 
   private def eventTagFromString(text: String): Either[String, EventTag] = {
-    EventTags
-      .fromString(text)
-      .toRight(s"Cannot accept $text as EventTag")
+    EventTag.apply(text).toRight(s"Cannot accept $text as EventTag")
   }
 
   implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[EventTag] = new QueryStringBindable[EventTag] {

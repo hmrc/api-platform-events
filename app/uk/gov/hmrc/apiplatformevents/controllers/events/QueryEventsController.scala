@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import play.api.libs.json.{Json, OFormat}
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -42,7 +43,6 @@ object QueryEventsController {
 class QueryEventsController @Inject() (
     val env: Environment,
     service: ApplicationEventsService,
-    playBodyParsers: PlayBodyParsers,
     cc: ControllerComponents
 )(implicit
     val configuration: Configuration,
@@ -52,7 +52,8 @@ class QueryEventsController @Inject() (
 
   import QueryEventsController._
 
-  def query(applicationId: ApplicationId, eventTag: Option[EventTag], actorType: Option[String]) = Action.async { _ =>
+  def query(rawApplicationId: UUID, eventTag: Option[EventTag], actorType: Option[String]) = Action.async { _ =>
+    val applicationId = ApplicationId(rawApplicationId)
     service
       .fetchEventsBy(applicationId, eventTag, actorType.flatMap(ActorType.apply))
       .map(seq =>
@@ -65,7 +66,8 @@ class QueryEventsController @Inject() (
       )
   }
 
-  def queryValues(applicationId: ApplicationId) = Action.async { _ =>
+  def queryValues(rawApplicationId: UUID) = Action.async { _ =>
+    val applicationId = ApplicationId(rawApplicationId)
     service
       .fetchEventQueryValues(applicationId)
       .map[Result](_.fold(NotFound(""))(qv => Ok(Json.toJson(qv))))

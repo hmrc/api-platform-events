@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.apiplatformevents.models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.apiplatform.common.domain.services.JsonFormattersSpec
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ActorType
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 
 import uk.gov.hmrc.apiplatformevents.models.QueryableValues
 
@@ -27,7 +27,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
 
   "QueryableValues" when {
     "with a single tag" should {
-      val qv   = QueryableValues(List(EventTags.SUBSCRIPTION), List.empty)
+      val qv   = QueryableValues(List(EventTag.Subscription), List.empty)
       val json = """{"eventTags":[{"description":"API subscription","type":"SUBSCRIPTION"}],"actorTypes":[]}"""
 
       "convert to json" in {
@@ -51,7 +51,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with a tags" should {
-      val qv   = QueryableValues(List(EventTags.SUBSCRIPTION, EventTags.APP_NAME), List.empty)
+      val qv   = QueryableValues(List(EventTag.Subscription, EventTag.AppName), List.empty)
       val json = """{"eventTags":[{"description":"API subscription","type":"SUBSCRIPTION"},{"description":"Application name","type":"APP_NAME"}],"actorTypes":[]}"""
 
       "convert to json" in {
@@ -76,7 +76,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with a single actorType" should {
-      val qv   = QueryableValues(List.empty, List(ActorType.GATEKEEPER))
+      val qv   = QueryableValues(List.empty, List(ActorType.Gatekeeper))
       val json = """{"eventTags":[],"actorTypes":[{"description":"Gatekeeper User","type":"GATEKEEPER"}]}"""
 
       "convert to json" in {
@@ -96,7 +96,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with both" should {
-      val qv   = QueryableValues(List(EventTags.SUBSCRIPTION), List(ActorType.GATEKEEPER))
+      val qv   = QueryableValues(List(EventTag.Subscription), List(ActorType.Gatekeeper))
       val json =
         """{"eventTags":[{"description":"API subscription","type":"SUBSCRIPTION"}],"actorTypes":[{"description":"Gatekeeper User","type":"GATEKEEPER"}]}""".stripMargin
 
@@ -119,7 +119,7 @@ class QueryableValuesSpec extends JsonFormattersSpec {
     }
 
     "with multiple actorTypes" should {
-      val qv   = QueryableValues(List.empty, List(ActorType.COLLABORATOR, ActorType.GATEKEEPER))
+      val qv   = QueryableValues(List.empty, List(ActorType.Collaborator, ActorType.Gatekeeper))
       val json = """{"eventTags":[],"actorTypes":[{"description":"Application Collaborator","type":"COLLABORATOR"},{"description":"Gatekeeper User","type":"GATEKEEPER"}]}"""
 
       "convert to json" in {

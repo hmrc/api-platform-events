@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-import org.mockito.Mockito.verifyNoInteractions
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{verifyNoInteractions, *}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
@@ -28,11 +29,11 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, StubControllerComponentsFactory, StubPlayBodyParsersFactory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents.*
 
 import uk.gov.hmrc.apiplatformevents.services.ApplicationEventsService
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
@@ -55,56 +56,9 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     reset(mockApplicationsEventService)
   }
 
-  private val ppnsCallBackUriUpdateddUri = "/application-events/ppnsCallbackUriUpdated"
-  private val handleEventUri             = "/application-event"
+  private val handleEventUri = "/application-event"
 
   private val validHeaders: Map[String, String] = Map("Content-Type" -> "application/json")
-
-  "PpnsCallBackUriUpdatedEvent" should {
-    val jsonBody =
-      raw"""{"id": "${EventId.random.value}",
-           |"applicationId": "$appIdText",
-           |"eventDateTime": "2014-01-01T13:13:34.441Z",
-           |"actor":{"id": "123454654", "actorType": "GATEKEEPER"},
-           |"boxId": "boxId",
-           |"boxName": "some##box##name",
-           |"oldCallbackUrl": "oldUri",
-           |"newCallbackUrl": "newUri"}""".stripMargin
-
-    "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[PpnsCallBackUriUpdatedEvent]))
-        .thenReturn(Future.successful(true))
-
-      val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody)
-      status(result) shouldBe CREATED
-    }
-
-    "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[PpnsCallBackUriUpdatedEvent]))
-        .thenReturn(Future.successful(false))
-
-      val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, jsonBody)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-    }
-
-    "return 400 when post request is invalid json" in {
-      val result = doPost(ppnsCallBackUriUpdateddUri, validHeaders, "Not JSON")
-      status(result) shouldBe BAD_REQUEST
-      verifyNoInteractions(mockApplicationsEventService)
-    }
-
-    "return 422 when content type header is missing" in {
-      val result = doPost(ppnsCallBackUriUpdateddUri, Map.empty, "{}")
-      status(result) shouldBe UNPROCESSABLE_ENTITY
-      verifyNoInteractions(mockApplicationsEventService)
-    }
-
-    "return 415 when content type isn't json" in {
-      val result = doPost(ppnsCallBackUriUpdateddUri, Map("Content-Type" -> "application/xml"), "{}")
-      status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
-      verifyNoInteractions(mockApplicationsEventService)
-    }
-  }
 
   "ProductionAppNameChangedEvent" should {
     val jsonBody =
@@ -118,7 +72,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
            |"requestingAdminEmail": "admin@example.com"}""".stripMargin
 
     "return 201 when post request is valid json" in {
-      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
+      when(mockApplicationsEventService.captureEvent(any[ProductionAppNameChangedEvent]))
         .thenReturn(Future.successful(true))
 
       val result = doPost(handleEventUri, validHeaders, jsonBody)
@@ -126,7 +80,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service fails" in {
-      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
+      when(mockApplicationsEventService.captureEvent(any[ProductionAppNameChangedEvent]))
         .thenReturn(Future.successful(false))
 
       val result = doPost(handleEventUri, validHeaders, jsonBody)
@@ -134,7 +88,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     }
 
     "return 500 when post request is valid json but service throws" in {
-      when(mockApplicationsEventService.captureEvent(*[ProductionAppNameChangedEvent]))
+      when(mockApplicationsEventService.captureEvent(any[ProductionAppNameChangedEvent]))
         .thenReturn(Future.failed(new RuntimeException("Bang")))
 
       val result = doPost(handleEventUri, validHeaders, jsonBody)
@@ -167,7 +121,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     "return 204 when post request" in {
 
       when(mockApplicationsEventService.deleteEventsForApplication(eqTo(appId)))
-        .thenReturn(Future.successful(1))
+        .thenReturn(Future.successful(1L))
 
       val result = doPost(deleteEventUri, validHeaders)
       status(result) shouldBe NO_CONTENT
@@ -182,7 +136,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
   }
 
   def doPost(uri: String, headers: Map[String, String]): Future[Result] = {
-    val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
+    val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq*)
     route(app, fakeRequest).get
   }
 
@@ -194,7 +148,7 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
       case Failure(_)     => None
     }
 
-    val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq: _*)
+    val fakeRequest = FakeRequest(POST, uri).withHeaders(headers.toSeq*)
     maybeBody.fold(route(app, fakeRequest.withBody(bodyValue)).get)(jsonBody => route(app, fakeRequest.withJsonBody(jsonBody)).get)
   }
 }

@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
+import java.util as ju
 import java.util.UUID
-import java.{util => ju}
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 
+import play.api.libs.ws.WSBodyReadables.readableAsString
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, State}
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.asScreamingSnakeCase
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvents.*
+import uk.gov.hmrc.mongo.logging.ObservableFutureImplicits.ObservableFuture
 
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
 class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach {
 
-  this: Suite with ServerProvider =>
+  this: Suite & ServerProvider =>
 
   def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
@@ -85,16 +89,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
          |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
          |"context": "$apiContext",
          |"version": "$apiVersion"}""".stripMargin
-
-  def validPpnsCallBackUpdatedJsonBody(boxId: String, boxName: String, oldCallbackUrl: String, newCallbackUrl: String): String =
-    raw"""{"id": "${EventId.random.value}",
-         |"applicationId": "$appIdText",
-         |"eventDateTime": "$inputInstantString",
-         |"actor": { "id": "$actorId", "actorType": "$actorTypeGK" },
-         |"boxId": "$boxId",
-         |"boxName": "$boxName",
-         |"oldCallbackUrl": "$oldCallbackUrl",
-         |"newCallbackUrl": "$newCallbackUrl"}""".stripMargin
 
   def validProductionAppNameChangedJsonBody(oldAppName: ApplicationName, newAppName: ApplicationName, requestingAdminEmail: LaxEmailAddress): String =
     raw"""{"id": "${EventId.random.value}",
@@ -189,14 +183,14 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
          |"requestingAdminName": "Mr Admin",
          |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
-  def validApplicationStateChangedJsonBody(adminName: String, adminEmail: LaxEmailAddress, oldAppState: String, newAppState: String): String =
+  def validApplicationStateChangedJsonBody(adminName: String, adminEmail: LaxEmailAddress, oldAppState: State, newAppState: State): String =
     raw"""{"id": "${EventId.random.value}",
          |"applicationId": "$appIdText",
          |"eventDateTime": "$inputInstantString",
          |"eventType": "APPLICATION_STATE_CHANGED",
          |"actor": { "email": "${adminEmail.text}", "actorType": "$actorTypeCollab" },
-         |"oldAppState": "$oldAppState",
-         |"newAppState": "$newAppState",
+         |"oldAppState": "${oldAppState.asScreamingSnakeCase}",
+         |"newAppState": "${newAppState.asScreamingSnakeCase}",
          |"requestingAdminName": "$adminName",
          |"requestingAdminEmail": "${adminEmail.text}"}""".stripMargin
 
@@ -315,6 +309,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
   }
 
   def doPost(path: String, body: String, headers: (String, String)): Future[WSResponse] = {
+    import play.api.libs.ws.WSBodyWritables.writeableOf_String
     wsClient
       .url(s"$url$path")
       .withHttpHeaders(headers)
@@ -328,33 +323,6 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
 
   "ApplicationEventsController" when {
 
-    "POST /ppnsCallbackUriUpdated" should {
-      "respond with 201 when valid json is sent" in {
-        val boxId          = ju.UUID.randomUUID().toString
-        val boxName        = "some##box##name"
-        val oldCallbackUrl = "https://foo.bar/baz"
-        val newCallbackUrl = "https://foo.bar/bazbazbaz"
-
-        testSuccessScenario("/application-events/ppnsCallbackUriUpdated", validPpnsCallBackUpdatedJsonBody(boxId, boxName, oldCallbackUrl, newCallbackUrl))
-
-        val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
-        val event   = results.head.asInstanceOf[PpnsCallBackUriUpdatedEvent]
-
-        checkCommonEventValues(event)
-        event.boxId shouldBe boxId
-        event.oldCallbackUrl shouldBe oldCallbackUrl
-        event.newCallbackUrl shouldBe newCallbackUrl
-        event.boxName shouldBe boxName
-        event.actor shouldBe Actors.GatekeeperUser(actorId)
-      }
-
-      "handle error scenarios correctly" in {
-        testErrorScenarios("/application-events/ppnsCallbackUriUpdated")
-      }
-
-    }
-
     "POST /application-event" should {
       "respond with 201 when valid prod app name changed json is sent" in {
         val oldAppName           = ApplicationName("old name")
@@ -364,7 +332,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validProductionAppNameChangedJsonBody(oldAppName, newAppName, requestingAdminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ProductionAppNameChangedEvent]
 
         checkCommonEventValues(event)
@@ -384,12 +352,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ProductionAppPrivacyPolicyLocationChanged]
 
         checkCommonEventValues(event)
-        event.oldLocation shouldBe PrivacyPolicyLocations.Url(oldUrl)
-        event.newLocation shouldBe PrivacyPolicyLocations.Url(newUrl)
+        event.oldLocation shouldBe PrivacyPolicyLocation.Url(oldUrl)
+        event.newLocation shouldBe PrivacyPolicyLocation.Url(newUrl)
         event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
@@ -401,7 +369,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validLegacyProductionPrivPolicyLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ProductionLegacyAppPrivacyPolicyLocationChanged]
 
         checkCommonEventValues(event)
@@ -418,12 +386,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ProductionAppTermsConditionsLocationChanged]
 
         checkCommonEventValues(event)
-        event.oldLocation shouldBe TermsAndConditionsLocations.Url(oldUrl)
-        event.newLocation shouldBe TermsAndConditionsLocations.Url(newUrl)
+        event.oldLocation shouldBe TermsAndConditionsLocation.Url(oldUrl)
+        event.newLocation shouldBe TermsAndConditionsLocation.Url(newUrl)
         event.actor shouldBe Actors.AppCollaborator(adminEmail)
       }
 
@@ -435,7 +403,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validLegacyProductionTermsConditionsLocationChangedJsonBody(oldUrl, newUrl, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ProductionLegacyAppTermsConditionsLocationChanged]
 
         checkCommonEventValues(event)
@@ -452,7 +420,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualChangedJsonBody(riName, riEmail, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualChanged]
 
         checkCommonEventValues(event)
@@ -470,7 +438,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualSetJsonBody(riName, riEmail, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualSet]
 
         checkCommonEventValues(event)
@@ -483,13 +451,12 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
       "respond with 201 when valid application state changed json is sent" in {
         val adminName   = "Mr Admin"
         val adminEmail  = LaxEmailAddress("admin@example.com")
-        val oldAppState = "PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION"
-        val newAppState = "PENDING_GATEKEEPER_APPROVAL"
-
+        val oldAppState = State.PendingResponsibleIndividualVerification
+        val newAppState = State.PendingGatekeeperApproval
         testSuccessScenario("/application-event", validApplicationStateChangedJsonBody(adminName, adminEmail, oldAppState, newAppState))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ApplicationStateChanged]
 
         checkCommonEventValues(event)
@@ -508,13 +475,13 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualVerificationStartedJsonBody(riName, riEmail, appName, adminName, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualVerificationStarted]
 
         checkCommonEventValues(event)
         event.responsibleIndividualName shouldBe riName
         event.responsibleIndividualEmail shouldBe riEmail
-        event.applicationName.value shouldBe appName.value
+        event.applicationName shouldBe appName
         event.actor shouldBe Actors.AppCollaborator(adminEmail)
         event.requestingAdminName shouldBe adminName
         event.requestingAdminEmail shouldBe adminEmail
@@ -527,7 +494,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualChangedToSelfJsonBody(adminName, adminEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualChangedToSelf]
 
         checkCommonEventValues(event)
@@ -545,7 +512,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualDeclinedJsonBody(riName, riEmail, adminName, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualDeclined]
 
         checkCommonEventValues(event)
@@ -566,7 +533,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualDeclinedUpdateJsonBody(riName, riEmail, adminName, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualDeclinedUpdate]
 
         checkCommonEventValues(event)
@@ -587,7 +554,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validResponsibleIndividualDidNotVerifyJsonBody(riName, riEmail, adminName, adminEmail, code))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ResponsibleIndividualDidNotVerify]
 
         checkCommonEventValues(event)
@@ -609,7 +576,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validApplicationApprovalRequestDeclinedJsonBody(riName, riEmail, adminName, adminEmail, reasons))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ApplicationApprovalRequestDeclined]
 
         checkCommonEventValues(event)
@@ -628,7 +595,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validApplicationDeletedJsonBody(adminEmail, wso2AppName, reasons))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ApplicationDeleted]
 
         checkCommonEventValues(event)
@@ -646,7 +613,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validApplicationDeletedByGatekeeperJsonBody(gatekeeperUser, wso2AppName, reasons, requestedByEmail))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ApplicationDeletedByGatekeeper]
 
         checkCommonEventValues(event)
@@ -664,7 +631,7 @@ class ApplicationEventsControllerISpec extends ServerBaseISpec with AuditService
         testSuccessScenario("/application-event", validProductionCredentialsApplicationDeletedJsonBody(adminEmail, wso2AppName, reasons))
 
         val results = await(repo.collection.find().toFuture())
-        results.size shouldBe 1
+        results.size shouldBe 1L
         val event   = results.head.asInstanceOf[ProductionCredentialsApplicationDeleted]
 
         checkCommonEventValues(event)

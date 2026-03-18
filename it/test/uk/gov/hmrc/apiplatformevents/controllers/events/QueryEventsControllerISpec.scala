@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatformevents.controllers
+package uk.gov.hmrc.apiplatformevents.controllers.events
 
 import java.time.ZoneOffset
 import java.util.UUID
@@ -25,9 +25,11 @@ import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.ServerProvider
 
 import play.api.libs.json.Json
+import play.api.libs.ws.WSBodyReadables.readableAsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventId}
+import uk.gov.hmrc.mongo.logging.ObservableFutureImplicits.ObservableFuture
 
 import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.models.DisplayEvent
@@ -36,7 +38,7 @@ import uk.gov.hmrc.apiplatformevents.support.{AuditService, ServerBaseISpec}
 
 class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with BeforeAndAfterEach with ApplicationEventTestData {
 
-  this: Suite with ServerProvider =>
+  this: Suite & ServerProvider =>
 
   def repo: ApplicationEventsRepository = app.injector.instanceOf[ApplicationEventsRepository]
 
@@ -68,7 +70,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
 
   private def primeMongo(events: ApplicationEvent*): List[ApplicationEvent] = {
     await(Future.sequence(events.toList.map(repo.createEntity(_))))
-    events.toList.sorted(ApplicationEvent.orderEvents)
+    events.toList.sorted
   }
 
   "QueryEventsController" when {
@@ -92,7 +94,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.drop(1).sorted(ApplicationEvent.orderEvents).map(DisplayEvent(_)))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(evts.drop(1).sorted.map(DisplayEvent(_)))))
         result.body shouldBe expectedText
       }
 
@@ -115,7 +117,7 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}?eventTag=SUBSCRIPTION"))
         result.status shouldBe 200
-        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted(ApplicationEvent.orderEvents).map(DisplayEvent(_)))))
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted.map(DisplayEvent(_)))))
         result.body shouldBe expectedText
 
       }

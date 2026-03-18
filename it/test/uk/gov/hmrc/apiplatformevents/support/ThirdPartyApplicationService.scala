@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.apiplatformevents.support
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, *}
 
 import uk.gov.hmrc.apiplatformevents.models.ApplicationResponse
 
