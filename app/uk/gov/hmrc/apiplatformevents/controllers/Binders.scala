@@ -20,15 +20,15 @@ import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 
 object Binders {
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 
   private def eventTagFromString(text: String): Either[String, EventTag] = {
-    EventTag.apply(text).toRight(s"Cannot accept $text as EventTag")
+    EventTag.apply(fromScreamingSnakeCase(text)).toRight(s"Cannot accept $text as EventTag")
   }
 
   implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[EventTag] = new QueryStringBindable[EventTag] {
-
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, EventTag]] = {
-      textBinder.bind(key, params).map(_.flatMap(eventTagFromString))
+      textBinder.bind(key, params).map(_.flatMap(txt => eventTagFromString(txt)))
     }
 
     override def unbind(key: String, tag: EventTag): String = {

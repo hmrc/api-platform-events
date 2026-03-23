@@ -35,7 +35,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     routesImport ++= Seq(
       "java.util.UUID",
-      "uk.gov.hmrc.apiplatformevents.controllers.Binders._"
+      "uk.gov.hmrc.apiplatformevents.controllers.Binders.*"
     )
   )
   .settings(
