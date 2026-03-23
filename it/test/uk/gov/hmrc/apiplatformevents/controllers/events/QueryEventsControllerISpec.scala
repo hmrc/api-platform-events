@@ -27,7 +27,7 @@ import org.scalatestplus.play.ServerProvider
 import play.api.libs.json.Json
 import play.api.libs.ws.WSBodyReadables.readableAsString
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventId}
 import uk.gov.hmrc.mongo.logging.ObservableFutureImplicits.ObservableFuture
 
@@ -116,6 +116,29 @@ class QueryEventsControllerISpec extends ServerBaseISpec with AuditService with 
         val expectedEvts = List(event2a, event2b)
 
         val result       = await(doGet(s"/application-event/${appId.value.toString}?eventTag=SUBSCRIPTION"))
+        result.status shouldBe 200
+        val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted.map(DisplayEvent(_)))))
+        result.body shouldBe expectedText
+
+      }
+      "return all relevant events with actorType" in {
+        val event1a = makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(3).toInstant)
+        val event1b = makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant)
+        val event1c = makeTeamMemberAddedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant)
+        val event2a = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(2).toInstant).copy(actor = Actors.Unknown)
+        val event2b = makeApiSubscribedEvent(Some(appId)).copy(eventDateTime = nowMillis().atOffset(ZoneOffset.UTC).minusDays(1).toInstant).copy(actor = Actors.Unknown)
+
+        primeMongo(
+          event1a,
+          event1b,
+          event1c,
+          event2a,
+          event2b
+        )
+
+        val expectedEvts = List(event1a, event1b, event1c)
+
+        val result       = await(doGet(s"/application-event/${appId.value.toString}?actorType=GATEKEEPER"))
         result.status shouldBe 200
         val expectedText = Json.asciiStringify(Json.toJson(QueryEventsController.QueryResponse(expectedEvts.sorted.map(DisplayEvent(_)))))
         result.body shouldBe expectedText
