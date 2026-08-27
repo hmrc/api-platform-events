@@ -24,11 +24,11 @@ import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @ImplementedBy(classOf[AppConfigImpl])
-trait AppConfig {
-  val config: Configuration
-  val appName: String
-  val thirdPartyApplicationUrl: String
-  val emailUrl: String
+abstract class AppConfig {
+  def config: Configuration
+  def appName: String
+  def thirdPartyApplicationUrl: String
+  def emailUrl: String
 }
 
 class AppConfigImpl @Inject() (val config: Configuration, servicesConfig: ServicesConfig) extends AppConfig {

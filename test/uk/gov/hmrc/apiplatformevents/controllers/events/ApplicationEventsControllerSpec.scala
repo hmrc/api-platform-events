@@ -19,8 +19,6 @@ package uk.gov.hmrc.apiplatformevents.controllers.events
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{verifyNoInteractions, *}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
@@ -98,19 +96,19 @@ class ApplicationEventsControllerSpec extends AsyncHmrcSpec with StubControllerC
     "return 400 when post request is invalid json" in {
       val result = doPost(handleEventUri, validHeaders, "Not JSON")
       status(result) shouldBe BAD_REQUEST
-      verifyNoInteractions(mockApplicationsEventService)
+      verifyZeroInteractions(mockApplicationsEventService)
     }
 
     "return 422 when content type header is missing" in {
       val result = doPost(handleEventUri, Map.empty, "{}")
       status(result) shouldBe UNPROCESSABLE_ENTITY
-      verifyNoInteractions(mockApplicationsEventService)
+      verifyZeroInteractions(mockApplicationsEventService)
     }
 
     "return 415 when content type isn't json" in {
       val result = doPost(handleEventUri, Map("Content-Type" -> "application/xml"), "{}")
       status(result) shouldBe UNSUPPORTED_MEDIA_TYPE
-      verifyNoInteractions(mockApplicationsEventService)
+      verifyZeroInteractions(mockApplicationsEventService)
     }
   }
 

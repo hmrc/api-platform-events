@@ -17,9 +17,10 @@
 package uk.gov.hmrc.apiplatformevents.scheduler
 
 import org.apache.pekko.actor.Props
-import org.scalatestplus.play.PlaySpec
 
-class SchedulingActorSpec extends PlaySpec {
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
+
+class SchedulingActorSpec extends AsyncHmrcSpec {
   class Setup {
     val schedulingActorCompanionObject = SchedulingActor
   }
@@ -28,7 +29,7 @@ class SchedulingActorSpec extends PlaySpec {
     "return the correct type of props" in new Setup {
       val expectedType = Props[SchedulingActor]()
       val result       = schedulingActorCompanionObject.props
-      result mustBe expectedType
+      result shouldBe expectedType
     }
   }
 }

@@ -34,12 +34,12 @@ object QueryableValues {
 
     override def reads(json: JsValue): JsResult[ActorType] = {
       (json match {
-        case JsString(text) => ActorType.apply(fromScreamingSnakeCase(text))
+        case JsString(text) => ActorType.apply(fromSnakeCase(text))
         case JsObject(obj)  =>
           obj
             .get("type")
             .flatMap(_ match {
-              case JsString(t) => ActorType.apply(fromScreamingSnakeCase(t))
+              case JsString(t) => ActorType.apply(fromSnakeCase(t))
               case _           => None
             })
         case _              => None

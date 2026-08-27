@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.apiplatformevents.wiring
 
-import org.mockito.Mockito.*
-
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 

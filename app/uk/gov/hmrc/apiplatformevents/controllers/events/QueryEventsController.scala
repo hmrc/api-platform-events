@@ -24,6 +24,7 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.*
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.fromSnakeCase
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -51,12 +52,11 @@ class QueryEventsController @Inject() (
     with ApplicationLogger {
 
   import QueryEventsController._
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.fromScreamingSnakeCase
 
   def query(rawApplicationId: UUID, eventTag: Option[EventTag], actorType: Option[String]) = Action.async { _ =>
     val applicationId = ApplicationId(rawApplicationId)
     service
-      .fetchEventsBy(applicationId, eventTag, actorType.flatMap(text => ActorType.apply(fromScreamingSnakeCase(text))))
+      .fetchEventsBy(applicationId, eventTag, actorType.flatMap(text => ActorType.apply(fromSnakeCase(text))))
       .map(seq =>
         if (seq.isEmpty) {
           NotFound("No application changes found")

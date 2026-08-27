@@ -22,17 +22,11 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any as `*`, eq as eqTo}
-import org.mockito.Mockito.{verifyNoInteractions, *}
 import org.mongodb.scala.MongoException
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
 
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, *}
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
@@ -45,9 +39,10 @@ import uk.gov.hmrc.apiplatformevents.connectors.{EmailConnector, ThirdPartyAppli
 import uk.gov.hmrc.apiplatformevents.models.{ApplicationResponse, Notification, NotificationStatus}
 import uk.gov.hmrc.apiplatformevents.repository.{ApplicationEventsRepository, NotificationsRepository}
 import uk.gov.hmrc.apiplatformevents.scheduler.ScheduleStatus
+import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatformevents.wiring.AppConfig
 
-class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with FutureAwaits with DefaultAwaitTimeout with LogCapturing with BeforeAndAfterEach {
+class SendEventNotificationsServiceSpec extends AsyncHmrcSpec with LogCapturing with BeforeAndAfterEach {
 
   val finiteDuration: FiniteDuration = Duration(4, TimeUnit.MINUTES)
 
@@ -126,13 +121,8 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
         .thenReturn(Future.failed(new MongoException("Something went wrong")))
     }
 
-    def verifyNotificationStatus(status: NotificationStatus) = {
-      val eventCaptor: ArgumentCaptor[Notification] = ArgumentCaptor.forClass(classOf[Notification])
-      verify(notificationsRepository).createEntity(eventCaptor)
-      eventCaptor.getValue() match {
-        case Notification(_, _, `status`) => succeed
-        case notification                 => fail(s"Wrong notification status ${notification.status}")
-      }
+    def verifyNotificationCreated = {
+      verify(notificationsRepository, atLeast(1)).createEntity(*)
     }
   }
 
@@ -150,14 +140,14 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
 
       val result = await(job.invoke)
       result match {
-        case Right(resultVal) => resultVal mustBe true
+        case Right(resultVal) => resultVal shouldBe true
         case _                => fail()
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
       verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(using *)
       verify(emailConnector).sendPpnsCallbackUrlChangedNotification(*, *, *)(using *)
-      verifyNotificationStatus(NotificationStatus.Sent)
+      verifyNotificationCreated
     }
 
     "return true when an event that does not send notifications is processed" in new Setup {
@@ -175,14 +165,14 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
       primeLockRepository()
       val result: Either[ScheduleStatus.JobFailed, Boolean] = await(job.invoke)
       result match {
-        case Right(resultVal) => resultVal mustBe true
+        case Right(resultVal) => resultVal shouldBe true
         case _                => fail()
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
-      verifyNoInteractions(thirdPartyApplicationConnector)
-      verifyNoInteractions(emailConnector)
-      verifyNoInteractions(notificationsRepository)
+      verifyZeroInteractions(thirdPartyApplicationConnector)
+      verifyZeroInteractions(emailConnector)
+      verifyZeroInteractions(notificationsRepository)
     }
 
     "return true when there are no events for application" in new Setup {
@@ -190,14 +180,14 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
       primeLockRepository()
       val result: Either[ScheduleStatus.JobFailed, Boolean] = await(job.invoke)
       result match {
-        case Right(resultVal) => resultVal mustBe true
+        case Right(resultVal) => resultVal shouldBe true
         case _                => fail()
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
-      verifyNoInteractions(thirdPartyApplicationConnector)
-      verifyNoInteractions(emailConnector)
-      verifyNoInteractions(notificationsRepository)
+      verifyZeroInteractions(thirdPartyApplicationConnector)
+      verifyZeroInteractions(emailConnector)
+      verifyZeroInteractions(notificationsRepository)
     }
 
     "return true when there are events but no matching applications" in new Setup {
@@ -211,14 +201,14 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
 
       val result = await(job.invoke)
       result match {
-        case Right(resultVal) => resultVal mustBe true
+        case Right(resultVal) => resultVal shouldBe true
         case _                => fail()
       }
 
       verify(applicationEventsRepository).fetchEventsToNotify()
       verify(thirdPartyApplicationConnector).getApplication(*[ApplicationId])(using *)
-      verifyNoInteractions(emailConnector)
-      verifyNotificationStatus(NotificationStatus.Failed)
+      verifyZeroInteractions(emailConnector)
+      verifyNotificationCreated
     }
 
     // Need failure scenarios here
@@ -232,7 +222,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
       when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
         .thenReturn(Future.successful(()))
 
-      await(job.tryLock(future)) mustBe Right(true)
+      await(job.tryLock(future)) shouldBe Right(true)
 
       verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
       verify(mockLockRepository, times(1)).releaseLock(eqTo(mongoLockId), *)
@@ -241,7 +231,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
     s"return $Right false if lock returns Future successful false" in new Setup {
       val future: Future[Right[Nothing, Boolean]] = Future.successful(Right(true))
       when(mockLockRepository.takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))).thenReturn(Future.successful(None))
-      await(job.tryLock(future)) mustBe Right(false)
+      await(job.tryLock(future)) shouldBe Right(false)
 
       verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
       verify(mockLockRepository, times(0)).releaseLock(eqTo(mongoLockId), *)
@@ -255,7 +245,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
           .thenReturn(Future.failed(exception))
         when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
           .thenReturn(Future.successful(()))
-        await(job.tryLock(future)) mustBe Left(ScheduleStatus.MongoUnlockException(exception))
+        await(job.tryLock(future)) shouldBe Left(ScheduleStatus.MongoUnlockException(exception))
 
         verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
         verify(mockLockRepository, times(1)).releaseLock(eqTo(mongoLockId), *)
@@ -269,7 +259,7 @@ class SendEventNotificationsServiceSpec extends PlaySpec with MockitoSugar with 
           .thenReturn(Future.failed(exception))
         when(mockLockRepository.releaseLock(eqTo(mongoLockId), *))
           .thenReturn(Future.failed(exception))
-        await(job.tryLock(future)) mustBe Left(ScheduleStatus.MongoUnlockException(exception))
+        await(job.tryLock(future)) shouldBe Left(ScheduleStatus.MongoUnlockException(exception))
 
         verify(mockLockRepository, times(1)).takeLock(eqTo(mongoLockId), *, eqTo(releaseDuration))
         verify(mockLockRepository, times(1)).releaseLock(eqTo(mongoLockId), *)

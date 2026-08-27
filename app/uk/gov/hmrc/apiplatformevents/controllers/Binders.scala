@@ -23,7 +23,7 @@ object Binders {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 
   private def eventTagFromString(text: String): Either[String, EventTag] = {
-    EventTag.apply(fromScreamingSnakeCase(text)).toRight(s"Cannot accept $text as EventTag")
+    EventTag.apply(fromSnakeCase(text)).toRight(s"Cannot accept $text as EventTag")
   }
 
   implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[EventTag] = new QueryStringBindable[EventTag] {

@@ -20,10 +20,7 @@ import java.time.{Instant, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.*
 import org.mongodb.scala.MongoException
-import org.scalatest.OptionValues
 import org.scalatest.concurrent.Eventually
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
@@ -35,7 +32,7 @@ import uk.gov.hmrc.apiplatformevents.data.ApplicationEventTestData
 import uk.gov.hmrc.apiplatformevents.repository.ApplicationEventsRepository
 import uk.gov.hmrc.apiplatformevents.utils.AsyncHmrcSpec
 
-class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with ApplicationEventTestData with OptionValues {
+class ApplicationEventsServiceSpec extends AsyncHmrcSpec with Eventually with ApplicationEventTestData {
 
   val mockRepository: ApplicationEventsRepository = mock[ApplicationEventsRepository]
 
