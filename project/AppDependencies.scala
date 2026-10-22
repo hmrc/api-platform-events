@@ -4,7 +4,7 @@ object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val bootstrapVersion    = "10.8.0"
-  lazy val hmrcMongoVersion    = "2.13.0"
+  lazy val hmrcMongoVersion    = "2.14.0"
 
   lazy val commonDomainVersion = "1.4.0"
   lazy val appEventsVersion    = "1.3.0"
